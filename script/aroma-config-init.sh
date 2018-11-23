@@ -9,23 +9,23 @@ gen_aroma_config() {
     cp ./ac-1.in ./aroma-config
     chmod 0755 ./aroma-config
     if [ -z $(ls_mount_path) ]; then
-        echo "    \"If you see this option\", \"You have not installed any Magisk modules...\", \"\"," >> ./aroma-config
+        echo "    \"如果你看到了此选项\", \"说明你尚未安装任何 Magisk 模块...\", \"\"," >> ./aroma-config
     else
         for module in $(ls_mount_path); do
             module_name=$(file_getprop /magisk/$module/module.prop name)
             module_author=$(file_getprop /magisk/$module/module.prop author)
             module_version=$(file_getprop /magisk/$module/module.prop version)
-             echo "    \"$module_name\", \"Author: $module_author \nVersion: $module_version\", \"@default\"," >> ./aroma-config
+            echo "    \"$module_name\", \"作者: $module_author \n版本: $module_version\", \"@default\"," >> ./aroma-config
         done
     fi
     cat >> ./aroma-config <<EOF
-    "Save recovery log",       "Copies /tmp/recovery.log to internal SD", "@action"
+    "保存 recovery 日志",       "复制 /tmp/recovery.log 到内部存储", "@action"
 );
 
 # Reboot
 if prop("operations.prop", "selected") == "1" then
-    if confirm("Reboot",
-               "Are you sure want to reboot your device?",
+    if confirm("重启",
+               "您确定要重启设备吗?",
                "@warning") == "yes"
     then
         exec("/sbin/sh", "-ex", "/tmp/mmr/script/umount-magisk.sh");
@@ -37,8 +37,8 @@ endif;
 
 # Exit
 if prop("operations.prop", "selected") == "2" then
-    if confirm("Exit",
-               "Are you sure to quit Magisk Manager Recovery Tool?",
+    if confirm("退出",
+               "您确定要退出 Magisk Manager 工具吗?",
                "@warning") == "yes"
     then
         exec("/sbin/sh", "-ex", "/tmp/mmr/script/umount-magisk.sh");
@@ -76,42 +76,42 @@ then
     setvar("stat_am_code", exec("/sbin/sh", "-ex", "/tmp/mmr/script/control-module.sh", "status_am", getvar("romid")));
 
     if cmp(getvar("stat_code"),"==", "0") then
-        setvar("module_status", "Disabled");
+        setvar("module_status", "已禁用");
     endif;
     if cmp(getvar("stat_code"),"==", "1") then
-        setvar("module_status", "Enabled");
+        setvar("module_status", "已启用");
     endif;
     if cmp(getvar("stat_code"),"==", "2") then
-        setvar("module_status", "Removed");
+        setvar("module_status", "已移除");
     endif;
     if cmp(getvar("stat_code"),"==", "3") then
-        setvar("module_status", "Ready update");
+        setvar("module_status", "待更新");
     endif;
     if cmp(getvar("stat_code"),"==", "4") then
-        setvar("module_status", "Ready remove");
+        setvar("module_status", "待移除");
     endif;
 
     if cmp(getvar("stat_am_code"),"==", "0") then
-        setvar("module_am_status", "\nauto_mount status: Disabled");
+        setvar("module_am_status", "\nauto_mount 状态: 已禁用");
     endif;
     if cmp(getvar("stat_am_code"),"==", "1") then
-        setvar("module_am_status", "\nauto_mount status: Enabled");
+        setvar("module_am_status", "\nauto_mount 状态: 已启用");
     endif;
     if cmp(getvar("stat_am_code"),"==", "2") then
         setvar("module_am_status", "");
     endif;
 
     menubox(
-        "Module: " + getvar("romname"),
-        "Module status: " + getvar("module_status") + getvar("module_am_status"),
+        "模块: " + getvar("romname"),
+        "模块状态: " + getvar("module_status") + getvar("module_am_status"),
         "@welcome",
         "romoperations.prop",
 
-        "Enable module",      "", "@action2",
-        "Disable module",     "", "@crash",
-        "Enable auto_mount",  "", "@action2",
-        "Disable auto_mount", "", "@crash",
-        "Remove",             "", "@delete"
+        "启用该模块",      "", "@action2",
+        "禁用该模块",      "", "@crash",
+        "启用 auto_mount", "", "@action2",
+        "禁用 auto_mount", "", "@crash",
+        "移除",            "", "@delete"
     );
 
     if prop("romoperations.prop", "selected") == "1" then
@@ -135,8 +135,8 @@ then
               "/tmp/mmr/script/control-module.sh off_auto_mount " + getvar("romid") + "\n");
     endif;
     if prop("romoperations.prop", "selected") == "5" then
-        if confirm("Warning!",
-                   "Are you sure want to remove this module?",
+        if confirm("警告",
+                   "您确定要移除该模块吗?",
                    "@warning") == "yes"
         then
             write("/tmp/mmr/cmd.sh",
@@ -162,32 +162,32 @@ EOF
     cat >> ./aroma-config <<EOF
 endif;
 
-pleasewait("Executing Shell...");
+pleasewait("正在执行脚本 ...");
 
 setvar("exitcode", exec("/sbin/sh", "-ex", "/tmp/mmr/cmd.sh"));
 
 # ini_set("text_back", "");
 # ini_set("icon_back", "@none");
-ini_set("text_next", "Done");
+ini_set("text_next", "完成");
 ini_set("icon_next", "@next");
 
 if cmp(getvar("exitcode"),"==","0") then
     textbox(
-        "Done",
-        "Operation complete",
+        "完成",
+        "操作完成",
         "@done",
-        "\n" + "<b>EXIT CODE: " + getvar("exitcode") + "\n\n" +
-        "No errors occurred."+ "</b>" + "\n\n" +
+        "\n" + "<b>退出码: " + getvar("exitcode") + "\n\n" +
+        "执行操作过程中没有发生错误."+ "</b>" + "\n\n" +
         getvar("exec_buffer")
     );
 else
     textbox(
-        "Failed",
-        "Operation failed",
+        "失败",
+        "操作失败",
         "@crash",
-        "\n" + "<b>EXIT CODE: " + getvar("exitcode") + "\n\n" +
-        "An error occurred during the execution of the operation." + "\n" +
-        "Please check the error message." + "</b>" + "\n\n" +
+        "\n" + "<b>退出码: " + getvar("exitcode") + "\n\n" +
+        "执行操作过程中有错误发生." + "\n" +
+        "请检查错误信息." + "</b>" + "\n\n" +
         getvar("exec_buffer")
     );
 endif;

@@ -12,47 +12,45 @@ if [ -d /magisk/$module ]; then
 
     if [ -f /magisk/$module/update ]; then
         echo ""
-        echo "The module will be updated after reboot."
-		echo "So operation is not allowed."
-        echo "Please reboot once and try again."
+        echo "该模块将在重启后完成更新, 故不允许操作."
+        echo "请重启一次后再试."
         exit 3
     fi
 
     if [ -f /magisk/$module/remove ]; then
         echo ""
-        echo "The module will be removed after reboot."
-		echo "So operation is not allowed."
-        echo "Please reboot once and try again."
+        echo "该模块将在重启后移除, 故不允许操作."
+        echo "请重启一次后再试."
         exit 4
     fi
 
     if [ $operate = "on_module" ]; then
         rm -rf /magisk/$module/disable
         echo ""
-        echo "Successfully enable module $module !"
+        echo "已成功启用模块 $module !"
     fi
 
     if [ $operate = "off_module" ]; then
         touch /magisk/$module/disable
         echo ""
-        echo "Successfully disable module $module !"
+        echo "已成功禁用模块 $module !"
     fi
     if [ $operate = "on_auto_mount" ]; then
         touch /magisk/$module/auto_mount
         echo ""
-        echo "Successfully enable auto_mount for $module!"
+        echo "已成功为模块 $module 启用 auto_mount!"
     fi
 
     if [ $operate = "off_auto_mount" ]; then
         rm -rf /magisk/$module/auto_mount
         echo ""
-        echo "Successfully disable auto_mount for $module!"
+        echo "已成功为模块 $module 禁用 auto_mount!"
     fi
 
     if [ $operate = "remove" ]; then
         rm -rf /magisk/$module
         echo ""
-        echo "Successfully removed module $module !"
+        echo "已成功移除模块 $module !"
     fi
 
     if [ $operate = "status" ]; then
@@ -64,7 +62,7 @@ if [ -d /magisk/$module ]; then
 fi
 
 echo ""
-echo "Module $module does not exist!"
-echo "Maybe this module has been removed."
+echo "找不到 $module 这个模块!"
+echo "可能该模块已经被移除了."
 
 exit 2

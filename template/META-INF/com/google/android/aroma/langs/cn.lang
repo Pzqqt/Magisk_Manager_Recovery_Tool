@@ -16,36 +16,34 @@
 #
 ### LANGUAGE STRING RESOURCE FILE
 #
-#   Language  : English
-#   By        : amarullz + Pzqqt
+#   Language  : 简体中文
+#   By        : amarullz + google translate + 魂客（kinghunki） + Pzqqt
 #
 
 #
 #--- COMMON SYSTEM STRING RESOURCE
 #
-text_ok=OK
-text_next=Next
-text_back=Back
-text_yes=Yes
-text_no=No
-text_about=About
-text_calibrating=Calibrating Tools
-text_quit=Quit Magisk Manager Recovery Tool
-text_quit_msg=Are you sure to quit Magisk Manager Recovery Tool?
+text_ok=确定
+text_next=下一步
+text_back=返回
+text_yes=是
+text_no=否
+text_about=关于
+text_calibrating=屏幕校准
+text_quit=退出 Magisk Manager 工具
+text_quit_msg=您确定要退出 Magisk Manager 工具吗？
 
 #
 #-- CUSTOM STRING RESOURCE
 #
-common.for=for
+operations.title=进行操作
+operations.desc=选择一个操作
 
-operations.title=Select an action
-operations.desc=Choose an action
+welcome.title=欢迎
+welcome.text1=欢迎使用
+welcome.text2=该工具可以帮助您对已安装的 Magisk 模块进行操作.
+welcome.version=版本
+welcome.updated=更新日期
 
-welcome.title=Welcome
-welcome.text1=Welcome to the
-welcome.text2=This tool will allows you to perform certain operations, such as enabling, disabling, and removing, on the installed Magisk modules.
-welcome.version=Version
-welcome.updated=Updated
-
-changelog.title=Changelog
-changelog.desc=Multi-Boot Utilities Changelog
+changelog.title=更新日志
+changelog.desc=关于更新说明
