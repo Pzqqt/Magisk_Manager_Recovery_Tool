@@ -1,0 +1,80 @@
+#!/sbin/sh
+
+set -e
+
+interface="${1}"
+updater_fd="${2}"
+zipfile="${3}"
+
+ui_print() {
+    echo -en "ui_print ${1}\n" > /proc/self/fd/"${updater_fd}"
+    echo -en "ui_print\n" > /proc/self/fd/"${updater_fd}"
+}
+
+abort() {
+    ui_print " ";
+    ui_print "$*";
+    ui_print " ";
+    exit 1;
+}
+
+grep_prop() {
+  REGEX="s/^$1=//p"
+  shift
+  FILES=$@
+  if [ -z "$FILES" ]; then
+    FILES='/system/build.prop'
+  fi
+  cat $FILES 2>/dev/null | sed -n $REGEX | head -n 1
+}
+
+# mount all
+mount /system || :
+mount /cache || :
+mount /data || :
+
+# check arch
+ARCH=arm
+ABI=$(grep_prop ro.product.cpu.abi | cut -c-3)
+ABI2=$(grep_prop ro.product.cpu.abi2 | cut -c-3)
+[ "$ABI" = "x86" ] && ARCH=x86
+[ "$ABI2" = "x86" ] && ARCH=x86
+[ "$ARCH" = "x86" ] && abort "Error: X86 arch is not supported"
+API=$(grep_prop ro.build.version.sdk)
+ABILONG=$(grep_prop ro.product.cpu.abi)
+[ "$ABILONG" = "x86_64" ] && abort "Error: X64 arch is not supported"
+[ "$API" -ge "21" ] && [ "$ABILONG" = "arm64-v8a" ] && ARCH=arm64
+
+# find magisk.img
+mountPath=/magisk
+[ -d /data/adb/magisk ] && IMG=/data/adb/magisk.img || IMG=/data/magisk.img
+[ ! -d /data/adb/magisk ] && [ ! -d /data/magisk ] && abort "Error: Please install or upgrade Magisk."
+
+rm -rf /tmp/mmr/
+mkdir -p /tmp/mmr/
+cd /tmp/mmr/
+
+unzip "${zipfile}"
+
+ui_print "Generating AROMA config"
+
+chmod 0755 ./script/*
+./script/mount-magisk.sh $IMG $mountPath || abort "Error: Failed to mount magisk.img!"
+./script/aroma-config-init.sh
+
+cp -f ./script/aroma-config ./template/META-INF/com/google/android/
+chmod 0755 ./template/META-INF/com/google/android/aroma-config
+cd template
+if [ $ARCH = "arm" ]; then
+    LD_LIBRARY_PATH=/system/lib ./../script/zip -q -r ./../aroma.zip ./META-INF
+fi
+if [ $ARCH = "arm64" ]; then
+    LD_LIBRARY_PATH=/system/lib64 ./../script/zip_64 -q -r ./../aroma.zip ./META-INF
+fi
+[ -f /tmp/mmr/aroma.zip ] || abort "Error: Cannot generate aroma.zip!"
+
+cd /tmp/mmr/
+ui_print "OK. Now starting AROMA"
+chmod 755 ./template/META-INF/com/google/android/update-binary
+exec template/META-INF/com/google/android/update-binary \
+    "${interface}" "${updater_fd}" ./aroma.zip
