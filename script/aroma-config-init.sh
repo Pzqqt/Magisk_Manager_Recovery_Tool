@@ -5,20 +5,21 @@ ls_mount_path() { ls -1 /magisk | grep -v 'lost+found'; }
 file_getprop() { grep "^$2=" "$1" | head -n1 | cut -d= -f2; }
 
 gen_aroma_config() {
-    cd /tmp/mmr/script/
-    cp ./ac-1.in ./aroma-config
-    chmod 0755 ./aroma-config
-    if [ -z $(ls_mount_path) ]; then
-        echo "    \"If you see this option\", \"You have not installed any Magisk modules...\", \"\"," >> ./aroma-config
+    installed_modules=`ls_mount_path`
+    ac_tmp=/tmp/mmr/script/aroma-config
+    mv /tmp/mmr/script/ac-1.in $ac_tmp
+    chmod 0755 $ac_tmp
+    if [ ${#installed_modules} -eq 0 ]; then
+        echo "    \"If you see this option\", \"You have not installed any Magisk modules...\", \"\"," >> $ac_tmp
     else
-        for module in $(ls_mount_path); do
+        for module in ${installed_modules}; do
             module_name=$(file_getprop /magisk/$module/module.prop name)
             module_author=$(file_getprop /magisk/$module/module.prop author)
             module_version=$(file_getprop /magisk/$module/module.prop version)
-             echo "    \"$module_name\", \"Author: $module_author \nVersion: $module_version\", \"@default\"," >> ./aroma-config
+            echo "    \"$module_name\", \"Author: $module_author \nVersion: $module_version\", \"@default\"," >> $ac_tmp
         done
     fi
-    cat >> ./aroma-config <<EOF
+    cat >> $ac_tmp <<EOF
     "Save recovery log",       "Copies /tmp/recovery.log to internal SD", "@action"
 );
 
@@ -51,26 +52,25 @@ endif;
 setvar("romid", "NONE");
 
 EOF
-    echo "" >> ./aroma-config
-    if [ -z $(ls_mount_path) ]; then
+    if [ ${#installed_modules} -eq 0 ]; then
         i=3
-        echo "if prop(\"operations.prop\", \"selected\") == \"3\" then" >> ./aroma-config
-        echo "    back(\"1\");" >> ./aroma-config
-        echo "endif;" >> ./aroma-config
-        echo "" >> ./aroma-config
+        echo "if prop(\"operations.prop\", \"selected\") == \"3\" then" >> $ac_tmp
+        echo "    back(\"1\");" >> $ac_tmp
+        echo "endif;" >> $ac_tmp
+        echo "" >> $ac_tmp
     else
         i=2
-        for module in $(ls_mount_path); do
+        for module in ${installed_modules}; do
             let i+=1
-            echo "if prop(\"operations.prop\", \"selected\") == \"$i\" then" >> ./aroma-config
-            echo "    setvar(\"romid\", \"$module\");" >> ./aroma-config
-            echo "    setvar(\"romname\", \"$(file_getprop /magisk/$module/module.prop name)\");" >> ./aroma-config
-            echo "endif;" >> ./aroma-config
-            echo "" >> ./aroma-config
+            echo "if prop(\"operations.prop\", \"selected\") == \"$i\" then" >> $ac_tmp
+            echo "    setvar(\"romid\", \"$module\");" >> $ac_tmp
+            echo "    setvar(\"romname\", \"$(file_getprop /magisk/$module/module.prop name)\");" >> $ac_tmp
+            echo "endif;" >> $ac_tmp
+            echo "" >> $ac_tmp
         done
-        echo "if cmp(prop(\"operations.prop\", \"selected\"), \">=\", \"3\") &&" >> ./aroma-config
-        echo "    cmp(prop(\"operations.prop\", \"selected\"), \"<=\", \"$i\")" >> ./aroma-config
-        cat >> ./aroma-config <<EOF
+        echo "if cmp(prop(\"operations.prop\", \"selected\"), \">=\", \"3\") &&" >> $ac_tmp
+        echo "    cmp(prop(\"operations.prop\", \"selected\"), \"<=\", \"$i\")" >> $ac_tmp
+        cat >> $ac_tmp <<EOF
 then
     setvar("stat_code", exec("/sbin/sh", "-ex", "/tmp/mmr/script/control-module.sh", "status", getvar("romid")));
     setvar("stat_am_code", exec("/sbin/sh", "-ex", "/tmp/mmr/script/control-module.sh", "status_am", getvar("romid")));
@@ -150,16 +150,16 @@ else
     # Save recovery log
 EOF
     fi
-    echo "if prop(\"operations.prop\", \"selected\") == cal(\"$i\", \"+\", \"1\") then" >> ./aroma-config
-    cat >> ./aroma-config <<EOF
+    echo "if prop(\"operations.prop\", \"selected\") == cal(\"$i\", \"+\", \"1\") then" >> $ac_tmp
+    cat >> $ac_tmp <<EOF
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
               "echo \"Copying /tmp/recovery.log to internal SD\"\n" +
               "cp /tmp/recovery.log /sdcard/\n"
               );
 EOF
-    [ -z $(ls_mount_path) ] || echo "    endif;" >> ./aroma-config
-    cat >> ./aroma-config <<EOF
+    [ ${#installed_modules} -eq 0 ] || echo "    endif;" >> $ac_tmp
+    cat >> $ac_tmp <<EOF
 endif;
 
 pleasewait("Executing Shell...");
@@ -196,8 +196,6 @@ goto("main_menu");
 
 EOF
     sync
-    chmod 0755 ./control-module.sh
-    cd /tmp/mmr/
 }
 
 gen_aroma_config
