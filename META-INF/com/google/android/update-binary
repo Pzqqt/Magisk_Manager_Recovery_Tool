@@ -18,6 +18,20 @@ abort() {
     exit 1;
 }
 
+find_zip_bin() {
+    zip_bin=""
+    for find_path in /system/bin /system/xbin 
+    do
+        [ -f ${find_path}/zip ] && zip_bin=${find_path}/zip
+    done
+    if [ -z $zip_bin ]; then
+        [ $ARCH = "arm" ] && zip_bin=/tmp/mmr/script/zip
+        [ $ARCH = "arm64" ] && zip_bin=/tmp/mmr/script/zip_64
+    fi
+    [ -z $zip_bin ] && abort "Error: No available zip binaries found!"
+    echo $zip_bin
+}
+
 grep_prop() {
   REGEX="s/^$1=//p"
   shift
@@ -64,12 +78,12 @@ chmod 0755 ./script/*
 
 cp -f ./script/aroma-config ./template/META-INF/com/google/android/
 chmod 0755 ./template/META-INF/com/google/android/aroma-config
-cd template
+cd /tmp/mmr/template
 if [ $ARCH = "arm" ]; then
-    LD_LIBRARY_PATH=/system/lib ./../script/zip -q -r ./../aroma.zip ./META-INF
+    LD_LIBRARY_PATH=/system/lib `find_zip_bin` -q -r ./../aroma.zip ./META-INF
 fi
 if [ $ARCH = "arm64" ]; then
-    LD_LIBRARY_PATH=/system/lib64 ./../script/zip_64 -q -r ./../aroma.zip ./META-INF
+    LD_LIBRARY_PATH=/system/lib64 `find_zip_bin` -q -r ./../aroma.zip ./META-INF
 fi
 [ -f /tmp/mmr/aroma.zip ] || abort "Error: Cannot generate aroma.zip!"
 
