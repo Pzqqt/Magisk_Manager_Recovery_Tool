@@ -20,7 +20,8 @@ gen_aroma_config() {
         done
     fi
     cat >> $ac_tmp <<EOF
-    "保存 recovery 日志",       "复制 /tmp/recovery.log 到内部存储", "@action"
+    "保存 recovery 日志",       "复制 /tmp/recovery.log 到内部存储", "@action",
+    "瘦身 magisk.img 并退出",   "压缩 magisk.img 容量以减少其存储空间占用.\n建议在移除大型模块后使用.", "@action"
 );
 
 # Reboot
@@ -150,12 +151,22 @@ else
     # Save recovery log
 EOF
     fi
-    echo "if prop(\"operations.prop\", \"selected\") == cal(\"$i\", \"+\", \"1\") then" >> $ac_tmp
+    echo "    if prop(\"operations.prop\", \"selected\") == cal(\"$i\", \"+\", \"1\") then" >> $ac_tmp
     cat >> $ac_tmp <<EOF
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
               "echo \"Copying /tmp/recovery.log to internal SD\"\n" +
               "cp /tmp/recovery.log /sdcard/\n"
+              );
+EOF
+    [ ${#installed_modules} -eq 0 ] || echo "    endif;" >> $ac_tmp
+    echo "    if prop(\"operations.prop\", \"selected\") == cal(\"$i\", \"+\", \"2\") then" >> $ac_tmp
+    cat >> $ac_tmp <<EOF
+        write("/tmp/mmr/cmd.sh",
+              "#!/sbin/sh\n" +
+              "echo \"\"\n" +
+              "/tmp/mmr/script/shrink-magiskimg.sh\n" +
+              "echo \"\"\n"
               );
 EOF
     [ ${#installed_modules} -eq 0 ] || echo "    endif;" >> $ac_tmp
@@ -170,6 +181,32 @@ setvar("exitcode", exec("/sbin/sh", "-ex", "/tmp/mmr/cmd.sh"));
 # ini_set("icon_back", "@none");
 ini_set("text_next", "完成");
 ini_set("icon_next", "@next");
+
+if prop("operations.prop", "selected") == cal("$i", "+", "2") then
+    if cmp(getvar("exitcode"),"==","0") then
+        alert(
+            "运行结果",
+            getvar("exec_buffer"),
+            "@done",
+            "下一步"
+        );
+        alert(
+            "注意:",
+            "magisk 镜像已取消挂载.\n\n点击\"确定\"将退出.\n如果还需要继续使用, 请稍候重新卡刷本工具.\n\n",
+            "@warning",
+            "确定"
+        );
+    else
+        alert(
+            "运行失败",
+            getvar("exec_buffer"),
+            "@crash",
+            "退出"
+        );
+    endif;
+    exec("umount", "/system");
+    exit("");
+endif;
 
 if cmp(getvar("exitcode"),"==","0") then
     textbox(
