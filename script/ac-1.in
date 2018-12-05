@@ -17,7 +17,7 @@
 #
 
 ini_set("rom_name",    "Magisk Manager 工具");
-ini_set("rom_version", "v1.0 Alpha");
+ini_set("rom_version", "v1.1 Alpha");
 ini_set("rom_author",  "Pzqqt");
 ini_set("rom_device",  "");
 ini_set("rom_date",    "");
