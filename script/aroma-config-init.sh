@@ -20,7 +20,8 @@ gen_aroma_config() {
         done
     fi
     cat >> $ac_tmp <<EOF
-    "Save recovery log",       "Copies /tmp/recovery.log to internal SD", "@action"
+    "Save recovery log",       "Copies /tmp/recovery.log to internal SD", "@action",
+    "Shrinking magisk.img",    "Shrinking magisk.img capacity.\nRecommended to use after removing large modules.", "@action"
 );
 
 # Reboot
@@ -150,12 +151,22 @@ else
     # Save recovery log
 EOF
     fi
-    echo "if prop(\"operations.prop\", \"selected\") == cal(\"$i\", \"+\", \"1\") then" >> $ac_tmp
+    echo "    if prop(\"operations.prop\", \"selected\") == cal(\"$i\", \"+\", \"1\") then" >> $ac_tmp
     cat >> $ac_tmp <<EOF
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
               "echo \"Copying /tmp/recovery.log to internal SD\"\n" +
               "cp /tmp/recovery.log /sdcard/\n"
+              );
+EOF
+    [ ${#installed_modules} -eq 0 ] || echo "    endif;" >> $ac_tmp
+    echo "    if prop(\"operations.prop\", \"selected\") == cal(\"$i\", \"+\", \"2\") then" >> $ac_tmp
+    cat >> $ac_tmp <<EOF
+        write("/tmp/mmr/cmd.sh",
+              "#!/sbin/sh\n" +
+              "echo \"\"\n" +
+              "/tmp/mmr/script/shrink-magiskimg.sh\n" +
+              "echo \"\"\n"
               );
 EOF
     [ ${#installed_modules} -eq 0 ] || echo "    endif;" >> $ac_tmp
@@ -170,6 +181,32 @@ setvar("exitcode", exec("/sbin/sh", "-ex", "/tmp/mmr/cmd.sh"));
 # ini_set("icon_back", "@none");
 ini_set("text_next", "Done");
 ini_set("icon_next", "@next");
+
+if prop("operations.prop", "selected") == cal("$i", "+", "2") then
+    if cmp(getvar("exitcode"),"==","0") then
+        alert(
+            "Done",
+            getvar("exec_buffer"),
+            "@done",
+            "Next"
+        );
+        alert(
+            "Note",
+            "The magisk image has been unmounted.\n\nPress \"OK\" to exit.\nIf you need to continue using, please reflash this tool later.\n\n",
+            "@warning",
+            "OK"
+        );
+    else
+        alert(
+            "Failed",
+            getvar("exec_buffer"),
+            "@crash",
+            "Exit"
+        );
+    endif;
+    exec("umount", "/system");
+    exit("");
+endif;
 
 if cmp(getvar("exitcode"),"==","0") then
     textbox(

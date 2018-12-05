@@ -28,8 +28,7 @@ find_zip_bin() {
         [ $ARCH = "arm" ] && zip_bin=/tmp/mmr/script/zip
         [ $ARCH = "arm64" ] && zip_bin=/tmp/mmr/script/zip_64
     fi
-    [ -z $zip_bin ] && abort "Error: No available zip binaries found!"
-    echo $zip_bin
+    [ -z $zip_bin ] && abort "Error: No available zip binaries found!" || echo $zip_bin
 }
 
 grep_prop() {
