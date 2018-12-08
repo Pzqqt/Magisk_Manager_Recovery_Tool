@@ -83,28 +83,43 @@ then
         setvar("module_status", "Enabled");
     endif;
     if cmp(getvar("stat_code"),"==", "2") then
-        setvar("module_status", "Removed");
+        alert(
+            "Note",
+            "This module has been removed.\n\n",
+            "@warning",
+            "OK"
+        );
+        back("1");
     endif;
     if cmp(getvar("stat_code"),"==", "3") then
-        setvar("module_status", "Ready update");
+        alert(
+            "Note",
+            "This module will be updated after reboot.\nSo operation is not allowed.\n\n",
+            "@warning",
+            "OK"
+        );
+        back("1");
     endif;
     if cmp(getvar("stat_code"),"==", "4") then
-        setvar("module_status", "Ready remove");
+        alert(
+            "Note",
+            "This module will be removed after reboot.\nSo operation is not allowed.\n\n",
+            "@warning",
+            "OK"
+        );
+        back("1");
     endif;
 
     if cmp(getvar("stat_am_code"),"==", "0") then
-        setvar("module_am_status", "\nauto_mount status: Disabled");
+        setvar("module_am_status", "Disabled");
     endif;
     if cmp(getvar("stat_am_code"),"==", "1") then
-        setvar("module_am_status", "\nauto_mount status: Enabled");
-    endif;
-    if cmp(getvar("stat_am_code"),"==", "2") then
-        setvar("module_am_status", "");
+        setvar("module_am_status", "Enable");
     endif;
 
     menubox(
         "Module: " + getvar("romname"),
-        "Module status: " + getvar("module_status") + getvar("module_am_status"),
+        "Module status: " + getvar("module_status") + "\nauto_mount status: " + getvar("module_am_status"),
         "@welcome",
         "romoperations.prop",
 
