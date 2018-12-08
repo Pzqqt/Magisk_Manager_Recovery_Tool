@@ -53,7 +53,7 @@ gen_shrink_script() {
 
 require_new_magisk() {
   ui_print "*******************************"
-  ui_print " �밲װ Magisk v17.0 ���ϵİ汾! "
+  ui_print " 请安装 Magisk v17.0 以上的版本! "
   ui_print "*******************************"
   exit 1
 }
@@ -87,7 +87,7 @@ recovery_actions
 
 unmount_magisk_img
 
-echo "- �ѽ� $IMG ����Ϊ \${newSizeM}M"
+echo "- 已将 $IMG 瘦身为 \${newSizeM}M"
 echo ""
 
 rm -rf /magisk
