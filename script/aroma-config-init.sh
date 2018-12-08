@@ -158,20 +158,18 @@ EOF
               "echo \"Copying /tmp/recovery.log to internal SD\"\n" +
               "cp /tmp/recovery.log /sdcard/\n"
               );
+    endif;
 EOF
-    [ ${#installed_modules} -eq 0 ] || echo "    endif;" >> $ac_tmp
     echo "    if prop(\"operations.prop\", \"selected\") == cal(\"$i\", \"+\", \"2\") then" >> $ac_tmp
     cat >> $ac_tmp <<EOF
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "echo \"\"\n" +
-              "/tmp/mmr/script/shrink-magiskimg.sh\n" +
-              "echo \"\"\n"
+              "/tmp/mmr/script/shrink-magiskimg.sh\n"
               );
+    endif;
 EOF
     [ ${#installed_modules} -eq 0 ] || echo "    endif;" >> $ac_tmp
     cat >> $ac_tmp <<EOF
-endif;
 
 pleasewait("Executing Shell...");
 
