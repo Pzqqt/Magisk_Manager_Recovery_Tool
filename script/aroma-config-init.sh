@@ -83,28 +83,43 @@ then
         setvar("module_status", "已启用");
     endif;
     if cmp(getvar("stat_code"),"==", "2") then
-        setvar("module_status", "已移除");
+        alert(
+            "注意:",
+            "这个模块已经被移除了.\n\n",
+            "@warning",
+            "确定"
+        );
+        back("1");
     endif;
     if cmp(getvar("stat_code"),"==", "3") then
-        setvar("module_status", "待更新");
+        alert(
+            "注意:",
+            "这个模块将在重启后完成更新,\n故不允许操作.\n\n",
+            "@warning",
+            "确定"
+        );
+        back("1");
     endif;
     if cmp(getvar("stat_code"),"==", "4") then
-        setvar("module_status", "待移除");
+        alert(
+            "注意:",
+            "这个模块将在重启后移除,\n故不允许操作.\n\n",
+            "@warning",
+            "确定"
+        );
+        back("1");
     endif;
 
     if cmp(getvar("stat_am_code"),"==", "0") then
-        setvar("module_am_status", "\nauto_mount 状态: 已禁用");
+        setvar("module_am_status", "已禁用");
     endif;
     if cmp(getvar("stat_am_code"),"==", "1") then
-        setvar("module_am_status", "\nauto_mount 状态: 已启用");
-    endif;
-    if cmp(getvar("stat_am_code"),"==", "2") then
-        setvar("module_am_status", "");
+        setvar("module_am_status", "已启用");
     endif;
 
     menubox(
         "模块: " + getvar("romname"),
-        "模块状态: " + getvar("module_status") + getvar("module_am_status"),
+        "模块状态: " + getvar("module_status") + "\nauto_mount 状态: " + getvar("module_am_status"),
         "@welcome",
         "romoperations.prop",
 

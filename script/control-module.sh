@@ -10,19 +10,9 @@ if [ -d /magisk/$module ]; then
         [ -f /magisk/$module/auto_mount ] && exit 1 || exit 0
     fi
 
-    if [ -f /magisk/$module/update ]; then
-        echo ""
-        echo "该模块将在重启后完成更新, 故不允许操作."
-        echo "请重启一次后再试."
-        exit 3
-    fi
+    [ -f /magisk/$module/update ] && exit 3
 
-    if [ -f /magisk/$module/remove ]; then
-        echo ""
-        echo "该模块将在重启后移除, 故不允许操作."
-        echo "请重启一次后再试."
-        exit 4
-    fi
+    [ -f /magisk/$module/remove ] && exit 4
 
     if [ $operate = "on_module" ]; then
         rm -rf /magisk/$module/disable
@@ -35,6 +25,7 @@ if [ -d /magisk/$module ]; then
         echo ""
         echo "已成功禁用模块 $module !"
     fi
+
     if [ $operate = "on_auto_mount" ]; then
         touch /magisk/$module/auto_mount
         echo ""
@@ -60,9 +51,5 @@ if [ -d /magisk/$module ]; then
 
     exit 0
 fi
-
-echo ""
-echo "找不到 $module 这个模块!"
-echo "可能该模块已经被移除了."
 
 exit 2
