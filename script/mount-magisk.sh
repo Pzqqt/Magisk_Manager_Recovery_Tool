@@ -52,9 +52,9 @@ gen_shrink_script() {
 #!/sbin/sh
 
 require_new_magisk() {
-  ui_print "*******************************"
-  ui_print " Please install Magisk v17.0+! "
-  ui_print "*******************************"
+  echo "*******************************"
+  echo " Please install Magisk v17.0+! "
+  echo "*******************************"
   exit 1
 }
 
