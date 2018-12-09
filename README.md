@@ -9,15 +9,14 @@ This tool will allows you to perform certain operations, such as enabling, disab
 - 1.Friendly interface & easy to use.<br>
 - 2.Supported older recovery or even CWM.
 
-## Known bugs
+## Note
 - 1.Only supported arm & arm64 architecture. Not supported x86 & x64 architecture.<br>
 
 ## Reference
 - <a href="https://github.com/chenxiaolong/DualBootPatcher/tree/master/utilities">DualBootUtilities</a>(framework)<br>
-- <a href="http://dl-xda.xposed.info/framework/">Xposed Installer</a>(code of Arch check)<br>
 - <a href="https://forum.xda-developers.com/apps/magisk/module-tool-magisk-manager-recovery-mode-t3693165">Magisk Manager for Recovery Mode (mm)</a>(code of mount magisk.img)<br>
-- <a href="https://elementalx.org/devices/">ElementalX Kernel(Aroma Installer theme)</a><br>
-- <a href="https://github.com/Mokee">Mokee Rom</a>(zip binary files)
+- <a href="https://elementalx.org/devices/">ElementalX Kernel</a>(Aroma Installer theme)<br>
+- <a href="https://sourceforge.net/projects/p7zip/files/p7zip/16.02/">p7zip</a>(7za binary files)<br>
 
 ## License
 - <a href="https://opensource.org/licenses/MIT">MIT</a>
