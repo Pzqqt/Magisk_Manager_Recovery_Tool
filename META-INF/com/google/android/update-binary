@@ -18,19 +18,6 @@ abort() {
     exit 1;
 }
 
-find_zip_bin() {
-    zip_bin=""
-    for find_path in /system/bin /system/xbin 
-    do
-        [ -f ${find_path}/zip ] && zip_bin=${find_path}/zip
-    done
-    if [ -z $zip_bin ]; then
-        [ $ARCH = "arm" ] && zip_bin=/tmp/mmr/script/zip
-        [ $ARCH = "arm64" ] && zip_bin=/tmp/mmr/script/zip_64
-    fi
-    [ -z $zip_bin ] && abort "Error: No available zip binaries found!" || echo $zip_bin
-}
-
 grep_prop() {
   REGEX="s/^$1=//p"
   shift
@@ -78,16 +65,10 @@ chmod 0755 ./script/*
 cp -f ./script/aroma-config ./template/META-INF/com/google/android/
 chmod 0755 ./template/META-INF/com/google/android/aroma-config
 cd /tmp/mmr/template
-if [ $ARCH = "arm" ]; then
-    LD_LIBRARY_PATH=/system/lib `find_zip_bin` -q -r ./../aroma.zip ./META-INF
-fi
-if [ $ARCH = "arm64" ]; then
-    LD_LIBRARY_PATH=/system/lib64 `find_zip_bin` -q -r ./../aroma.zip ./META-INF
-fi
+/tmp/mmr/script/7za a -tzip /tmp/mmr/aroma.zip ./META-INF || :
 [ -f /tmp/mmr/aroma.zip ] || abort "Error: Cannot generate aroma.zip!"
 
 cd /tmp/mmr/
 ui_print "OK. Now starting AROMA"
 chmod 755 ./template/META-INF/com/google/android/update-binary
-exec template/META-INF/com/google/android/update-binary \
-    "${interface}" "${updater_fd}" ./aroma.zip
+exec template/META-INF/com/google/android/update-binary "${interface}" "${updater_fd}" ./aroma.zip
