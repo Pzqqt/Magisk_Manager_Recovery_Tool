@@ -57,7 +57,7 @@ setvar(
 
 viewbox(
     "<~welcome.title>",
-    "<~welcome.text1> <b>" + ini_get("rom_name") + "</b>.\n\n" + "<~welcome.text2>\n\n\n\n" +
+    "<~welcome.text1> <b>" + ini_get("rom_name") + "</b>.\n\n" + "<~welcome.text2>\n\n\n\n\n" +
 
         "  <~welcome.version>\t\t\t: " + "<b><#selectbg_g>" + ini_get("rom_version") + "</#></b>\n" +
         "  <~welcome.updated>\t\t: " + "<b><#selectbg_g>" + ini_get("rom_date")    + "</#></b>\n\n\n" +
@@ -81,4 +81,4 @@ menubox(
     "operations.prop",
 
     "重启",                    "重启您的设备",                       "@refresh",
-    "退出",                    "退出到 Recovery",                    "@back2",
+    "退出",                    "卸载 /magisk 并退出到 Recovery",                    "@back2",

@@ -10,7 +10,7 @@ gen_aroma_config() {
     mv /tmp/mmr/script/ac-1.in $ac_tmp
     chmod 0755 $ac_tmp
     if [ ${#installed_modules} -eq 0 ]; then
-        echo "    \"如果你看到了此选项\", \"说明你尚未安装任何 Magisk 模块...\", \"\"," >> $ac_tmp
+        echo "    \"如果你看到了此选项\", \"说明你尚未安装任何 Magisk 模块...\", \"@what\"," >> $ac_tmp
     else
         for module in ${installed_modules}; do
             module_name=$(file_getprop /magisk/$module/module.prop name)
@@ -21,7 +21,7 @@ gen_aroma_config() {
     fi
     cat >> $ac_tmp <<EOF
     "保存 recovery 日志",       "复制 /tmp/recovery.log 到内部存储", "@action",
-    "瘦身 magisk.img 并退出",   "压缩 magisk.img 容量以减少其存储空间占用.\n建议在移除大型模块后使用.", "@action"
+    "瘦身 magisk.img",   "压缩 magisk.img 容量以减少其存储空间占用.\n建议在移除大型模块后使用.", "@action"
 );
 
 # Reboot
@@ -198,17 +198,21 @@ ini_set("icon_next", "@next");
 if prop("operations.prop", "selected") == cal("$i", "+", "2") then
     if cmp(getvar("exitcode"),"==","0") then
         alert(
-            "运行结果",
+            "运行成功",
             getvar("exec_buffer"),
             "@done",
-            "下一步"
-        );
-        alert(
-            "注意:",
-            "magisk 镜像已取消挂载.\n\n点击\"确定\"将退出.\n如果还需要继续使用, 请稍候重新卡刷本工具.\n\n",
-            "@warning",
             "确定"
         );
+        if confirm("注意:",
+                   "magisk 镜像已取消挂载.\n\n本工具即将退出.\n如果还需使用, 请重新卡刷本工具.\n\n",
+                   "@warning",
+                   "退出到 Recovery",
+                   "重启设备") == "yes"
+        then
+            exit("");
+        else
+            reboot("now");
+        endif;
     else
         alert(
             "运行失败",
@@ -216,9 +220,8 @@ if prop("operations.prop", "selected") == cal("$i", "+", "2") then
             "@crash",
             "退出"
         );
+        exit("");
     endif;
-    exec("umount", "/system");
-    exit("");
 endif;
 
 if cmp(getvar("exitcode"),"==","0") then
