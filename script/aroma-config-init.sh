@@ -10,7 +10,7 @@ gen_aroma_config() {
     mv /tmp/mmr/script/ac-1.in $ac_tmp
     chmod 0755 $ac_tmp
     if [ ${#installed_modules} -eq 0 ]; then
-        echo "    \"If you see this option\", \"You have not installed any Magisk modules...\", \"\"," >> $ac_tmp
+        echo "    \"If you see this option\", \"You have not installed any Magisk modules...\", \"@what\"," >> $ac_tmp
     else
         for module in ${installed_modules}; do
             module_name=$(file_getprop /magisk/$module/module.prop name)
@@ -201,14 +201,18 @@ if prop("operations.prop", "selected") == cal("$i", "+", "2") then
             "Done",
             getvar("exec_buffer"),
             "@done",
-            "Next"
-        );
-        alert(
-            "Note",
-            "The magisk image has been unmounted.\n\nPress \"OK\" to exit.\nIf you need to continue using, please reflash this tool later.\n\n",
-            "@warning",
             "OK"
         );
+        if confirm("Note:",
+                   "The magisk image has been unmounted.\n\nThis tool will exit.\nIf you still need to use, please reflash this tool.\n\n",
+                   "@warning",
+                   "Exit to Recovery",
+                   "Reboot") == "yes"
+        then
+            exit("");
+        else
+            reboot("now");
+        endif;
     else
         alert(
             "Failed",
@@ -216,9 +220,8 @@ if prop("operations.prop", "selected") == cal("$i", "+", "2") then
             "@crash",
             "Exit"
         );
+        exit("");
     endif;
-    exec("umount", "/system");
-    exit("");
 endif;
 
 if cmp(getvar("exitcode"),"==","0") then

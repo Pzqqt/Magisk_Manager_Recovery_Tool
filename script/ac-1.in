@@ -81,4 +81,4 @@ menubox(
     "operations.prop",
 
     "Reboot",                    "Reboot your device",                  "@refresh",
-    "Exit",                      "Exit to recovery",                    "@back2",
+    "Exit",                      "Unmount /magisk & exit to recovery",                    "@back2",

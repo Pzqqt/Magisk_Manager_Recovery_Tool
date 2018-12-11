@@ -30,8 +30,8 @@ text_yes=Yes
 text_no=No
 text_about=About
 text_calibrating=Calibrating Tools
-text_quit=Quit Magisk Manager Recovery Tool
-text_quit_msg=Are you sure to quit Magisk Manager Recovery Tool?
+text_quit=Quit without unmount /magisk
+text_quit_msg=You can operate the module by operating the /magisk directory later. Only for advanced users. Do NOT forget to unmount /magisk.
 
 #
 #-- CUSTOM STRING RESOURCE
