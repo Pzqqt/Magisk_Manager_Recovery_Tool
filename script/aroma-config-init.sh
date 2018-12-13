@@ -20,8 +20,8 @@ gen_aroma_config() {
         done
     fi
     cat >> $ac_tmp <<EOF
-    "保存 recovery 日志",       "复制 /tmp/recovery.log 到内部存储", "@action",
-    "瘦身 magisk.img",   "压缩 magisk.img 容量以减少其存储空间占用.\n建议在移除大型模块后使用.", "@action"
+    "保存 recovery 日志", "复制 /tmp/recovery.log 到内部存储", "@action",
+    "瘦身 magisk.img",    "压缩 magisk.img 容量以减少其存储空间占用.\n建议在移除大型模块后使用.", "@action"
 );
 
 # Reboot
@@ -40,7 +40,7 @@ endif;
 # Exit
 if prop("operations.prop", "selected") == "2" then
     if confirm("退出",
-               "您确定要退出 Magisk Manager 工具吗?",
+               "您确定要退出 Magisk Manager Recovery 工具吗?",
                "@warning") == "yes"
     then
         exec("/sbin/sh", "-ex", "/tmp/mmr/script/umount-magisk.sh");
@@ -50,7 +50,7 @@ if prop("operations.prop", "selected") == "2" then
     endif;
 endif;
 
-setvar("romid", "NONE");
+setvar("modid", "NONE");
 
 EOF
     if [ ${#installed_modules} -eq 0 ]; then
@@ -64,8 +64,8 @@ EOF
         for module in ${installed_modules}; do
             let i+=1
             echo "if prop(\"operations.prop\", \"selected\") == \"$i\" then" >> $ac_tmp
-            echo "    setvar(\"romid\", \"$module\");" >> $ac_tmp
-            echo "    setvar(\"romname\", \"$(file_getprop /magisk/$module/module.prop name)\");" >> $ac_tmp
+            echo "    setvar(\"modid\", \"$module\");" >> $ac_tmp
+            echo "    setvar(\"modname\", \"$(file_getprop /magisk/$module/module.prop name)\");" >> $ac_tmp
             echo "endif;" >> $ac_tmp
             echo "" >> $ac_tmp
         done
@@ -73,8 +73,8 @@ EOF
         echo "    cmp(prop(\"operations.prop\", \"selected\"), \"<=\", \"$i\")" >> $ac_tmp
         cat >> $ac_tmp <<EOF
 then
-    setvar("stat_code", exec("/sbin/sh", "-ex", "/tmp/mmr/script/control-module.sh", "status", getvar("romid")));
-    setvar("stat_am_code", exec("/sbin/sh", "-ex", "/tmp/mmr/script/control-module.sh", "status_am", getvar("romid")));
+    setvar("stat_code", exec("/sbin/sh", "-ex", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
+    setvar("stat_am_code", exec("/sbin/sh", "-ex", "/tmp/mmr/script/control-module.sh", "status_am", getvar("modid")));
 
     if cmp(getvar("stat_code"),"==", "0") then
         setvar("module_status", "已禁用");
@@ -118,10 +118,10 @@ then
     endif;
 
     menubox(
-        "模块: " + getvar("romname"),
+        "模块: " + getvar("modname"),
         "模块状态: " + getvar("module_status") + "\nauto_mount 状态: " + getvar("module_am_status"),
         "@welcome",
-        "romoperations.prop",
+        "modoperations.prop",
 
         "启用该模块",      "", "@action2",
         "禁用该模块",      "", "@crash",
@@ -130,34 +130,34 @@ then
         "移除",            "", "@delete"
     );
 
-    if prop("romoperations.prop", "selected") == "1" then
+    if prop("modoperations.prop", "selected") == "1" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh on_module " + getvar("romid") + "\n");
+              "/tmp/mmr/script/control-module.sh on_module " + getvar("modid") + "\n");
     endif;
-    if prop("romoperations.prop", "selected") == "2" then
+    if prop("modoperations.prop", "selected") == "2" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh off_module " + getvar("romid") + "\n");
+              "/tmp/mmr/script/control-module.sh off_module " + getvar("modid") + "\n");
     endif;
-    if prop("romoperations.prop", "selected") == "3" then
+    if prop("modoperations.prop", "selected") == "3" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh on_auto_mount " + getvar("romid") + "\n");
+              "/tmp/mmr/script/control-module.sh on_auto_mount " + getvar("modid") + "\n");
     endif;
-    if prop("romoperations.prop", "selected") == "4" then
+    if prop("modoperations.prop", "selected") == "4" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh off_auto_mount " + getvar("romid") + "\n");
+              "/tmp/mmr/script/control-module.sh off_auto_mount " + getvar("modid") + "\n");
     endif;
-    if prop("romoperations.prop", "selected") == "5" then
+    if prop("modoperations.prop", "selected") == "5" then
         if confirm("警告",
                    "您确定要移除该模块吗?",
                    "@warning") == "yes"
         then
             write("/tmp/mmr/cmd.sh",
                   "#!/sbin/sh\n" +
-                  "/tmp/mmr/script/control-module.sh remove " + getvar("romid") + "\n");
+                  "/tmp/mmr/script/control-module.sh remove " + getvar("modid") + "\n");
         else
             back("1");
         endif;
@@ -170,7 +170,6 @@ EOF
     cat >> $ac_tmp <<EOF
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "echo \"Copying /tmp/recovery.log to internal SD\"\n" +
               "cp /tmp/recovery.log /sdcard/\n"
               );
     endif;
@@ -190,8 +189,6 @@ pleasewait("正在执行脚本 ...");
 
 setvar("exitcode", exec("/sbin/sh", "-ex", "/tmp/mmr/cmd.sh"));
 
-# ini_set("text_back", "");
-# ini_set("icon_back", "@none");
 ini_set("text_next", "完成");
 ini_set("icon_next", "@next");
 

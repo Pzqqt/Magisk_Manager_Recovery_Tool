@@ -14,8 +14,8 @@ mount_image() {
         mount -o remount,rw /
         mkdir -p "$2"
     fi
-    `is_mounted $2` && {
-        loopedA=`mount | grep $2 | cut -d " " -f1`
+    is_mounted $2 && {
+        loopedA=`mount | grep $2 | head -n1 | cut -d " " -f1`
         umount $2
         losetup -d $loopedA
     }
@@ -90,8 +90,8 @@ recovery_actions
 unmount_magisk_img
 recovery_cleanup
 
-\`is_mounted \$MOUNTPATH\` && {
-    loopedB=\`mount | grep \$MOUNTPATH | cut -d " " -f1\`
+is_mounted \$MOUNTPATH && {
+    loopedB=\`mount | grep \$MOUNTPATH | head -n1 | cut -d " " -f1\`
     umount \$MOUNTPATH
     losetup -d \$loopedB
 }
@@ -102,6 +102,7 @@ rmdir \$MOUNTPATH || {
     exit 1
 }
 
+echo ""
 echo "- 已将 $IMG 瘦身为 \${newSizeM}M"
 echo ""
 

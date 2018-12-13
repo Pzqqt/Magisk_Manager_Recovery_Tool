@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-ini_set("rom_name",    "Magisk Manager 工具");
+ini_set("rom_name",    "Magisk Manager Recovery 工具");
 ini_set("rom_version", "v1.2 Alpha");
 ini_set("rom_author",  "Pzqqt");
 ini_set("rom_device",  "");
@@ -37,11 +37,11 @@ setvar(
     "sysinfo",
     "<@center><b>设备信息 :</b></@>\n\n" +
 
-    "设备型号\t\t\t: "        + "<b><#selectbg_g>" + sysprop("ro.product.model")        + "</#></b>\n"   +
-    "设备名称\t\t\t: "        + "<b><#selectbg_g>" + sysprop("ro.product.name")         + "</#></b>\n"   +
-    "设备代号\t\t\t: "        + "<b><#selectbg_g>" + sysprop("ro.product.device")       + "</#></b>\n"   +
-    "Cpu 型号\t\t\t: "        + "<b><#selectbg_g>" + sysprop("ro.product.board")        + "</#></b>\n"   +
-    "设备厂商\t\t\t: "        + "<b><#selectbg_g>" + sysprop("ro.product.manufacturer") + "</#></b>\n\n" +
+    "设备型号\t\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.model")        + "</#></b>\n"    +
+    "设备名称\t\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.name")         + "</#></b>\n"    +
+    "设备代号\t\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.device")       + "</#></b>\n"    +
+    "Cpu 型号\t\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.board")        + "</#></b>\n"    +
+    "设备厂商\t\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.manufacturer") + "</#></b>\n\n"  +
 
     "/system 空间\t\t: "   + "<b><#selectbg_g>" + getdisksize("/system", "m") + " MB" + "</#></b>\n"   +
       "\t剩余\t\t\t: "     + "<b><#selectbg_g>" + getdiskfree("/system", "m") + " MB" + "</#></b>\n\n" +
@@ -49,18 +49,16 @@ setvar(
       "\t剩余\t\t\t: "     + "<b><#selectbg_g>" + getdiskfree("/data", "m")   + " MB" + "</#></b>\n\n" +
     "/cache 空间\t\t: "    + "<b><#selectbg_g>" + getdisksize("/cache", "m")  + " MB" + "</#></b>\n"   +
       "\t剩余\t\t\t: "     + "<b><#selectbg_g>" + getdiskfree("/cache", "m")  + " MB" + "</#></b>\n\n" +
-    "内部存储空间\t\t: "   + "<b><#selectbg_g>" + getdisksize("/sdcard", "m")   + " MB" + "</#></b>\n"   +
-      "\t剩余\t\t\t: "     + "<b><#selectbg_g>" + getdiskfree("/sdcard", "m")   + " MB" + "</#></b>\n\n" +
-
-    ""
+    "内部存储空间\t\t: "   + "<b><#selectbg_g>" + getdisksize("/sdcard", "m") + " MB" + "</#></b>\n"   +
+      "\t剩余\t\t\t: "     + "<b><#selectbg_g>" + getdiskfree("/sdcard", "m") + " MB" + "</#></b>\n\n"
 );
 
 viewbox(
     "<~welcome.title>",
     "<~welcome.text1> <b>" + ini_get("rom_name") + "</b>.\n\n" + "<~welcome.text2>\n\n\n\n\n" +
 
-        "  <~welcome.version>\t\t\t: " + "<b><#selectbg_g>" + ini_get("rom_version") + "</#></b>\n" +
-        "  <~welcome.updated>\t\t: " + "<b><#selectbg_g>" + ini_get("rom_date")    + "</#></b>\n\n\n" +
+    "  <~welcome.version>\t\t\t: " + "<b><#selectbg_g>" + ini_get("rom_version") + "</#></b>\n" +
+    "  <~welcome.updated>\t\t: " + "<b><#selectbg_g>" + ini_get("rom_date") + "</#></b>\n\n\n" +
 
     getvar("sysinfo"),
 
@@ -69,16 +67,14 @@ viewbox(
 
 gotolabel("main_menu");
 
-ini_set("text_back", "返回");
-ini_set("icon_back", "@back");
 ini_set("text_next", "下一步");
 ini_set("icon_next", "@next");
 
 menubox(
     "主菜单",
-    "<~operations.desc>",
+    "请选择操作",
     "@welcome",
     "operations.prop",
 
     "重启",                    "重启您的设备",                       "@refresh",
-    "退出",                    "卸载 /magisk 并退出到 Recovery",                    "@back2",
+    "退出",                    "卸载 /magisk 并退出到 Recovery",     "@back2",

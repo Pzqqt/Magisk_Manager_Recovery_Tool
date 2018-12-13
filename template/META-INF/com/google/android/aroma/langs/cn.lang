@@ -36,8 +36,6 @@ text_quit_msg=稍候你可以自行操作 /magisk 目录来操作模块. 此功�
 #
 #-- CUSTOM STRING RESOURCE
 #
-operations.title=进行操作
-operations.desc=请选择操作
 
 welcome.title=欢迎
 welcome.text1=欢迎使用
@@ -45,5 +43,3 @@ welcome.text2=该工具可以对已安装的 Magisk 模块进行操作.
 welcome.version=版本
 welcome.updated=更新日期
 
-changelog.title=更新日志
-changelog.desc=关于更新说明
