@@ -36,16 +36,9 @@ text_quit_msg=You can operate the module by operating the /magisk directory late
 #
 #-- CUSTOM STRING RESOURCE
 #
-common.for=for
-
-operations.title=Select an action
-operations.desc=Choose an action
 
 welcome.title=Welcome
 welcome.text1=Welcome to the
 welcome.text2=This tool will allows you to perform certain operations, such as enabling, disabling, and removing, on the installed Magisk modules.
 welcome.version=Version
 welcome.updated=Updated
-
-changelog.title=Changelog
-changelog.desc=Multi-Boot Utilities Changelog

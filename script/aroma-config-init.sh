@@ -50,7 +50,7 @@ if prop("operations.prop", "selected") == "2" then
     endif;
 endif;
 
-setvar("romid", "NONE");
+setvar("modid", "NONE");
 
 EOF
     if [ ${#installed_modules} -eq 0 ]; then
@@ -64,8 +64,8 @@ EOF
         for module in ${installed_modules}; do
             let i+=1
             echo "if prop(\"operations.prop\", \"selected\") == \"$i\" then" >> $ac_tmp
-            echo "    setvar(\"romid\", \"$module\");" >> $ac_tmp
-            echo "    setvar(\"romname\", \"$(file_getprop /magisk/$module/module.prop name)\");" >> $ac_tmp
+            echo "    setvar(\"modid\", \"$module\");" >> $ac_tmp
+            echo "    setvar(\"modname\", \"$(file_getprop /magisk/$module/module.prop name)\");" >> $ac_tmp
             echo "endif;" >> $ac_tmp
             echo "" >> $ac_tmp
         done
@@ -73,8 +73,8 @@ EOF
         echo "    cmp(prop(\"operations.prop\", \"selected\"), \"<=\", \"$i\")" >> $ac_tmp
         cat >> $ac_tmp <<EOF
 then
-    setvar("stat_code", exec("/sbin/sh", "-ex", "/tmp/mmr/script/control-module.sh", "status", getvar("romid")));
-    setvar("stat_am_code", exec("/sbin/sh", "-ex", "/tmp/mmr/script/control-module.sh", "status_am", getvar("romid")));
+    setvar("stat_code", exec("/sbin/sh", "-ex", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
+    setvar("stat_am_code", exec("/sbin/sh", "-ex", "/tmp/mmr/script/control-module.sh", "status_am", getvar("modid")));
 
     if cmp(getvar("stat_code"),"==", "0") then
         setvar("module_status", "Disabled");
@@ -118,10 +118,10 @@ then
     endif;
 
     menubox(
-        "Module: " + getvar("romname"),
+        "Module: " + getvar("modname"),
         "Module status: " + getvar("module_status") + "\nauto_mount status: " + getvar("module_am_status"),
         "@welcome",
-        "romoperations.prop",
+        "modoperations.prop",
 
         "Enable module",      "", "@action2",
         "Disable module",     "", "@crash",
@@ -130,34 +130,34 @@ then
         "Remove",             "", "@delete"
     );
 
-    if prop("romoperations.prop", "selected") == "1" then
+    if prop("modoperations.prop", "selected") == "1" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh on_module " + getvar("romid") + "\n");
+              "/tmp/mmr/script/control-module.sh on_module " + getvar("modid") + "\n");
     endif;
-    if prop("romoperations.prop", "selected") == "2" then
+    if prop("modoperations.prop", "selected") == "2" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh off_module " + getvar("romid") + "\n");
+              "/tmp/mmr/script/control-module.sh off_module " + getvar("modid") + "\n");
     endif;
-    if prop("romoperations.prop", "selected") == "3" then
+    if prop("modoperations.prop", "selected") == "3" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh on_auto_mount " + getvar("romid") + "\n");
+              "/tmp/mmr/script/control-module.sh on_auto_mount " + getvar("modid") + "\n");
     endif;
-    if prop("romoperations.prop", "selected") == "4" then
+    if prop("modoperations.prop", "selected") == "4" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh off_auto_mount " + getvar("romid") + "\n");
+              "/tmp/mmr/script/control-module.sh off_auto_mount " + getvar("modid") + "\n");
     endif;
-    if prop("romoperations.prop", "selected") == "5" then
+    if prop("modoperations.prop", "selected") == "5" then
         if confirm("Warning!",
                    "Are you sure want to remove this module?",
                    "@warning") == "yes"
         then
             write("/tmp/mmr/cmd.sh",
                   "#!/sbin/sh\n" +
-                  "/tmp/mmr/script/control-module.sh remove " + getvar("romid") + "\n");
+                  "/tmp/mmr/script/control-module.sh remove " + getvar("modid") + "\n");
         else
             back("1");
         endif;
@@ -170,7 +170,6 @@ EOF
     cat >> $ac_tmp <<EOF
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "echo \"Copying /tmp/recovery.log to internal SD\"\n" +
               "cp /tmp/recovery.log /sdcard/\n"
               );
     endif;
@@ -190,8 +189,6 @@ pleasewait("Executing Shell...");
 
 setvar("exitcode", exec("/sbin/sh", "-ex", "/tmp/mmr/cmd.sh"));
 
-# ini_set("text_back", "");
-# ini_set("icon_back", "@none");
 ini_set("text_next", "Done");
 ini_set("icon_next", "@next");
 

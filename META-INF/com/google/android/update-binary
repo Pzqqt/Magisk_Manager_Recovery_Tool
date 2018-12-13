@@ -12,10 +12,10 @@ ui_print() {
 }
 
 abort() {
-    ui_print " ";
-    ui_print "$*";
-    ui_print " ";
-    exit 1;
+    ui_print ""
+    ui_print "$*"
+    ui_print ""
+    exit 1
 }
 
 grep_prop() {
@@ -53,11 +53,9 @@ mountPath=/magisk
 rm -rf /tmp/mmr/
 mkdir -p /tmp/mmr/
 cd /tmp/mmr/
-
 unzip "${zipfile}"
 
 ui_print "Generating AROMA config"
-
 chmod 0755 ./script/*
 ./script/mount-magisk.sh $IMG $mountPath || abort "Error: Failed to mount magisk.img!"
 ./script/aroma-config-init.sh
@@ -71,4 +69,4 @@ cd /tmp/mmr/template
 cd /tmp/mmr/
 ui_print "OK. Now starting AROMA"
 chmod 755 ./template/META-INF/com/google/android/update-binary
-exec template/META-INF/com/google/android/update-binary "${interface}" "${updater_fd}" ./aroma.zip
+exec ./template/META-INF/com/google/android/update-binary "${interface}" "${updater_fd}" ./aroma.zip
