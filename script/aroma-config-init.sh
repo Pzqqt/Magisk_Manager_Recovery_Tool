@@ -119,7 +119,9 @@ then
 
     menubox(
         "模块: " + getvar("modname"),
-        "模块状态: " + getvar("module_status") + "\nauto_mount 状态: " + getvar("module_am_status"),
+        "模块 ID: " + getvar("modid") + "\n" +
+        "模块状态: " + getvar("module_status") + "\n" +
+        "auto_mount 状态: " + getvar("module_am_status"),
         "@welcome",
         "modoperations.prop",
 
