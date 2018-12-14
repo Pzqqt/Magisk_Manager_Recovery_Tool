@@ -119,7 +119,9 @@ then
 
     menubox(
         "Module: " + getvar("modname"),
-        "Module status: " + getvar("module_status") + "\nauto_mount status: " + getvar("module_am_status"),
+        "Module ID: " + getvar("modid") + "\n" +
+        "Module status: " + getvar("module_status") + "\n" +
+        "auto_mount status: " + getvar("module_am_status"),
         "@welcome",
         "modoperations.prop",
 
