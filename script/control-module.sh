@@ -10,9 +10,21 @@ if [ -d /magisk/$module ]; then
         [ -f /magisk/$module/auto_mount ] && exit 1 || exit 0
     fi
 
-    [ -f /magisk/$module/update ] && exit 3
+    if [ -f /magisk/$module/update ]; then
+        echo ""
+        echo "The module will be updated after reboot."
+        echo "So operation is not allowed."
+        echo "Please reboot once and try again."
+        exit 3
+    fi
 
-    [ -f /magisk/$module/remove ] && exit 4
+     if [ -f /magisk/$module/remove ]; then
+        echo ""
+        echo "The module will be removed after reboot."
+        echo "So operation is not allowed."
+        echo "Please reboot once and try again."
+        exit 4
+    fi
 
     if [ $operate = "on_module" ]; then
         rm -rf /magisk/$module/disable

@@ -92,22 +92,10 @@ then
         back("1");
     endif;
     if cmp(getvar("stat_code"),"==", "3") then
-        alert(
-            "Note",
-            "This module will be updated after reboot.\nSo operation is not allowed.\n\n",
-            "@warning",
-            "OK"
-        );
-        back("1");
+        setvar("module_status", "Ready update");
     endif;
     if cmp(getvar("stat_code"),"==", "4") then
-        alert(
-            "Note",
-            "This module will be removed after reboot.\nSo operation is not allowed.\n\n",
-            "@warning",
-            "OK"
-        );
-        back("1");
+        setvar("module_status", "Ready remove");
     endif;
 
     if cmp(getvar("stat_am_code"),"==", "0") then
@@ -125,6 +113,7 @@ then
         "@welcome",
         "modoperations.prop",
 
+        "View description",   "", "@info",
         "Enable module",      "", "@action2",
         "Disable module",     "", "@crash",
         "Enable auto_mount",  "", "@action2",
@@ -133,26 +122,35 @@ then
     );
 
     if prop("modoperations.prop", "selected") == "1" then
-        write("/tmp/mmr/cmd.sh",
-              "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh on_module " + getvar("modid") + "\n");
+        alert(
+            "Description",
+            resread("modinfo/" + getvar("modid") + ".txt"),
+            "@info",
+            "Back"
+        );
+        back("1");
     endif;
     if prop("modoperations.prop", "selected") == "2" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh off_module " + getvar("modid") + "\n");
+              "/tmp/mmr/script/control-module.sh on_module " + getvar("modid") + "\n");
     endif;
     if prop("modoperations.prop", "selected") == "3" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh on_auto_mount " + getvar("modid") + "\n");
+              "/tmp/mmr/script/control-module.sh off_module " + getvar("modid") + "\n");
     endif;
     if prop("modoperations.prop", "selected") == "4" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh off_auto_mount " + getvar("modid") + "\n");
+              "/tmp/mmr/script/control-module.sh on_auto_mount " + getvar("modid") + "\n");
     endif;
     if prop("modoperations.prop", "selected") == "5" then
+        write("/tmp/mmr/cmd.sh",
+              "#!/sbin/sh\n" +
+              "/tmp/mmr/script/control-module.sh off_auto_mount " + getvar("modid") + "\n");
+    endif;
+    if prop("modoperations.prop", "selected") == "6" then
         if confirm("Warning!",
                    "Are you sure want to remove this module?",
                    "@warning") == "yes"
@@ -250,4 +248,22 @@ EOF
     sync
 }
 
+gen_mod_info() {
+    modinfodir=/tmp/mmr/template/META-INF/com/google/android/aroma/modinfo
+    mkdir -p $modinfodir
+    for module in ${installed_modules}; do
+        infofile=${modinfodir}/${module}.txt
+        if [ -f /magisk/$module/module.prop ]; then
+            infotext=`file_getprop /magisk/$module/module.prop description`
+            if ! [ -z $infotext ]; then
+                echo $infotext > $infofile
+                continue
+            fi
+        fi
+        echo "Cannot get module description!" > $infofile
+    done
+}
+
 gen_aroma_config
+
+gen_mod_info
