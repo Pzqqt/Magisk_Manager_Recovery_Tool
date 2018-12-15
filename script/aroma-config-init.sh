@@ -92,22 +92,10 @@ then
         back("1");
     endif;
     if cmp(getvar("stat_code"),"==", "3") then
-        alert(
-            "注意:",
-            "这个模块将在重启后完成更新,\n故不允许操作.\n\n",
-            "@warning",
-            "确定"
-        );
-        back("1");
+        setvar("module_status", "待更新");
     endif;
     if cmp(getvar("stat_code"),"==", "4") then
-        alert(
-            "注意:",
-            "这个模块将在重启后移除,\n故不允许操作.\n\n",
-            "@warning",
-            "确定"
-        );
-        back("1");
+        setvar("module_status", "待移除");
     endif;
 
     if cmp(getvar("stat_am_code"),"==", "0") then
@@ -125,6 +113,7 @@ then
         "@welcome",
         "modoperations.prop",
 
+        "查看模块描述",    "", "@info",
         "启用该模块",      "", "@action2",
         "禁用该模块",      "", "@crash",
         "启用 auto_mount", "", "@action2",
@@ -133,26 +122,35 @@ then
     );
 
     if prop("modoperations.prop", "selected") == "1" then
-        write("/tmp/mmr/cmd.sh",
-              "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh on_module " + getvar("modid") + "\n");
+        alert(
+            "描述",
+            resread("modinfo/" + getvar("modid") + ".txt"),
+            "@info",
+            "返回"
+        );
+        back("1");
     endif;
     if prop("modoperations.prop", "selected") == "2" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh off_module " + getvar("modid") + "\n");
+              "/tmp/mmr/script/control-module.sh on_module " + getvar("modid") + "\n");
     endif;
     if prop("modoperations.prop", "selected") == "3" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh on_auto_mount " + getvar("modid") + "\n");
+              "/tmp/mmr/script/control-module.sh off_module " + getvar("modid") + "\n");
     endif;
     if prop("modoperations.prop", "selected") == "4" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh off_auto_mount " + getvar("modid") + "\n");
+              "/tmp/mmr/script/control-module.sh on_auto_mount " + getvar("modid") + "\n");
     endif;
     if prop("modoperations.prop", "selected") == "5" then
+        write("/tmp/mmr/cmd.sh",
+              "#!/sbin/sh\n" +
+              "/tmp/mmr/script/control-module.sh off_auto_mount " + getvar("modid") + "\n");
+    endif;
+    if prop("modoperations.prop", "selected") == "6" then
         if confirm("警告",
                    "您确定要移除该模块吗?",
                    "@warning") == "yes"
@@ -250,4 +248,22 @@ EOF
     sync
 }
 
+gen_mod_info() {
+    modinfodir=/tmp/mmr/template/META-INF/com/google/android/aroma/modinfo
+    mkdir -p $modinfodir
+    for module in ${installed_modules}; do
+        infofile=${modinfodir}/${module}.txt
+        if [ -f /magisk/$module/module.prop ]; then
+            infotext=`file_getprop /magisk/$module/module.prop description`
+            if ! [ -z $infotext ]; then
+                echo $infotext > $infofile
+                continue
+            fi
+        fi
+        echo "无法获取模块描述!" > $infofile
+    done
+}
+
 gen_aroma_config
+
+gen_mod_info
