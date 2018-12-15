@@ -84,7 +84,7 @@ then
     endif;
     if cmp(getvar("stat_code"),"==", "2") then
         alert(
-            "注意:",
+            "注意",
             "这个模块已经被移除了.\n\n",
             "@warning",
             "确定"
@@ -200,11 +200,12 @@ if prop("operations.prop", "selected") == cal("$i", "+", "2") then
             "@done",
             "确定"
         );
-        if confirm("注意:",
-                   "magisk 镜像已取消挂载.\n\n本工具即将退出.\n如果还需使用, 请重新卡刷本工具.\n\n",
-                   "@warning",
-                   "退出到 Recovery",
-                   "重启设备") == "yes"
+        if confirm(
+            "注意",
+            "magisk 镜像已取消挂载.\n\n本工具即将退出.\n如果还需使用, 请重新卡刷本工具.\n\n",
+            "@warning",
+            "退出到 Recovery",
+            "重启设备") == "yes"
         then
             exit("");
         else
