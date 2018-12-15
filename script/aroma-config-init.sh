@@ -200,11 +200,12 @@ if prop("operations.prop", "selected") == cal("$i", "+", "2") then
             "@done",
             "OK"
         );
-        if confirm("Note:",
-                   "The magisk image has been unmounted.\n\nThis tool will exit.\nIf you still need to use, please reflash this tool.\n\n",
-                   "@warning",
-                   "Exit to Recovery",
-                   "Reboot") == "yes"
+        if confirm(
+            "Note",
+            "The magisk image has been unmounted.\n\nThis tool will exit.\nIf you still need to use, please reflash this tool.\n\n",
+            "@warning",
+            "Exit to Recovery",
+            "Reboot") == "yes"
         then
             exit("");
         else
