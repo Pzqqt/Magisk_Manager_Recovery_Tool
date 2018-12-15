@@ -102,7 +102,7 @@ then
         setvar("module_am_status", "Disabled");
     endif;
     if cmp(getvar("stat_am_code"),"==", "1") then
-        setvar("module_am_status", "Enable");
+        setvar("module_am_status", "Enabled");
     endif;
 
     menubox(
