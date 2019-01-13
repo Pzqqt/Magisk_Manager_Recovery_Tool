@@ -11,6 +11,7 @@ This tool will allows you to perform certain operations, such as enabling, disab
 
 ## Note
 - 1.Only supported arm & arm64 architecture. Not supported x86 & x64 architecture.<br>
+- 2.Will get stuck at rec for some device(such as Xiaomi 8). This is a bug in Aroma Installer binary file and I can not fix it.<br>
 
 ## Reference
 - <a href="https://github.com/chenxiaolong/DualBootPatcher/tree/master/utilities">DualBootUtilities</a>(framework)<br>
