@@ -16,7 +16,7 @@ gen_aroma_config() {
             module_name=$(file_getprop /magisk/$module/module.prop name)
             module_author=$(file_getprop /magisk/$module/module.prop author)
             module_version=$(file_getprop /magisk/$module/module.prop version)
-            echo "    \"$module_name\", \"作者: $module_author \n版本: $module_version\", \"@default\"," >> $ac_tmp
+            echo "    \"$module_name\", \"作者: $module_author \n<i>版本: $module_version</i>\", \"@default\"," >> $ac_tmp
         done
     fi
     cat >> $ac_tmp <<EOF
