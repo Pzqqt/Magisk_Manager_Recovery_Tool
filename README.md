@@ -11,9 +11,10 @@
 
 ## 注意
 - 1.目前仅支持 arm 和 arm64 架构的设备.<br>
+- 2.在某些设备上刷入后可能会卡在Rec界面(如小米8), 系 Aroma Installer 二进制文件的 bug, 我无法修复.<br>
 
 ## 引用
-- <a href="https://github.com/chenxiaolong/DualBootPatcher/tree/master/utilities">DualBootUtilities</a>(框架代码)<br>
+- <a href="https://github.com/chenxiaolong/DualBootPatcher/tree/master/utilities">DualBootUtilities</a>(主体代码)<br>
 - <a href="https://forum.xda-developers.com/apps/magisk/module-tool-magisk-manager-recovery-mode-t3693165">Magisk Manager for Recovery Mode (mm)</a>(magisk.img 镜像挂载方法)<br>
 - <a href="https://elementalx.org/devices/">ElementalX Kernel</a>(Aroma Installer 主题)<br>
 - <a href="https://sourceforge.net/projects/p7zip/files/p7zip/16.02/">p7zip</a>(7za 二进制文件)<br>
