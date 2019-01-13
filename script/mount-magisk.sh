@@ -33,9 +33,7 @@ mount_image() {
             is_mounted $2 && break
         fi
     done
-    if ! is_mounted $mountPath; then
-        exit 1
-    fi
+    is_mounted $mountPath || exit 1
 }
 
 gen_umount_script() {

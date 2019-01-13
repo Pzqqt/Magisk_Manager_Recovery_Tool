@@ -12,9 +12,9 @@ ui_print() {
 }
 
 abort() {
-    ui_print ""
+    ui_print " "
     ui_print "$*"
-    ui_print ""
+    ui_print " "
     exit 1
 }
 
