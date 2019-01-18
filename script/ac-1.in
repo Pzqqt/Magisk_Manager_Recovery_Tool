@@ -70,6 +70,8 @@ gotolabel("main_menu");
 ini_set("text_next", "Next");
 ini_set("icon_next", "@next");
 
+exec("/sbin/sh", "-ex", "/tmp/mmr/script/gen-icons-prop.sh");
+
 menubox(
     "Main menu",
     "Choose an action",

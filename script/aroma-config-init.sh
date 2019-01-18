@@ -6,6 +6,7 @@ file_getprop() { grep "^$2=" "$1" | head -n1 | cut -d= -f2; }
 
 gen_aroma_config() {
     installed_modules=`ls_mount_path`
+    echo $installed_modules > /tmp/mmr/script/modules_ids
     ac_tmp=/tmp/mmr/script/aroma-config
     mv /tmp/mmr/script/ac-1.in $ac_tmp
     chmod 0755 $ac_tmp
@@ -16,7 +17,7 @@ gen_aroma_config() {
             module_name=$(file_getprop /magisk/$module/module.prop name)
             module_author=$(file_getprop /magisk/$module/module.prop author)
             module_version=$(file_getprop /magisk/$module/module.prop version)
-            echo "    \"$module_name\", \"Author: $module_author \n<i>Version: $module_version</i>\", \"@default\"," >> $ac_tmp
+            echo "    \"$module_name\", \"Author: $module_author \n<i>Version: $module_version</i>\", prop(\"module_icon.prop\", \"module.icon.${module}\")," >> $ac_tmp
         done
     fi
     cat >> $ac_tmp <<EOF

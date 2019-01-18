@@ -3,12 +3,22 @@
 operate=$1
 module=$2
 
-if [ -d /magisk/$module ]; then
+if [ $operate = "status" ]; then
+    # Enable: 1, Disable: 0, Removed: 2, UpdateFlag: 3, RemoveFlag: 4
+    [ ! -d /magisk/$module ] && exit 2
+    [ -f /magisk/$module/update ] && exit 3
+    [ -f /magisk/$module/remove ] && exit 4
+    [ -f /magisk/$module/disable ] && exit 0
+    exit 1
+fi
 
-    if [ $operate = "status_am" ]; then
-        # Enable: 1, Disable: 0, Removed: 2
-        [ -f /magisk/$module/auto_mount ] && exit 1 || exit 0
-    fi
+if [ $operate = "status_am" ]; then
+    # Enable: 1, Disable: 0, Removed: 2
+    [ ! -d /magisk/$module ] && exit 2
+    [ -f /magisk/$module/auto_mount ] && exit 1 || exit 0
+fi
+
+if [ -d /magisk/$module ]; then
 
     if [ -f /magisk/$module/update ]; then
         echo ""
@@ -54,11 +64,6 @@ if [ -d /magisk/$module ]; then
         rm -rf /magisk/$module
         echo ""
         echo "Successfully removed module $module !"
-    fi
-
-    if [ $operate = "status" ]; then
-        # Enable: 1, Disable: 0, Removed: 2, UpdateFlag: 3, RemoveFlag: 4
-        [ ! -f /magisk/$module/disable ] && exit 1
     fi
 
     exit 0
