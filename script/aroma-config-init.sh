@@ -21,8 +21,7 @@ gen_aroma_config() {
         done
     fi
     cat >> $ac_tmp <<EOF
-    "保存 recovery 日志", "复制 /tmp/recovery.log 到内部存储", "@action",
-    "瘦身 magisk.img",    "压缩 magisk.img 容量以减少其存储空间占用.\n建议在移除大型模块后使用.", "@action"
+    "高级选项", "", "@action"
 );
 
 # Reboot
@@ -170,18 +169,45 @@ EOF
     fi
     echo "    if prop(\"operations.prop\", \"selected\") == cal(\"$i\", \"+\", \"1\") then" >> $ac_tmp
     cat >> $ac_tmp <<EOF
-        write("/tmp/mmr/cmd.sh",
-              "#!/sbin/sh\n" +
-              "cp /tmp/recovery.log /sdcard/\n"
-              );
-    endif;
-EOF
-    echo "    if prop(\"operations.prop\", \"selected\") == cal(\"$i\", \"+\", \"2\") then" >> $ac_tmp
-    cat >> $ac_tmp <<EOF
-        write("/tmp/mmr/cmd.sh",
-              "#!/sbin/sh\n" +
-              "/tmp/mmr/script/shrink-magiskimg.sh\n"
-              );
+        menubox(
+            "高级功能",
+            "请选择操作" + getvar("core_only_mode"),
+            "@welcome",
+            "advanced.prop",
+
+            "保存 recovery 日志",   "复制 /tmp/recovery.log 到内部存储", "@action",
+            "瘦身 magisk.img",      "压缩 magisk.img 容量以减少其存储空间占用.\n建议在移除大型模块后使用.", "@action",
+            "启用 Magisk 核心模式", "阻止载入所有模块", "@action",
+            "返回",                 "", "@back2"
+        );
+        if prop("advanced.prop", "selected") == "1" then
+            write("/tmp/mmr/cmd.sh",
+                  "#!/sbin/sh\n" +
+                  "cp /tmp/recovery.log /sdcard/\n"
+                  );
+        endif;
+        if prop("advanced.prop", "selected") == "2" then
+            write("/tmp/mmr/cmd.sh",
+                  "#!/sbin/sh\n" +
+                  "/tmp/mmr/script/shrink-magiskimg.sh\n"
+                  );
+        endif;
+        if prop("advanced.prop", "selected") == "3" then
+            if confirm("警告",
+                       "启用 Magisk 核心模式后, 所有模块均不会被载入.\n但 MagiskSU 和 MagiskHide 仍然会继续工作.\n您确定要继续吗?",
+                       "@warning") == "yes"
+            then
+                write("/tmp/mmr/cmd.sh",
+                      "#!/sbin/sh\n" +
+                      "/tmp/mmr/script/core-mode.sh enable\n"
+                      );
+            else
+                back("1");
+            endif;
+        endif;
+        if prop("advanced.prop", "selected") == "4" then
+            back("2");
+        endif;
     endif;
 EOF
     [ ${#installed_modules} -eq 0 ] || echo "    endif;" >> $ac_tmp
@@ -194,7 +220,7 @@ setvar("exitcode", exec("/sbin/sh", "-ex", "/tmp/mmr/cmd.sh"));
 ini_set("text_next", "完成");
 ini_set("icon_next", "@next");
 
-if prop("operations.prop", "selected") == cal("$i", "+", "2") then
+if prop("advanced.prop", "selected") == "2" then
     if cmp(getvar("exitcode"),"==","0") then
         alert(
             "运行成功",
