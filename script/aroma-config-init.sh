@@ -21,8 +21,7 @@ gen_aroma_config() {
         done
     fi
     cat >> $ac_tmp <<EOF
-    "Save recovery log",       "Copies /tmp/recovery.log to internal SD", "@action",
-    "Shrinking magisk.img",    "Shrinking magisk.img capacity.\nRecommended to use after removing large modules.", "@action"
+    "Advanced options", "", "@action"
 );
 
 # Reboot
@@ -170,18 +169,45 @@ EOF
     fi
     echo "    if prop(\"operations.prop\", \"selected\") == cal(\"$i\", \"+\", \"1\") then" >> $ac_tmp
     cat >> $ac_tmp <<EOF
-        write("/tmp/mmr/cmd.sh",
-              "#!/sbin/sh\n" +
-              "cp /tmp/recovery.log /sdcard/\n"
-              );
-    endif;
-EOF
-    echo "    if prop(\"operations.prop\", \"selected\") == cal(\"$i\", \"+\", \"2\") then" >> $ac_tmp
-    cat >> $ac_tmp <<EOF
-        write("/tmp/mmr/cmd.sh",
-              "#!/sbin/sh\n" +
-              "/tmp/mmr/script/shrink-magiskimg.sh\n"
-              );
+        menubox(
+            "advanced options",
+            "Choose an action" + getvar("core_only_mode"),
+            "@welcome",
+            "advanced.prop",
+
+            "Save recovery log",            "Copies /tmp/recovery.log to internal SD", "@action",
+            "Shrinking magisk.img",         "Shrinking magisk.img capacity.\nRecommended to use after removing large modules.", "@action",
+            "Enable Magisk core only mode", "Block loading all modules ", "@action",
+            "Back",                 "", "@back2"
+        );
+        if prop("advanced.prop", "selected") == "1" then
+            write("/tmp/mmr/cmd.sh",
+                  "#!/sbin/sh\n" +
+                  "cp /tmp/recovery.log /sdcard/\n"
+                  );
+        endif;
+        if prop("advanced.prop", "selected") == "2" then
+            write("/tmp/mmr/cmd.sh",
+                  "#!/sbin/sh\n" +
+                  "/tmp/mmr/script/shrink-magiskimg.sh\n"
+                  );
+        endif;
+        if prop("advanced.prop", "selected") == "3" then
+            if confirm("Warning",
+                       "If you enable Magisk core only mode,\nno modules will be load.\nBut MagiskSU and MagiskHide will still be enabled.\nContinue?",
+                       "@warning") == "yes"
+            then
+                write("/tmp/mmr/cmd.sh",
+                      "#!/sbin/sh\n" +
+                      "/tmp/mmr/script/core-mode.sh enable\n"
+                      );
+            else
+                back("1");
+            endif;
+        endif;
+        if prop("advanced.prop", "selected") == "4" then
+            back("2");
+        endif;
     endif;
 EOF
     [ ${#installed_modules} -eq 0 ] || echo "    endif;" >> $ac_tmp
@@ -194,7 +220,7 @@ setvar("exitcode", exec("/sbin/sh", "-ex", "/tmp/mmr/cmd.sh"));
 ini_set("text_next", "Done");
 ini_set("icon_next", "@next");
 
-if prop("operations.prop", "selected") == cal("$i", "+", "2") then
+if prop("advanced.prop", "selected") == "2" then
     if cmp(getvar("exitcode"),"==","0") then
         alert(
             "Done",
