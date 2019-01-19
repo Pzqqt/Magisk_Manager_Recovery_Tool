@@ -123,9 +123,10 @@ then
     );
 
     if prop("modoperations.prop", "selected") == "1" then
+        exec("/sbin/sh", "/tmp/mmr/script/get-description.sh", getvar("modid"));
         alert(
             "Description",
-            resread("modinfo/" + getvar("modid") + ".txt"),
+            getvar("exec_buffer"),
             "@info",
             "Back"
         );
@@ -250,22 +251,4 @@ EOF
     sync
 }
 
-gen_mod_info() {
-    modinfodir=/tmp/mmr/template/META-INF/com/google/android/aroma/modinfo
-    mkdir -p $modinfodir
-    for module in ${installed_modules}; do
-        infofile=${modinfodir}/${module}.txt
-        if [ -f /magisk/$module/module.prop ]; then
-            infotext=`file_getprop /magisk/$module/module.prop description`
-            if ! [ -z $infotext ]; then
-                echo $infotext > $infofile
-                continue
-            fi
-        fi
-        echo "Cannot get module description!" > $infofile
-    done
-}
-
 gen_aroma_config
-
-gen_mod_info
