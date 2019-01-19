@@ -164,7 +164,6 @@ then
         endif;
     endif;
 else
-    # Save recovery log
 EOF
     fi
     echo "    if prop(\"operations.prop\", \"selected\") == cal(\"$i\", \"+\", \"1\") then" >> $ac_tmp
