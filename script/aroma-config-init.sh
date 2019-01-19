@@ -171,13 +171,13 @@ EOF
     cat >> $ac_tmp <<EOF
         menubox(
             "高级功能",
-            "请选择操作" + getvar("core_only_mode"),
+            "请选择操作" + getvar("core_only_mode_warning"),
             "@welcome",
             "advanced.prop",
 
             "保存 recovery 日志",   "复制 /tmp/recovery.log 到内部存储", "@action",
             "瘦身 magisk.img",      "压缩 magisk.img 容量以减少其存储空间占用.\n建议在移除大型模块后使用.", "@action",
-            "启用 Magisk 核心模式", "阻止载入所有模块", "@action",
+            getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
             "返回",                 "", "@back2"
         );
         if prop("advanced.prop", "selected") == "1" then
@@ -193,17 +193,18 @@ EOF
                   );
         endif;
         if prop("advanced.prop", "selected") == "3" then
-            if confirm("警告",
-                       "启用 Magisk 核心模式后, 所有模块均不会被载入.\n但 MagiskSU 和 MagiskHide 仍然会继续工作.\n您确定要继续吗?",
-                       "@warning") == "yes"
-            then
-                write("/tmp/mmr/cmd.sh",
-                      "#!/sbin/sh\n" +
-                      "/tmp/mmr/script/core-mode.sh enable\n"
-                      );
-            else
-                back("1");
+            if cmp(getvar("core_only_mode_code"),"==", "0") then
+                if confirm("警告",
+                           "启用 Magisk 核心模式后, 所有模块均不会被载入.\n但 MagiskSU 和 MagiskHide 仍然会继续工作.\n您确定要继续吗?",
+                           "@warning") == "no"
+                then
+                    back("1");
+                endif;
             endif;
+            write("/tmp/mmr/cmd.sh",
+                  "#!/sbin/sh\n" +
+                  "/tmp/mmr/script/core-mode.sh switch\n"
+                  );
         endif;
         if prop("advanced.prop", "selected") == "4" then
             back("2");

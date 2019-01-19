@@ -13,11 +13,14 @@ if [ $operate == "status" ]; then
   fi
 fi
 
-if [ $operate == "enable" ]; then
-  touch ${cache_path}/.disable_magisk
-  echo ""
-  echo "已成功启用 Magisk 核心模式!"
-  echo ""
-  echo "若要关闭核心模式,"
-  echo "请重启后在 Magisk Manager 应用设置中关闭."
+if [ $operate == "switch" ]; then
+    if [ -f ${cache_path}/.disable_magisk ]; then
+        rm -f ${cache_path}/.disable_magisk
+        echo ""
+        echo "已成功禁用 Magisk 核心模式!"
+    else
+        touch ${cache_path}/.disable_magisk
+        echo ""
+        echo "已成功启用 Magisk 核心模式!"
+    fi
 fi
