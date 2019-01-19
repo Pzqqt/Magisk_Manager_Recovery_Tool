@@ -13,11 +13,14 @@ if [ $operate == "status" ]; then
   fi
 fi
 
-if [ $operate == "enable" ]; then
-  touch ${cache_path}/.disable_magisk
-  echo ""
-  echo "Successfully enable Magisk core only mode!"
-  echo ""
-  echo "If you need disable it,"
-  echo "please reboot & disable it in Magisk Manager app settings."
+if [ $operate == "switch" ]; then
+    if [ -f ${cache_path}/.disable_magisk ]; then
+        rm -f ${cache_path}/.disable_magisk
+        echo ""
+        echo "Successfully disable Magisk core only mode!"
+    else
+        touch ${cache_path}/.disable_magisk
+        echo ""
+        echo "Successfully enable Magisk core only mode!"
+    fi
 fi

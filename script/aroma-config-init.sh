@@ -171,13 +171,13 @@ EOF
     cat >> $ac_tmp <<EOF
         menubox(
             "advanced options",
-            "Choose an action" + getvar("core_only_mode"),
+            "Choose an action" + getvar("core_only_mode_warning"),
             "@welcome",
             "advanced.prop",
 
-            "Save recovery log",            "Copies /tmp/recovery.log to internal SD", "@action",
-            "Shrinking magisk.img",         "Shrinking magisk.img capacity.\nRecommended to use after removing large modules.", "@action",
-            "Enable Magisk core only mode", "Block loading all modules ", "@action",
+            "Save recovery log",    "Copies /tmp/recovery.log to internal SD", "@action",
+            "Shrinking magisk.img", "Shrinking magisk.img capacity.\nRecommended to use after removing large modules.", "@action",
+            getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
             "Back",                 "", "@back2"
         );
         if prop("advanced.prop", "selected") == "1" then
@@ -193,17 +193,18 @@ EOF
                   );
         endif;
         if prop("advanced.prop", "selected") == "3" then
-            if confirm("Warning",
-                       "If you enable Magisk core only mode,\nno modules will be load.\nBut MagiskSU and MagiskHide will still be enabled.\nContinue?",
-                       "@warning") == "yes"
-            then
-                write("/tmp/mmr/cmd.sh",
-                      "#!/sbin/sh\n" +
-                      "/tmp/mmr/script/core-mode.sh enable\n"
-                      );
-            else
-                back("1");
+            if cmp(getvar("core_only_mode_code"),"==", "0") then
+                if confirm("Warning",
+                           "If you enable Magisk core only mode,\nno modules will be load.\nBut MagiskSU and MagiskHide will still be enabled.\nContinue?",
+                           "@warning") == "no"
+                then
+                    back("1");
+                endif;
             endif;
+            write("/tmp/mmr/cmd.sh",
+                  "#!/sbin/sh\n" +
+                  "/tmp/mmr/script/core-mode.sh switch\n"
+                  );
         endif;
         if prop("advanced.prop", "selected") == "4" then
             back("2");

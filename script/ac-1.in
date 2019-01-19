@@ -75,15 +75,19 @@ exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh");
 setvar("core_only_mode_code", exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "status"));
 
 if cmp(getvar("core_only_mode_code"),"==", "0") then
-    setvar("core_only_mode", "");
+    setvar("core_only_mode_warning", "");
+    setvar("core_only_mode_switch_text", "Enable Magisk core only mode");
+    setvar("core_only_mode_switch_text2", "Block loading all modules");
 endif;
 if cmp(getvar("core_only_mode_code"),"==", "1") then
-    setvar("core_only_mode", "\n<#f00>Magisk core only mode is enabled, no modules will be load.</#>");
+    setvar("core_only_mode_warning", "\n<#f00>Magisk core only mode is enabled, no modules will be load.</#>");
+    setvar("core_only_mode_switch_text", "Disable Magisk core only mode");
+    setvar("core_only_mode_switch_text2", "");
 endif;
 
 menubox(
     "Main menu",
-    "Choose an action" + getvar("core_only_mode"),
+    "Choose an action" + getvar("core_only_mode_warning"),
     "@welcome",
     "operations.prop",
 
