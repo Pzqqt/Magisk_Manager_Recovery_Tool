@@ -30,7 +30,7 @@ if prop("operations.prop", "selected") == "1" then
                "Are you sure want to reboot your device?",
                "@warning") == "yes"
     then
-        exec("/sbin/sh", "-ex", "/tmp/mmr/script/umount-magisk.sh");
+        exec("/sbin/sh", "/tmp/mmr/script/umount-magisk.sh");
         reboot("now");
     else
         goto("main_menu");
@@ -43,7 +43,7 @@ if prop("operations.prop", "selected") == "2" then
                "Are you sure to quit Magisk Manager Recovery Tool?",
                "@warning") == "yes"
     then
-        exec("/sbin/sh", "-ex", "/tmp/mmr/script/umount-magisk.sh");
+        exec("/sbin/sh", "/tmp/mmr/script/umount-magisk.sh");
         exit("");
     else
         goto("main_menu");
@@ -73,8 +73,8 @@ EOF
         echo "    cmp(prop(\"operations.prop\", \"selected\"), \"<=\", \"$i\")" >> $ac_tmp
         cat >> $ac_tmp <<EOF
 then
-    setvar("stat_code", exec("/sbin/sh", "-ex", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
-    setvar("stat_am_code", exec("/sbin/sh", "-ex", "/tmp/mmr/script/control-module.sh", "status_am", getvar("modid")));
+    setvar("stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
+    setvar("stat_am_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_am", getvar("modid")));
 
     if cmp(getvar("stat_code"),"==", "0") then
         setvar("module_status", "Disabled");
@@ -215,7 +215,7 @@ EOF
 
 pleasewait("Executing Shell...");
 
-setvar("exitcode", exec("/sbin/sh", "-ex", "/tmp/mmr/cmd.sh"));
+setvar("exitcode", exec("/sbin/sh", "/tmp/mmr/cmd.sh"));
 
 ini_set("text_next", "Done");
 ini_set("icon_next", "@next");
