@@ -80,7 +80,7 @@ if cmp(getvar("core_only_mode_code"),"==", "0") then
     setvar("core_only_mode_switch_text2", "阻止载入所有模块");
 endif;
 if cmp(getvar("core_only_mode_code"),"==", "1") then
-    setvar("core_only_mode", "\n<#f00>Magisk 核心模式已启用, 所有模块均不会被载入.</#>");
+    setvar("core_only_mode_warning", "\n<#f00>Magisk 核心模式已启用, 所有模块均不会被载入.</#>");
     setvar("core_only_mode_switch_text", "禁用 Magisk 核心模式");
     setvar("core_only_mode_switch_text2", "");
 endif;
