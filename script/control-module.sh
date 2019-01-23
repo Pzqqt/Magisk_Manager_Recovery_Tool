@@ -21,50 +21,53 @@ fi
 if [ -d /magisk/$module ]; then
 
     if [ -f /magisk/$module/update ]; then
-        echo ""
         echo "该模块将在重启后完成更新, 故不允许操作."
         echo "请重启一次后再试."
         exit 3
     fi
 
-     if [ -f /magisk/$module/remove ]; then
-        echo ""
+    if [ -f /magisk/$module/remove ]; then
         echo "该模块将在重启后移除, 故不允许操作."
         echo "请重启一次后再试."
         exit 4
     fi
 
     if [ $operate = "on_module" ]; then
-        rm -rf /magisk/$module/disable
-        echo ""
-        echo "已成功启用模块 $module !"
+        rm -rf /magisk/$module/disable && {
+            echo "已成功启用模块 $module !"
+            exit 0
+        }
     fi
 
     if [ $operate = "off_module" ]; then
-        touch /magisk/$module/disable
-        echo ""
-        echo "已成功禁用模块 $module !"
+        touch /magisk/$module/disable && {
+            echo "已成功禁用模块 $module !"
+            exit 0
+        }
     fi
 
     if [ $operate = "on_auto_mount" ]; then
-        touch /magisk/$module/auto_mount
-        echo ""
-        echo "已成功为模块 $module 启用 auto_mount!"
+        touch /magisk/$module/auto_mount && {
+            echo "已成功为模块 $module 启用 auto_mount!"
+            exit 0
+        }
     fi
 
     if [ $operate = "off_auto_mount" ]; then
-        rm -rf /magisk/$module/auto_mount
-        echo ""
-        echo "已成功为模块 $module 禁用 auto_mount!"
+        rm -rf /magisk/$module/auto_mount && {
+            echo "已成功为模块 $module 禁用 auto_mount!"
+            exit 0
+        }
     fi
 
     if [ $operate = "remove" ]; then
-        rm -rf /magisk/$module
-        echo ""
-        echo "已成功移除模块 $module !"
+        rm -rf /magisk/$module && {
+            echo "已成功移除模块 $module !"
+            exit 0
+        }
     fi
 
-    exit 0
+    echo ""
+    echo "命令执行失败!"
+    exit 1
 fi
-
-exit 2
