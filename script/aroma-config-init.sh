@@ -2,19 +2,8 @@
 
 ls_mount_path() { ls -1 /magisk | grep -v 'lost+found'; }
 
-file_getprop() { grep "^$2=" "$1" | head -n1 | cut -d= -f2; }
-
 get_module_info() {
-    if [ -f /magisk/$1/module.prop ]; then
-        infotext=`file_getprop /magisk/$1/module.prop $2`
-        if [ ${#infotext} -ne 0 ]; then
-            echo $infotext
-        else
-            echo "(未提供信息)"
-        fi
-    else
-        echo "(未提供信息)"
-    fi
+    /tmp/mmr/script/get-module-info.sh $1 $2
 }
 
 gen_aroma_config() {
@@ -78,7 +67,7 @@ EOF
             let i+=1
             echo "if prop(\"operations.prop\", \"selected\") == \"$i\" then" >> $ac_tmp
             echo "    setvar(\"modid\", \"$module\");" >> $ac_tmp
-            echo "    setvar(\"modname\", \"$(file_getprop /magisk/$module/module.prop name)\");" >> $ac_tmp
+            echo "    setvar(\"modname\", \"$(get_module_info $module name)\");" >> $ac_tmp
             echo "endif;" >> $ac_tmp
             echo "" >> $ac_tmp
         done
@@ -155,7 +144,7 @@ then
     );
 
     if prop("modoperations.prop", "selected") == "1" then
-        exec("/sbin/sh", "/tmp/mmr/script/get-description.sh", getvar("modid"));
+        exec("/sbin/sh", "/tmp/mmr/script/get-module-info.sh", getvar("modid"), "description");
         alert(
             "描述",
             getvar("exec_buffer"),
