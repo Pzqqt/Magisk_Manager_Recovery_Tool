@@ -4,6 +4,19 @@ ls_mount_path() { ls -1 /magisk | grep -v 'lost+found'; }
 
 file_getprop() { grep "^$2=" "$1" | head -n1 | cut -d= -f2; }
 
+get_module_info() {
+    if [ -f /magisk/$1/module.prop ]; then
+        infotext=`file_getprop /magisk/$1/module.prop $2`
+        if [ ${#infotext} -ne 0 ]; then
+            echo $infotext
+        else
+            echo "(No info provided)"
+        fi
+    else
+        echo "(No info provided)"
+    fi
+}
+
 gen_aroma_config() {
     installed_modules=`ls_mount_path`
     echo $installed_modules > /tmp/mmr/script/modules_ids
@@ -14,10 +27,10 @@ gen_aroma_config() {
         echo "    \"If you see this option\", \"You have not installed any Magisk modules...\", \"@what\"," >> $ac_tmp
     else
         for module in ${installed_modules}; do
-            module_name=$(file_getprop /magisk/$module/module.prop name)
-            module_author=$(file_getprop /magisk/$module/module.prop author)
-            module_version=$(file_getprop /magisk/$module/module.prop version)
-            echo "    \"$module_name\", \"Author: $module_author \n<i>Version: $module_version</i>\", prop(\"module_icon.prop\", \"module.icon.${module}\")," >> $ac_tmp
+            module_name=$(get_module_info $module name)
+            module_author=$(get_module_info $module author)
+            module_version=$(get_module_info $module version)
+            echo "    \"$module_name\", \"<i><b>$module_version\nAuthor: $module_author</b></i>\", prop(\"module_icon.prop\", \"module.icon.${module}\")," >> $ac_tmp
         done
     fi
     cat >> $ac_tmp <<EOF

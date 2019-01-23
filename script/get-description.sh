@@ -11,4 +11,5 @@ if [ -f /magisk/$module/module.prop ]; then
         exit 0
     fi
 fi
-echo "Cannot get module description!"
+
+echo "(No info provided)"
