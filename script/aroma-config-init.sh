@@ -71,9 +71,9 @@ EOF
             echo "endif;" >> $ac_tmp
             echo "" >> $ac_tmp
         done
-        echo "if cmp(prop(\"operations.prop\", \"selected\"), \">=\", \"3\") &&" >> $ac_tmp
-        echo "    cmp(prop(\"operations.prop\", \"selected\"), \"<=\", \"$i\")" >> $ac_tmp
         cat >> $ac_tmp <<EOF
+if cmp(prop("operations.prop", "selected"), ">=", "3") &&
+   cmp(prop("operations.prop", "selected"), "<=", "$i")
 then
     setvar("stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
     setvar("stat_am_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_am", getvar("modid")));
@@ -197,8 +197,8 @@ then
 else
 EOF
     fi
-    echo "    if prop(\"operations.prop\", \"selected\") == cal(\"$i\", \"+\", \"1\") then" >> $ac_tmp
     cat >> $ac_tmp <<EOF
+    if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         menubox(
             "高级功能",
             "请选择操作" + getvar("core_only_mode_warning"),
@@ -241,7 +241,7 @@ EOF
         endif;
     endif;
 EOF
-    [ ${#installed_modules} -eq 0 ] || echo "    endif;" >> $ac_tmp
+    [ ${#installed_modules} -eq 0 ] || echo "endif;" >> $ac_tmp
     cat >> $ac_tmp <<EOF
 
 pleasewait("正在执行脚本 ...");
