@@ -89,11 +89,18 @@ then
     setvar("stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
     setvar("stat_am_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_am", getvar("modid")));
 
+    setvar("module_remove_warning", "");
     if cmp(getvar("stat_code"),"==", "0") then
         setvar("module_status", "已禁用");
+        setvar("module_status_switch_text",  "启用该模块");
+        setvar("module_status_switch_text2", "");
+        setvar("module_status_switch_icon",  "@action2");
     endif;
     if cmp(getvar("stat_code"),"==", "1") then
         setvar("module_status", "已启用");
+        setvar("module_status_switch_text",  "禁用该模块");
+        setvar("module_status_switch_text2", "");
+        setvar("module_status_switch_icon",  "@offaction");
     endif;
     if cmp(getvar("stat_code"),"==", "2") then
         alert(
@@ -113,9 +120,24 @@ then
 
     if cmp(getvar("stat_am_code"),"==", "0") then
         setvar("module_am_status", "已禁用");
+        setvar("module_am_status_switch_text",  "启用 auto_mount");
+        setvar("module_am_status_switch_text2", "");
+        setvar("module_am_status_switch_icon",  "@action2");
     endif;
     if cmp(getvar("stat_am_code"),"==", "1") then
         setvar("module_am_status", "已启用");
+        setvar("module_am_status_switch_text",  "禁用 auto_mount");
+        setvar("module_am_status_switch_text2", "");
+        setvar("module_am_status_switch_icon",  "@offaction");
+    endif;
+    if cmp(getvar("stat_code"),"==", "3") || cmp(getvar("stat_code"),"==", "4") then
+        setvar("module_status_switch_text",     "启用/禁用该模块");
+        setvar("module_status_switch_text2",    "不允许的操作");
+        setvar("module_status_switch_icon",     "@crash");
+        setvar("module_am_status_switch_text",  "启用/禁用 auto_mount");
+        setvar("module_am_status_switch_text2", "不允许的操作");
+        setvar("module_am_status_switch_icon",  "@crash");
+        setvar("module_remove_warning",         "不允许的操作");
     endif;
 
     menubox(
@@ -126,12 +148,10 @@ then
         "@welcome",
         "modoperations.prop",
 
-        "查看模块描述",    "", "@info",
-        "启用该模块",      "", "@action2",
-        "禁用该模块",      "", "@crash",
-        "启用 auto_mount", "", "@action2",
-        "禁用 auto_mount", "", "@crash",
-        "移除",            "", "@delete"
+        "查看模块描述", "", "@info",
+        getvar("module_status_switch_text"), getvar("module_status_switch_text2"), getvar("module_status_switch_icon"),
+        getvar("module_am_status_switch_text"), getvar("module_am_status_switch_text2"), getvar("module_am_status_switch_icon"),
+        "移除", getvar("module_remove_warning"), "@delete"
     );
 
     if prop("modoperations.prop", "selected") == "1" then
@@ -143,37 +163,46 @@ then
             "返回"
         );
         back("1");
-    endif;
-    if prop("modoperations.prop", "selected") == "2" then
-        write("/tmp/mmr/cmd.sh",
-              "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh on_module " + getvar("modid") + "\n");
-    endif;
-    if prop("modoperations.prop", "selected") == "3" then
-        write("/tmp/mmr/cmd.sh",
-              "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh off_module " + getvar("modid") + "\n");
-    endif;
-    if prop("modoperations.prop", "selected") == "4" then
-        write("/tmp/mmr/cmd.sh",
-              "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh on_auto_mount " + getvar("modid") + "\n");
-    endif;
-    if prop("modoperations.prop", "selected") == "5" then
-        write("/tmp/mmr/cmd.sh",
-              "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh off_auto_mount " + getvar("modid") + "\n");
-    endif;
-    if prop("modoperations.prop", "selected") == "6" then
-        if confirm("警告",
-                   "您确定要移除该模块吗?",
-                   "@warning") == "yes"
-        then
+    else
+        if cmp(getvar("stat_code"),"==", "3") then
+            alert(
+                "不允许的操作",
+                "该模块将在重启后完成更新,\n请重启一次后再试.",
+                "@crash",
+                "返回"
+            );
+            back("1");
+        endif;
+        if cmp(getvar("stat_code"),"==", "4") then
+            alert(
+                "不允许的操作",
+                "该模块将在重启后完成移除,\n请重启一次后再试.",
+                "@crash",
+                "返回"
+            );
+            back("1");
+        endif;
+        if prop("modoperations.prop", "selected") == "2" then
             write("/tmp/mmr/cmd.sh",
                   "#!/sbin/sh\n" +
-                  "/tmp/mmr/script/control-module.sh remove " + getvar("modid") + "\n");
-        else
-            back("1");
+                  "/tmp/mmr/script/control-module.sh switch_module " + getvar("modid") + "\n");
+        endif;
+        if prop("modoperations.prop", "selected") == "3" then
+            write("/tmp/mmr/cmd.sh",
+                  "#!/sbin/sh\n" +
+                  "/tmp/mmr/script/control-module.sh switch_auto_mount " + getvar("modid") + "\n");
+        endif;
+        if prop("modoperations.prop", "selected") == "4" then
+            if confirm("警告",
+                       "您确定要移除该模块吗?",
+                       "@warning") == "yes"
+            then
+                write("/tmp/mmr/cmd.sh",
+                      "#!/sbin/sh\n" +
+                      "/tmp/mmr/script/control-module.sh remove " + getvar("modid") + "\n");
+            else
+                back("1");
+            endif;
         endif;
     endif;
 else
