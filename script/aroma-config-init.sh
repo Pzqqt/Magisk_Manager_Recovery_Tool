@@ -89,11 +89,18 @@ then
     setvar("stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
     setvar("stat_am_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_am", getvar("modid")));
 
+    setvar("module_remove_warning", "");
     if cmp(getvar("stat_code"),"==", "0") then
         setvar("module_status", "Disabled");
+        setvar("module_status_switch_text",  "Enable module");
+        setvar("module_status_switch_text2", "");
+        setvar("module_status_switch_icon",  "@action2");
     endif;
     if cmp(getvar("stat_code"),"==", "1") then
         setvar("module_status", "Enabled");
+        setvar("module_status_switch_text",  "Disable module");
+        setvar("module_status_switch_text2", "");
+        setvar("module_status_switch_icon",  "@offaction");
     endif;
     if cmp(getvar("stat_code"),"==", "2") then
         alert(
@@ -113,9 +120,24 @@ then
 
     if cmp(getvar("stat_am_code"),"==", "0") then
         setvar("module_am_status", "Disabled");
+        setvar("module_am_status_switch_text",  "Enable auto_mount");
+        setvar("module_am_status_switch_text2", "");
+        setvar("module_am_status_switch_icon",  "@action2");
     endif;
     if cmp(getvar("stat_am_code"),"==", "1") then
         setvar("module_am_status", "Enabled");
+        setvar("module_am_status_switch_text",  "Disable auto_mount");
+        setvar("module_am_status_switch_text2", "");
+        setvar("module_am_status_switch_icon",  "@offaction");
+    endif;
+    if cmp(getvar("stat_code"),"==", "3") || cmp(getvar("stat_code"),"==", "4") then
+        setvar("module_status_switch_text",     "Enable/Disable module");
+        setvar("module_status_switch_text2",    "Unallowed operation");
+        setvar("module_status_switch_icon",     "@crash");
+        setvar("module_am_status_switch_text",  "Enable/Disable auto_mount");
+        setvar("module_am_status_switch_text2", "Unallowed operation");
+        setvar("module_am_status_switch_icon",  "@crash");
+        setvar("module_remove_warning",         "Unallowed operation");
     endif;
 
     menubox(
@@ -126,12 +148,10 @@ then
         "@welcome",
         "modoperations.prop",
 
-        "View description",   "", "@info",
-        "Enable module",      "", "@action2",
-        "Disable module",     "", "@crash",
-        "Enable auto_mount",  "", "@action2",
-        "Disable auto_mount", "", "@crash",
-        "Remove",             "", "@delete"
+        "View description", "", "@info",
+        getvar("module_status_switch_text"), getvar("module_status_switch_text2"), getvar("module_status_switch_icon"),
+        getvar("module_am_status_switch_text"), getvar("module_am_status_switch_text2"), getvar("module_am_status_switch_icon"),
+        "Remove", getvar("module_remove_warning"), "@delete"
     );
 
     if prop("modoperations.prop", "selected") == "1" then
@@ -143,37 +163,46 @@ then
             "Back"
         );
         back("1");
-    endif;
-    if prop("modoperations.prop", "selected") == "2" then
-        write("/tmp/mmr/cmd.sh",
-              "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh on_module " + getvar("modid") + "\n");
-    endif;
-    if prop("modoperations.prop", "selected") == "3" then
-        write("/tmp/mmr/cmd.sh",
-              "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh off_module " + getvar("modid") + "\n");
-    endif;
-    if prop("modoperations.prop", "selected") == "4" then
-        write("/tmp/mmr/cmd.sh",
-              "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh on_auto_mount " + getvar("modid") + "\n");
-    endif;
-    if prop("modoperations.prop", "selected") == "5" then
-        write("/tmp/mmr/cmd.sh",
-              "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh off_auto_mount " + getvar("modid") + "\n");
-    endif;
-    if prop("modoperations.prop", "selected") == "6" then
-        if confirm("Warning!",
-                   "Are you sure want to remove this module?",
-                   "@warning") == "yes"
-        then
+    else
+        if cmp(getvar("stat_code"),"==", "3") then
+            alert(
+                "Unallowed operation",
+                "This module will be updated after reboot.\nPlease reboot once and try again.",
+                "@crash",
+                "Back"
+            );
+            back("1");
+        endif;
+        if cmp(getvar("stat_code"),"==", "4") then
+            alert(
+                "Unallowed operation",
+                "This module will be removed after reboot.\nPlease reboot once and try again.",
+                "@crash",
+                "Back"
+            );
+            back("1");
+        endif;
+        if prop("modoperations.prop", "selected") == "2" then
             write("/tmp/mmr/cmd.sh",
                   "#!/sbin/sh\n" +
-                  "/tmp/mmr/script/control-module.sh remove " + getvar("modid") + "\n");
-        else
-            back("1");
+                  "/tmp/mmr/script/control-module.sh switch_module " + getvar("modid") + "\n");
+        endif;
+        if prop("modoperations.prop", "selected") == "3" then
+            write("/tmp/mmr/cmd.sh",
+                  "#!/sbin/sh\n" +
+                  "/tmp/mmr/script/control-module.sh switch_auto_mount " + getvar("modid") + "\n");
+        endif;
+        if prop("modoperations.prop", "selected") == "4" then
+            if confirm("Warning!",
+                       "Are you sure want to remove this module?",
+                       "@warning") == "yes"
+            then
+                write("/tmp/mmr/cmd.sh",
+                      "#!/sbin/sh\n" +
+                      "/tmp/mmr/script/control-module.sh remove " + getvar("modid") + "\n");
+            else
+                back("1");
+            endif;
         endif;
     endif;
 else

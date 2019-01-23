@@ -18,58 +18,41 @@ if [ $operate = "status_am" ]; then
     [ -f /magisk/$module/auto_mount ] && exit 1 || exit 0
 fi
 
-if [ -d /magisk/$module ]; then
-
-    if [ -f /magisk/$module/update ]; then
-        echo "The module will be updated after reboot."
-        echo "So operation is not allowed."
-        echo "Please reboot once and try again."
-        exit 3
-    fi
-
-    if [ -f /magisk/$module/remove ]; then
-        echo "The module will be removed after reboot."
-        echo "So operation is not allowed."
-        echo "Please reboot once and try again."
-        exit 4
-    fi
-
-    if [ $operate = "on_module" ]; then
+if [ $operate = "switch_module" ]; then
+    if [ -f /magisk/$module/disable ]; then
         rm -rf /magisk/$module/disable && {
             echo "Successfully enable module $module !"
             exit 0
         }
-    fi
-
-    if [ $operate = "off_module" ]; then
+    else
         touch /magisk/$module/disable && {
             echo "Successfully disable module $module !"
             exit 0
         }
     fi
-
-    if [ $operate = "on_auto_mount" ]; then
-        touch /magisk/$module/auto_mount && {
-            echo "Successfully enable auto_mount for $module!"
-            exit 0
-        }
-    fi
-
-    if [ $operate = "off_auto_mount" ]; then
-        rm -rf /magisk/$module/auto_mount && {
-            echo "Successfully disable auto_mount for $module!"
-            exit 0
-        }
-    fi
-
-    if [ $operate = "remove" ]; then
-        rm -rf /magisk/$module && {
-            echo "Successfully removed module $module !"
-            exit 0
-        }
-    fi
-
-    echo ""
-    echo "Script execution failed!"
-    exit 1
 fi
+
+if [ $operate = "switch_auto_mount" ]; then
+    if [ -f /magisk/$module/auto_mount ]; then
+        rm -rf /magisk/$module/auto_mount && {
+            echo "Successfully disable auto_mount for $module !"
+            exit 0
+        }
+    else
+        touch /magisk/$module/auto_mount && {
+            echo "Successfully enable auto_mount for $module !"
+            exit 0
+        }
+    fi
+fi
+
+if [ $operate = "remove" ]; then
+    rm -rf /magisk/$module && {
+        echo "Successfully removed module $module !"
+        exit 0
+    }
+fi
+
+echo ""
+echo "Script execution failed!"
+exit 1
