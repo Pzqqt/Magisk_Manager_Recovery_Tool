@@ -11,4 +11,4 @@ if [ -f /magisk/$module/module.prop ]; then
         exit 0
     fi
 fi
-echo "无法获取模块描述!"
+echo "(未提供信息)"
