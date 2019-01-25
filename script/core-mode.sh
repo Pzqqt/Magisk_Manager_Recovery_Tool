@@ -13,11 +13,9 @@ fi
 if [ $operate == "switch" ]; then
     if [ -f ${cache_path}/.disable_magisk ]; then
         rm -f ${cache_path}/.disable_magisk
-        echo ""
         echo "已成功禁用 Magisk 核心模式!"
     else
         touch ${cache_path}/.disable_magisk
-        echo ""
         echo "已成功启用 Magisk 核心模式!"
     fi
 fi

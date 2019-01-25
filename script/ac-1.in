@@ -28,8 +28,6 @@ loadlang("langs/cn.lang");
 
 theme("default");
 
-#fontresload("0", "ttf/Roboto-Regular.ttf;ttf/DroidSansFallback.ttf;", "12");
-#fontresload("1", "ttf/Roboto-Regular.ttf;ttf/DroidSansFallback.ttf;", "14");
 fontresload("0", "ttf/Roboto-Regular.ttf", "12");
 fontresload("1", "ttf/Roboto-Regular.ttf", "14");
 
