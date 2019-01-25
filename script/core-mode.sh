@@ -13,11 +13,9 @@ fi
 if [ $operate == "switch" ]; then
     if [ -f ${cache_path}/.disable_magisk ]; then
         rm -f ${cache_path}/.disable_magisk
-        echo ""
         echo "Successfully disable Magisk core only mode!"
     else
         touch ${cache_path}/.disable_magisk
-        echo ""
         echo "Successfully enable Magisk core only mode!"
     fi
 fi

@@ -108,7 +108,7 @@ EOF
     chmod 0755 $skscript
 }
 
-mount_image $IMG $mountPath || exit 1
+mount_image $IMG $mountPath
 
 gen_umount_script
 
