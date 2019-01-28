@@ -221,10 +221,35 @@ EOF
             back("1");
         endif;
         if prop("advanced.prop", "selected") == "2" then
-            write("/tmp/mmr/cmd.sh",
-                  "#!/sbin/sh\n" +
-                  "/tmp/mmr/script/shrink-magiskimg.sh\n"
-                  );
+            pleasewait("正在执行脚本 ...");
+            setvar("exitcode", exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh"));
+            if cmp(getvar("exitcode"),"==","0") then
+                alert(
+                    "运行成功",
+                    getvar("exec_buffer"),
+                    "@done",
+                    "确定"
+                );
+                if confirm(
+                    "注意",
+                    "magisk 镜像已取消挂载.\n\n本工具即将退出.\n如果还需使用, 请重新卡刷本工具.\n\n",
+                    "@warning",
+                    "退出到 Recovery",
+                    "重启设备") == "yes"
+                then
+                    exit("");
+                else
+                    reboot("now");
+                endif;
+            else
+                alert(
+                    "运行失败",
+                    getvar("exec_buffer"),
+                    "@crash",
+                    "退出"
+                );
+                exit("");
+            endif;
         endif;
         if prop("advanced.prop", "selected") == "3" then
             if cmp(getvar("core_only_mode_code"),"==", "0") then
@@ -258,36 +283,6 @@ setvar("exitcode", exec("/sbin/sh", "/tmp/mmr/cmd.sh"));
 
 ini_set("text_next", "完成");
 ini_set("icon_next", "@next");
-
-if prop("advanced.prop", "selected") == "2" then
-    if cmp(getvar("exitcode"),"==","0") then
-        alert(
-            "运行成功",
-            getvar("exec_buffer"),
-            "@done",
-            "确定"
-        );
-        if confirm(
-            "注意",
-            "magisk 镜像已取消挂载.\n\n本工具即将退出.\n如果还需使用, 请重新卡刷本工具.\n\n",
-            "@warning",
-            "退出到 Recovery",
-            "重启设备") == "yes"
-        then
-            exit("");
-        else
-            reboot("now");
-        endif;
-    else
-        alert(
-            "运行失败",
-            getvar("exec_buffer"),
-            "@crash",
-            "退出"
-        );
-        exit("");
-    endif;
-endif;
 
 if cmp(getvar("exitcode"),"==","0") then
     textbox(
