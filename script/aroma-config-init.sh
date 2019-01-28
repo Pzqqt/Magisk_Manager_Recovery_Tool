@@ -270,7 +270,7 @@ EOF
             back("1");
         endif;
         if prop("advanced.prop", "selected") == "4" then
-            back("2");
+            goto("main_menu");
         endif;
     endif;
 EOF
