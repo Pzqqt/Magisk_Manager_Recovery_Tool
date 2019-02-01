@@ -152,47 +152,65 @@ then
             "Back"
         );
         back("1");
+    endif;
+    if cmp(getvar("stat_code"),"==", "3") then
+        alert(
+            "Unallowed operation",
+            "This module will be updated after reboot.\nPlease reboot once and try again.",
+            "@crash",
+            "Back"
+        );
+        back("1");
+    endif;
+    if cmp(getvar("stat_code"),"==", "4") then
+        alert(
+            "Unallowed operation",
+            "This module will be removed after reboot.\nPlease reboot once and try again.",
+            "@crash",
+            "Back"
+        );
+        back("1");
+    endif;
+    if prop("modoperations.prop", "selected") == "2" then
+        write("/tmp/mmr/cmd.sh",
+              "#!/sbin/sh\n" +
+              "/tmp/mmr/script/control-module.sh switch_module " + getvar("modid") + "\n");
+    endif;
+    if prop("modoperations.prop", "selected") == "3" then
+        write("/tmp/mmr/cmd.sh",
+              "#!/sbin/sh\n" +
+              "/tmp/mmr/script/control-module.sh switch_auto_mount " + getvar("modid") + "\n");
+    endif;
+    if prop("modoperations.prop", "selected") == "4" then
+        if confirm("Warning!",
+                   "Are you sure want to remove this module?",
+                   "@warning") == "yes"
+        then
+            write("/tmp/mmr/cmd.sh",
+                  "#!/sbin/sh\n" +
+                  "/tmp/mmr/script/control-module.sh remove " + getvar("modid") + "\n");
+        else
+            back("1");
+        endif;
+    endif;
+    setvar("exitcode", exec("/sbin/sh", "/tmp/mmr/cmd.sh"));
+    if cmp(getvar("exitcode"),"==","0") then
+        alert(
+            "Done",
+            getvar("exec_buffer"),
+            "@done",
+            "OK"
+        );
     else
-        if cmp(getvar("stat_code"),"==", "3") then
-            alert(
-                "Unallowed operation",
-                "This module will be updated after reboot.\nPlease reboot once and try again.",
-                "@crash",
-                "Back"
-            );
-            back("1");
-        endif;
-        if cmp(getvar("stat_code"),"==", "4") then
-            alert(
-                "Unallowed operation",
-                "This module will be removed after reboot.\nPlease reboot once and try again.",
-                "@crash",
-                "Back"
-            );
-            back("1");
-        endif;
-        if prop("modoperations.prop", "selected") == "2" then
-            write("/tmp/mmr/cmd.sh",
-                  "#!/sbin/sh\n" +
-                  "/tmp/mmr/script/control-module.sh switch_module " + getvar("modid") + "\n");
-        endif;
-        if prop("modoperations.prop", "selected") == "3" then
-            write("/tmp/mmr/cmd.sh",
-                  "#!/sbin/sh\n" +
-                  "/tmp/mmr/script/control-module.sh switch_auto_mount " + getvar("modid") + "\n");
-        endif;
-        if prop("modoperations.prop", "selected") == "4" then
-            if confirm("Warning!",
-                       "Are you sure want to remove this module?",
-                       "@warning") == "yes"
-            then
-                write("/tmp/mmr/cmd.sh",
-                      "#!/sbin/sh\n" +
-                      "/tmp/mmr/script/control-module.sh remove " + getvar("modid") + "\n");
-            else
-                back("1");
-            endif;
-        endif;
+        alert(
+            "Failed",
+            getvar("exec_buffer"),
+            "@crash",
+            "OK"
+        );
+    endif;
+    if prop("modoperations.prop", "selected") != "4" then
+        back("1");
     endif;
 else
 EOF
@@ -269,45 +287,10 @@ EOF
             );
             back("1");
         endif;
-        if prop("advanced.prop", "selected") == "4" then
-            goto("main_menu");
-        endif;
     endif;
 EOF
     [ ${#installed_modules} -eq 0 ] || echo "endif;" >> $ac_tmp
-    cat >> $ac_tmp <<EOF
-
-pleasewait("Executing Shell...");
-
-setvar("exitcode", exec("/sbin/sh", "/tmp/mmr/cmd.sh"));
-
-ini_set("text_next", "Done");
-ini_set("icon_next", "@next");
-
-if cmp(getvar("exitcode"),"==","0") then
-    textbox(
-        "Done",
-        "Operation complete",
-        "@done",
-        "\n" + "<b>EXIT CODE: " + getvar("exitcode") + "\n\n" +
-        "No errors occurred."+ "</b>" + "\n\n" +
-        getvar("exec_buffer")
-    );
-else
-    textbox(
-        "Failed",
-        "Operation failed",
-        "@crash",
-        "\n" + "<b>EXIT CODE: " + getvar("exitcode") + "\n\n" +
-        "An error occurred during the execution of the operation." + "\n" +
-        "Please check the error message." + "</b>" + "\n\n" +
-        getvar("exec_buffer")
-    );
-endif;
-
-goto("main_menu");
-
-EOF
+    echo "goto(\"main_menu\");" >> $ac_tmp
     sync
 }
 
