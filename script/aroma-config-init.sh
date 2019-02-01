@@ -152,47 +152,65 @@ then
             "返回"
         );
         back("1");
+    endif;
+    if cmp(getvar("stat_code"),"==", "3") then
+        alert(
+            "不允许的操作",
+            "该模块将在重启后完成更新,\n请重启一次后再试.",
+            "@crash",
+            "返回"
+        );
+        back("1");
+    endif;
+    if cmp(getvar("stat_code"),"==", "4") then
+        alert(
+            "不允许的操作",
+            "该模块将在重启后完成移除,\n请重启一次后再试.",
+            "@crash",
+            "返回"
+        );
+        back("1");
+    endif;
+    if prop("modoperations.prop", "selected") == "2" then
+        write("/tmp/mmr/cmd.sh",
+              "#!/sbin/sh\n" +
+              "/tmp/mmr/script/control-module.sh switch_module " + getvar("modid") + "\n");
+    endif;
+    if prop("modoperations.prop", "selected") == "3" then
+        write("/tmp/mmr/cmd.sh",
+              "#!/sbin/sh\n" +
+              "/tmp/mmr/script/control-module.sh switch_auto_mount " + getvar("modid") + "\n");
+    endif;
+    if prop("modoperations.prop", "selected") == "4" then
+        if confirm("警告",
+                   "您确定要移除该模块吗?",
+                   "@warning") == "yes"
+        then
+            write("/tmp/mmr/cmd.sh",
+                  "#!/sbin/sh\n" +
+                  "/tmp/mmr/script/control-module.sh remove " + getvar("modid") + "\n");
+        else
+            back("1");
+        endif;
+    endif;
+    setvar("exitcode", exec("/sbin/sh", "/tmp/mmr/cmd.sh"));
+    if cmp(getvar("exitcode"),"==","0") then
+        alert(
+            "成功",
+            getvar("exec_buffer"),
+            "@done",
+            "确定"
+        );
     else
-        if cmp(getvar("stat_code"),"==", "3") then
-            alert(
-                "不允许的操作",
-                "该模块将在重启后完成更新,\n请重启一次后再试.",
-                "@crash",
-                "返回"
-            );
-            back("1");
-        endif;
-        if cmp(getvar("stat_code"),"==", "4") then
-            alert(
-                "不允许的操作",
-                "该模块将在重启后完成移除,\n请重启一次后再试.",
-                "@crash",
-                "返回"
-            );
-            back("1");
-        endif;
-        if prop("modoperations.prop", "selected") == "2" then
-            write("/tmp/mmr/cmd.sh",
-                  "#!/sbin/sh\n" +
-                  "/tmp/mmr/script/control-module.sh switch_module " + getvar("modid") + "\n");
-        endif;
-        if prop("modoperations.prop", "selected") == "3" then
-            write("/tmp/mmr/cmd.sh",
-                  "#!/sbin/sh\n" +
-                  "/tmp/mmr/script/control-module.sh switch_auto_mount " + getvar("modid") + "\n");
-        endif;
-        if prop("modoperations.prop", "selected") == "4" then
-            if confirm("警告",
-                       "您确定要移除该模块吗?",
-                       "@warning") == "yes"
-            then
-                write("/tmp/mmr/cmd.sh",
-                      "#!/sbin/sh\n" +
-                      "/tmp/mmr/script/control-module.sh remove " + getvar("modid") + "\n");
-            else
-                back("1");
-            endif;
-        endif;
+        alert(
+            "失败",
+            getvar("exec_buffer"),
+            "@crash",
+            "确定"
+        );
+    endif;
+    if prop("modoperations.prop", "selected") != "4" then
+        back("1");
     endif;
 else
 EOF
@@ -269,45 +287,10 @@ EOF
             );
             back("1");
         endif;
-        if prop("advanced.prop", "selected") == "4" then
-            goto("main_menu");
-        endif;
     endif;
 EOF
     [ ${#installed_modules} -eq 0 ] || echo "endif;" >> $ac_tmp
-    cat >> $ac_tmp <<EOF
-
-pleasewait("正在执行脚本 ...");
-
-setvar("exitcode", exec("/sbin/sh", "/tmp/mmr/cmd.sh"));
-
-ini_set("text_next", "完成");
-ini_set("icon_next", "@next");
-
-if cmp(getvar("exitcode"),"==","0") then
-    textbox(
-        "完成",
-        "操作完成",
-        "@done",
-        "\n" + "<b>退出码: " + getvar("exitcode") + "\n\n" +
-        "执行操作过程中没有发生错误."+ "</b>" + "\n\n" +
-        getvar("exec_buffer")
-    );
-else
-    textbox(
-        "失败",
-        "操作失败",
-        "@crash",
-        "\n" + "<b>退出码: " + getvar("exitcode") + "\n\n" +
-        "执行操作过程中有错误发生." + "\n" +
-        "请检查错误信息." + "</b>" + "\n\n" +
-        getvar("exec_buffer")
-    );
-endif;
-
-goto("main_menu");
-
-EOF
+    echo "goto(\"main_menu\");" >> $ac_tmp
     sync
 }
 
