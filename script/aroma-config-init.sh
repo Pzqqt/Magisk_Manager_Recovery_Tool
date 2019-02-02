@@ -211,10 +211,14 @@ EOF
             "Back",                 "", "@back2"
         );
         if prop("advanced.prop", "selected") == "1" then
-            write("/tmp/mmr/cmd.sh",
-                  "#!/sbin/sh\n" +
-                  "cp /tmp/recovery.log /sdcard/\n"
-                  );
+            exec("/sbin/sh", "cp", "-f", "/tmp/recovery.log", "/sdcard/");
+            alert(
+                "Done",
+                "Recovery log has been saved to /sdcard/recovery.log!",
+                "@done",
+                "OK"
+            );
+            back("1");
         endif;
         if prop("advanced.prop", "selected") == "2" then
             write("/tmp/mmr/cmd.sh",
