@@ -221,10 +221,35 @@ EOF
             back("1");
         endif;
         if prop("advanced.prop", "selected") == "2" then
-            write("/tmp/mmr/cmd.sh",
-                  "#!/sbin/sh\n" +
-                  "/tmp/mmr/script/shrink-magiskimg.sh\n"
-                  );
+            pleasewait("Executing Shell...");
+            setvar("exitcode", exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh"));
+            if cmp(getvar("exitcode"),"==","0") then
+                alert(
+                    "Done",
+                    getvar("exec_buffer"),
+                    "@done",
+                    "OK"
+                );
+                if confirm(
+                    "Note",
+                    "The magisk image has been unmounted.\n\nThis tool will exit.\nIf you still need to use, please reflash this tool.\n\n",
+                    "@warning",
+                    "Exit to Recovery",
+                    "Reboot") == "yes"
+                then
+                    exit("");
+                else
+                    reboot("now");
+                endif;
+            else
+                alert(
+                    "Failed",
+                    getvar("exec_buffer"),
+                    "@crash",
+                    "Exit"
+                );
+                exit("");
+            endif;
         endif;
         if prop("advanced.prop", "selected") == "3" then
             if cmp(getvar("core_only_mode_code"),"==", "0") then
@@ -258,36 +283,6 @@ setvar("exitcode", exec("/sbin/sh", "/tmp/mmr/cmd.sh"));
 
 ini_set("text_next", "Done");
 ini_set("icon_next", "@next");
-
-if prop("advanced.prop", "selected") == "2" then
-    if cmp(getvar("exitcode"),"==","0") then
-        alert(
-            "Done",
-            getvar("exec_buffer"),
-            "@done",
-            "OK"
-        );
-        if confirm(
-            "Note",
-            "The magisk image has been unmounted.\n\nThis tool will exit.\nIf you still need to use, please reflash this tool.\n\n",
-            "@warning",
-            "Exit to Recovery",
-            "Reboot") == "yes"
-        then
-            exit("");
-        else
-            reboot("now");
-        endif;
-    else
-        alert(
-            "Failed",
-            getvar("exec_buffer"),
-            "@crash",
-            "Exit"
-        );
-        exit("");
-    endif;
-endif;
 
 if cmp(getvar("exitcode"),"==","0") then
     textbox(
