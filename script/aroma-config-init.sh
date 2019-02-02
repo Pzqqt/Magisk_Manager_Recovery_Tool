@@ -229,7 +229,7 @@ EOF
             "返回",                 "", "@back2"
         );
         if prop("advanced.prop", "selected") == "1" then
-            exec("/sbin/sh", "cp", "-f", "/tmp/recovery.log", "/sdcard/");
+            exec("/sbin/sh", "/tmp/mmr/script/save-rec-log.sh");
             alert(
                 "完成",
                 "已保存 Recovery 日志到 /sdcard/recovery.log!",
