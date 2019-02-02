@@ -17,7 +17,7 @@
 #
 
 ini_set("rom_name",    "Magisk Manager Recovery Tool");
-ini_set("rom_version", "v1.4 Alpha");
+ini_set("rom_version", "v1.5 Alpha");
 ini_set("rom_author",  "Pzqqt");
 ini_set("rom_device",  "");
 ini_set("rom_date",    "2019.02.02");
