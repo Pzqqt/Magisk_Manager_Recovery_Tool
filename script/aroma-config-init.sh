@@ -211,7 +211,7 @@ EOF
             "Back",                 "", "@back2"
         );
         if prop("advanced.prop", "selected") == "1" then
-            exec("/sbin/sh", "cp", "-f", "/tmp/recovery.log", "/sdcard/");
+            exec("/sbin/sh", "/tmp/mmr/script/save-rec-log.sh");
             alert(
                 "Done",
                 "Recovery log has been saved to /sdcard/recovery.log!",
