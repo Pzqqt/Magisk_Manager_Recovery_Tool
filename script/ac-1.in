@@ -20,7 +20,7 @@ ini_set("rom_name",    "Magisk Manager Recovery 工具");
 ini_set("rom_version", "v1.4 Alpha");
 ini_set("rom_author",  "Pzqqt");
 ini_set("rom_device",  "");
-ini_set("rom_date",    "");
+ini_set("rom_date",    "2019.02.02");
 # Chinese By Pzqqt
 
 ini_set("force_colorspace","rgba");
