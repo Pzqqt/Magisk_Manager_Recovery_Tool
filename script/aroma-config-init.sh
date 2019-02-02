@@ -235,10 +235,14 @@ EOF
                     back("1");
                 endif;
             endif;
-            write("/tmp/mmr/cmd.sh",
-                  "#!/sbin/sh\n" +
-                  "/tmp/mmr/script/core-mode.sh switch\n"
-                  );
+            exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "switch");
+            alert(
+                "Done",
+                getvar("exec_buffer"),
+                "@done",
+                "OK"
+            );
+            back("1");
         endif;
         if prop("advanced.prop", "selected") == "4" then
             back("2");
