@@ -16,7 +16,12 @@ symlink_modules() {
         umount $2
         losetup -d $loopedA
     }
-    ln -s ${1}/* $2
+    installed_modules=`ls -1 $1 | grep -v 'lost+found'`
+    if [ ${#installed_modules} -ne 0 ]; then
+        for module in ${installed_modules}; do
+            ln -s ${1}/${module} $2
+        done
+    fi
 }
 
 gen_done_script() {
