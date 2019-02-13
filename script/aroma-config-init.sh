@@ -40,8 +40,6 @@ if prop("operations.prop", "selected") == "1" then
     then
         exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
         reboot("now");
-    else
-        goto("main_menu");
     endif;
 endif;
 
@@ -53,8 +51,6 @@ if prop("operations.prop", "selected") == "2" then
     then
         exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
         exit("");
-    else
-        goto("main_menu");
     endif;
 endif;
 
@@ -85,19 +81,19 @@ then
     setvar("stat_am_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_am", getvar("modid")));
 
     setvar("module_remove_warning", "");
-    if cmp(getvar("stat_code"),"==", "0") then
+    if cmp(getvar("stat_code"), "==", "0") then
         setvar("module_status", "Disabled");
         setvar("module_status_switch_text",  "Enable module");
         setvar("module_status_switch_text2", "");
         setvar("module_status_switch_icon",  "@action2");
     endif;
-    if cmp(getvar("stat_code"),"==", "1") then
+    if cmp(getvar("stat_code"), "==", "1") then
         setvar("module_status", "Enabled");
         setvar("module_status_switch_text",  "Disable module");
         setvar("module_status_switch_text2", "");
         setvar("module_status_switch_icon",  "@offaction");
     endif;
-    if cmp(getvar("stat_code"),"==", "2") then
+    if cmp(getvar("stat_code"), "==", "2") then
         alert(
             "Note",
             "This module has been removed.\n\n",
@@ -106,26 +102,26 @@ then
         );
         back("1");
     endif;
-    if cmp(getvar("stat_code"),"==", "3") then
+    if cmp(getvar("stat_code"), "==", "3") then
         setvar("module_status", "Ready update");
     endif;
-    if cmp(getvar("stat_code"),"==", "4") then
+    if cmp(getvar("stat_code"), "==", "4") then
         setvar("module_status", "Ready remove");
     endif;
 
-    if cmp(getvar("stat_am_code"),"==", "0") then
+    if cmp(getvar("stat_am_code"), "==", "0") then
         setvar("module_am_status", "Disabled");
         setvar("module_am_status_switch_text",  "Enable auto_mount");
         setvar("module_am_status_switch_text2", "");
         setvar("module_am_status_switch_icon",  "@action2");
     endif;
-    if cmp(getvar("stat_am_code"),"==", "1") then
+    if cmp(getvar("stat_am_code"), "==", "1") then
         setvar("module_am_status", "Enabled");
         setvar("module_am_status_switch_text",  "Disable auto_mount");
         setvar("module_am_status_switch_text2", "");
         setvar("module_am_status_switch_icon",  "@offaction");
     endif;
-    if cmp(getvar("stat_code"),"==", "3") || cmp(getvar("stat_code"),"==", "4") then
+    if cmp(getvar("stat_code"), "==", "3") || cmp(getvar("stat_code"), "==", "4") then
         setvar("module_status_switch_text",     "Enable/Disable module");
         setvar("module_status_switch_text2",    "Unallowed operation");
         setvar("module_status_switch_icon",     "@crash");
@@ -159,7 +155,7 @@ then
         );
         back("1");
     endif;
-    if cmp(getvar("stat_code"),"==", "3") then
+    if cmp(getvar("stat_code"), "==", "3") then
         alert(
             "Unallowed operation",
             "This module will be updated after reboot.\nPlease reboot once and try again.",
@@ -168,7 +164,7 @@ then
         );
         back("1");
     endif;
-    if cmp(getvar("stat_code"),"==", "4") then
+    if cmp(getvar("stat_code"), "==", "4") then
         alert(
             "Unallowed operation",
             "This module will be removed after reboot.\nPlease reboot once and try again.",
@@ -200,7 +196,7 @@ then
         endif;
     endif;
     setvar("exitcode", exec("/sbin/sh", "/tmp/mmr/cmd.sh"));
-    if cmp(getvar("exitcode"),"==","0") then
+    if cmp(getvar("exitcode"), "==", "0") then
         alert(
             "Done",
             getvar("exec_buffer"),
@@ -258,7 +254,7 @@ EOF
         cat >> $ac_tmp <<EOF
             pleasewait("Executing Shell...");
             setvar("exitcode", exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh"));
-            if cmp(getvar("exitcode"),"==","0") then
+            if cmp(getvar("exitcode"), "==", "0") then
                 alert(
                     "Done",
                     getvar("exec_buffer"),
@@ -290,7 +286,7 @@ EOF
     cat >> $ac_tmp <<EOF
         endif;
         if prop("advanced.prop", "selected") == "3" then
-            if cmp(getvar("core_only_mode_code"),"==", "0") then
+            if cmp(getvar("core_only_mode_code"), "==", "0") then
                 if confirm("Warning",
                            "If you enable Magisk core only mode,\nno modules will be load.\nBut MagiskSU and MagiskHide will still be enabled.\nContinue?",
                            "@warning") == "no"
