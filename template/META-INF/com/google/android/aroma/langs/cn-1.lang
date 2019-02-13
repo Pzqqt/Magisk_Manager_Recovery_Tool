@@ -30,7 +30,7 @@ text_yes=是
 text_no=否
 text_about=关于
 text_calibrating=屏幕校准
-text_quit=退出工具但不卸载 /magisk
+text_quit=退出工具但不取消挂载 /magisk
 text_quit_msg=稍候你可以自行操作 /magisk 目录来操作模块. 此功能仅面向高级用户. 别忘了在重启前取消挂载.
 
 #

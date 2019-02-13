@@ -16,7 +16,7 @@ gen_aroma_config() {
     if $migrated; then
         echo "    \"退出\",  \"退出到 Recovery\", \"@back2\"," >> $ac_tmp
     else
-        echo "    \"退出\",  \"卸载 /magisk 并退出到 Recovery\", \"@back2\"," >> $ac_tmp
+        echo "    \"退出\",  \"取消挂载 /magisk 并退出到 Recovery\", \"@back2\"," >> $ac_tmp
     fi
     if [ ${#installed_modules} -eq 0 ]; then
         echo "    \"如果你看到了此选项\", \"说明你尚未安装任何 Magisk 模块...\", \"@what\"," >> $ac_tmp
