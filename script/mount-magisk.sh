@@ -3,7 +3,7 @@
 IMG=$1
 mountPath=$2
 
-umscript=/tmp/mmr/script/umount-magisk.sh
+donescript=/tmp/mmr/script/done-script.sh
 skscript=/tmp/mmr/script/shrink-magiskimg.sh
 
 is_mounted() { mountpoint -q "$1"; }
@@ -36,8 +36,8 @@ mount_image() {
     is_mounted $mountPath || exit 1
 }
 
-gen_umount_script() {
-    cat > $umscript <<EOF
+gen_done_script() {
+    cat > $donescript <<EOF
 #!/sbin/sh
 
 umount /system
@@ -45,7 +45,7 @@ umount $mountPath
 losetup -d $loopDevice
 rmdir $mountPath
 EOF
-    chmod 0755 $umscript
+    chmod 0755 $donescript
 }
 
 gen_shrink_script() {
@@ -110,6 +110,6 @@ EOF
 
 mount_image $IMG $mountPath
 
-gen_umount_script
+gen_done_script
 
 gen_shrink_script

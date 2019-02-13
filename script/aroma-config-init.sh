@@ -7,11 +7,17 @@ get_module_info() {
 }
 
 gen_aroma_config() {
+    [ -d /data/adb/modules ] && migrated=true || migrated=false
     installed_modules=`ls_mount_path`
     echo $installed_modules > /tmp/mmr/script/modules_ids
     ac_tmp=/tmp/mmr/script/aroma-config
     mv /tmp/mmr/script/ac-1.in $ac_tmp
     chmod 0755 $ac_tmp
+    if $migrated; then
+        echo "    \"退出\",  \"退出到 Recovery\", \"@back2\"," >> $ac_tmp
+    else
+        echo "    \"退出\",  \"卸载 /magisk 并退出到 Recovery\", \"@back2\"," >> $ac_tmp
+    fi
     if [ ${#installed_modules} -eq 0 ]; then
         echo "    \"如果你看到了此选项\", \"说明你尚未安装任何 Magisk 模块...\", \"@what\"," >> $ac_tmp
     else
@@ -32,7 +38,7 @@ if prop("operations.prop", "selected") == "1" then
                "您确定要重启设备吗?",
                "@warning") == "yes"
     then
-        exec("/sbin/sh", "/tmp/mmr/script/umount-magisk.sh");
+        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
         reboot("now");
     else
         goto("main_menu");
@@ -45,7 +51,7 @@ if prop("operations.prop", "selected") == "2" then
                "您确定要退出 Magisk Manager Recovery 工具吗?",
                "@warning") == "yes"
     then
-        exec("/sbin/sh", "/tmp/mmr/script/umount-magisk.sh");
+        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
         exit("");
     else
         goto("main_menu");
@@ -224,7 +230,13 @@ EOF
             "advanced.prop",
 
             "保存 recovery 日志",   "复制 /tmp/recovery.log 到内部存储", "@action",
-            "瘦身 magisk.img",      "压缩 magisk.img 容量以减少其存储空间占用.\n建议在移除大型模块后使用.", "@action",
+EOF
+    if $migrated; then
+        echo "\"瘦身 magisk.img\", \"该选项不可用.\", \"@crash\"," >> $ac_tmp
+    else
+        echo "\"瘦身 magisk.img\", \"压缩 magisk.img 容量以减少其存储空间占用.\n建议在移除大型模块后使用.\", \"@action\"," >> $ac_tmp
+    fi
+    cat >> $ac_tmp <<EOF
             getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
             "返回",                 "", "@back2"
         );
@@ -239,6 +251,11 @@ EOF
             back("1");
         endif;
         if prop("advanced.prop", "selected") == "2" then
+EOF
+    if $migrated; then
+        echo "back(\"1\");" >> $ac_tmp
+    else
+        cat >> $ac_tmp <<EOF
             pleasewait("正在执行脚本 ...");
             setvar("exitcode", exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh"));
             if cmp(getvar("exitcode"),"==","0") then
@@ -268,6 +285,9 @@ EOF
                 );
                 exit("");
             endif;
+EOF
+    fi
+    cat >> $ac_tmp <<EOF
         endif;
         if prop("advanced.prop", "selected") == "3" then
             if cmp(getvar("core_only_mode_code"),"==", "0") then
