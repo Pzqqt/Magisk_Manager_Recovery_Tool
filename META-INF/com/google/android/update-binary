@@ -46,12 +46,15 @@ ABILONG=$(grep_prop ro.product.cpu.abi)
 [ "$ABILONG" = "arm64-v8a" ] && ARCH=arm64
 
 # find magisk.img
+modulesPath=/data/adb/modules
 mountPath=/magisk
-if [ -d /data/adb/modules ]; then
+if [ -d "$modulesPath" ]; then
+  ui_print "Found magisk modules path: $modulesPath"
   migrated=true
 else
   [ -d /data/adb/magisk ] && IMG=/data/adb/magisk.img || IMG=/data/magisk.img
-  [ ! -d /data/adb/magisk ] && [ ! -d /data/magisk ] && abort "Error: Please install or upgrade Magisk."
+  [ ! -f "$IMG" ] && abort "Error: Please install or upgrade Magisk."
+  ui_print "Found magisk.img: $IMG"
   migrated=false
 fi
 
@@ -60,16 +63,18 @@ mkdir -p /tmp/mmr/
 cd /tmp/mmr/
 unzip "${zipfile}"
 
-ui_print "Generating AROMA config"
 chmod 0755 ./script/*
 langs_dir=/tmp/mmr/template/META-INF/com/google/android/aroma/langs
 if $migrated; then
-  ./script/symlink-magisk.sh /data/adb/modules $mountPath
+  ui_print "Symlink $modulesPath to $mountPath"
+  ./script/symlink-magisk.sh $modulesPath $mountPath
   mv ${langs_dir}/en-2.lang ${langs_dir}/en.lang
 else
+  ui_print "Mount $IMG to $mountPath"
   ./script/mount-magisk.sh $IMG $mountPath || abort "Error: Failed to mount magisk.img!"
   mv ${langs_dir}/en-1.lang ${langs_dir}/en.lang
 fi
+ui_print "Generating AROMA config"
 ./script/aroma-config-init.sh $mountPath
 
 cp -f ./script/aroma-config ./template/META-INF/com/google/android/
