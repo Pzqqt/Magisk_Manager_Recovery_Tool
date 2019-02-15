@@ -47,7 +47,7 @@ ABILONG=$(grep_prop ro.product.cpu.abi)
 
 # find magisk.img
 modulesPath=/data/adb/modules
-mountPath=/magisk
+workPath=/magisk
 if [ -d "$modulesPath" ]; then
   ui_print "Found magisk modules path: $modulesPath"
   migrated=true
@@ -66,16 +66,16 @@ unzip "${zipfile}"
 chmod 0755 ./script/*
 langs_dir=/tmp/mmr/template/META-INF/com/google/android/aroma/langs
 if $migrated; then
-  ui_print "Symlink $modulesPath to $mountPath"
-  ./script/symlink-magisk.sh $modulesPath $mountPath
+  ui_print "Symlink $modulesPath to $workPath"
+  ./script/symlink-magisk.sh $modulesPath $workPath
   mv ${langs_dir}/en-2.lang ${langs_dir}/en.lang
 else
-  ui_print "Mount $IMG to $mountPath"
-  ./script/mount-magisk.sh $IMG $mountPath || abort "Error: Failed to mount magisk.img!"
+  ui_print "Mount $IMG to $workPath"
+  ./script/mount-magisk.sh $IMG $workPath || abort "Error: Failed to mount magisk.img!"
   mv ${langs_dir}/en-1.lang ${langs_dir}/en.lang
 fi
 ui_print "Generating AROMA config"
-./script/aroma-config-init.sh $mountPath
+./script/aroma-config-init.sh
 
 cp -f ./script/aroma-config ./template/META-INF/com/google/android/
 chmod 0755 ./template/META-INF/com/google/android/aroma-config
