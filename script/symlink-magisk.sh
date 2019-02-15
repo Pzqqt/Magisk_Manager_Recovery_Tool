@@ -1,7 +1,7 @@
 #!/sbin/sh
 
 modulesdir=$1
-mountPath=$2
+workPath=$2
 
 donescript=/tmp/mmr/script/done-script.sh
 
@@ -34,6 +34,6 @@ EOF
     chmod 0755 $donescript
 }
 
-symlink_modules $modulesdir $mountPath
+symlink_modules $modulesdir $workPath
 
 gen_done_script

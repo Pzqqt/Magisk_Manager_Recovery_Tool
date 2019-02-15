@@ -21,8 +21,8 @@ fi
 if [ $operate = "switch_module" ]; then
     if [ -f /magisk/$module/disable ]; then
         rm -rf /magisk/$module/disable && {
-        echo "已成功启用模块 $module !"
-        exit 0
+            echo "已成功启用模块 $module !"
+            exit 0
         }
     else
         touch /magisk/$module/disable && {
