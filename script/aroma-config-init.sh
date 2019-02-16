@@ -12,7 +12,6 @@ gen_aroma_config() {
     echo $installed_modules > /tmp/mmr/script/modules_ids
     ac_tmp=/tmp/mmr/script/aroma-config
     mv /tmp/mmr/script/ac-1.in $ac_tmp
-    chmod 0755 $ac_tmp
     if $migrated; then
         echo "    \"退出\",  \"退出到 Recovery\", \"@back2\"," >> $ac_tmp
     else
