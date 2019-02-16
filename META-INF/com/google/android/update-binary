@@ -78,7 +78,6 @@ ui_print "Generating AROMA config"
 ./script/aroma-config-init.sh
 
 cp -f ./script/aroma-config ./template/META-INF/com/google/android/
-chmod 0755 ./template/META-INF/com/google/android/aroma-config
 cd /tmp/mmr/template
 /tmp/mmr/script/7za a -tzip -mx=0 /tmp/mmr/aroma.zip ./META-INF || :
 [ -f /tmp/mmr/aroma.zip ] || abort "Error: Cannot generate aroma.zip!"
