@@ -5,6 +5,7 @@ mountPath=$2
 
 donescript=/tmp/mmr/script/done-script.sh
 skscript=/tmp/mmr/script/shrink-magiskimg.sh
+doskscript=/tmp/mmr/script/do-shrink.sh
 
 is_mounted() { mountpoint -q "$1"; }
 
@@ -49,15 +50,8 @@ EOF
 }
 
 gen_shrink_script() {
-    cat > $skscript <<EOF
+    cat > $doskscript <<EOF
 #!/sbin/sh
-
-require_new_magisk() {
-    echo "*******************************"
-    echo " 请安装 Magisk v17.0 以上的版本! "
-    echo "*******************************"
-    exit 1
-}
 
 if [ -f /data/adb/magisk/util_functions.sh ]; then
     . /data/adb/magisk/util_functions.sh
@@ -65,20 +59,11 @@ elif [ -f /data/magisk/util_functions.sh ]; then
     NVBASE=/data
     . /data/magisk/util_functions.sh
 else
-    require_new_magisk
+    exit 2
 fi
 
 unset ui_print
 ui_print() { echo "\$1"; }
-
-unset check_filesystem
-check_filesystem() {
-    curSizeM=\`wc -c < \$1\`
-    curSizeM=\$((curSizeM / 1048576))
-    local DF=\`df -Pk \$2 | grep \$2\`
-    curUsedM=\`echo \$DF | awk '{ print int(\$3 / 1024) }'\`
-    curFreeM=\`echo \$DF | awk '{ print int(\$4 / 1024) }'\`
-}
 
 IMG=$IMG
 MOUNTPATH=$mountPath
@@ -94,17 +79,38 @@ is_mounted \$MOUNTPATH && {
     losetup -d \$loopedB
 }
 
-rmdir \$MOUNTPATH || {
+rmdir \$MOUNTPATH || exit 1
+
+EOF
+    cat > $skscript <<EOF
+#!/sbin/sh
+
+$doskscript &>/dev/null
+exitcode=\$?
+
+if [ \$exitcode -eq 1 ]; then
+    echo ""
     echo "! 无法卸载 magisk 镜像!"
     echo ""
     exit 1
-}
+fi
+
+if [ \$exitcode -eq 2 ]; then
+    echo "*******************************"
+    echo " 请安装 Magisk v17.0 以上的版本! "
+    echo "*******************************"
+    exit 2
+fi
+
+curSizeM=\`wc -c < $IMG\`
+curSizeM=\$((curSizeM / 1048576))
 
 echo ""
-echo "- 已将 $IMG 瘦身为 \${newSizeM}M"
+echo "- 已将 $IMG 瘦身为 \${curSizeM}M"
 echo ""
 
 EOF
+    chmod 0755 $doskscript
     chmod 0755 $skscript
 }
 
