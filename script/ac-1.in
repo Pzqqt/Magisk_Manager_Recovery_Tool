@@ -39,7 +39,7 @@ setvar(
     "Name\t\t\t: "         + "<b><#selectbg_g>" + sysprop("ro.product.name")            + "</#></b>\n"   +
     "Device Name\t\t: "    + "<b><#selectbg_g>" + sysprop("ro.product.device")          + "</#></b>\n"   +
     "Board Name\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.board")           + "</#></b>\n"   +
-    "Manufacturer\t\t: "   + "<b><#selectbg_g>" + sysprop("ro.product.manufacturer")    + "</#></b>\n\n" +
+    "Manufacturer\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.manufacturer")    + "</#></b>\n\n" +
 
     "/system Size\t\t: "   + "<b><#selectbg_g>" + getdisksize("/system", "m")   + " MB" + "</#></b>\n"   +
       "\tFree\t\t\t: "     + "<b><#selectbg_g>" + getdiskfree("/system", "m")   + " MB" + "</#></b>\n\n" +
@@ -56,7 +56,7 @@ viewbox(
     "<~welcome.text1> <b>" + ini_get("rom_name") + "</b>.\n\n" + "<~welcome.text2>\n\n\n\n" +
 
     "  <~welcome.version>\t\t\t: " + "<b><#selectbg_g>" + ini_get("rom_version") + "</#></b>\n" +
-    "  <~welcome.updated>\t\t\t: " + "<b><#selectbg_g>" + ini_get("rom_date")    + "</#></b>\n\n\n" +
+    "  <~welcome.updated>\t\t: "   + "<b><#selectbg_g>" + ini_get("rom_date")    + "</#></b>\n\n\n" +
 
     getvar("sysinfo"),
 
