@@ -47,17 +47,10 @@ if [ $operate = "switch_auto_mount" ]; then
 fi
 
 if [ $operate = "remove" ]; then
-    if [ -L /magisk/$module ]; then
-        touch /magisk/$module/remove && {
-            echo "模块 $module 将在下次重启后移除"
-            exit 0
-        }
-    else
-        rm -rf /magisk/$module && {
-            echo "已成功移除模块 $module !"
-            exit 0
-        }
-    fi
+    rm -rf /magisk/$module && {
+        echo "已成功移除模块 $module !"
+        exit 0
+    }
 fi
 
 echo ""
