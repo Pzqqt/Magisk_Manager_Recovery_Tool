@@ -7,13 +7,13 @@ donescript=/tmp/mmr/script/done-script.sh
 skscript=/tmp/mmr/script/shrink-magiskimg.sh
 doskscript=/tmp/mmr/script/do-shrink.sh
 
-is_mounted() { mountpoint -q "$1"; }
+is_mounted() { mountpoint -q $1; }
 
 mount_image() {
-    e2fsck -fy $IMG &>/dev/null
-    if [ ! -d "$2" ]; then
+    e2fsck -fy $1 &>/dev/null
+    if [ ! -d $2 ]; then
         mount -o remount,rw /
-        mkdir -p "$2"
+        mkdir -p $2
     fi
     is_mounted $2 && {
         loopedA=`mount | grep $2 | head -n1 | cut -d " " -f1`
@@ -22,19 +22,18 @@ mount_image() {
     }
     loopDevice=
     for LOOP in 0 1 2 3 4 5 6 7; do
-        if (! is_mounted $2); then
+        is_mounted $2 || {
             loopDevice=/dev/block/loop$LOOP
-            [ -f "$loopDevice" ] || mknod $loopDevice b 7 $LOOP 2>/dev/null
-            losetup $loopDevice $1
-            if [ "$?" -eq "0" ]; then
+            [ -f $loopDevice ] || mknod $loopDevice b 7 $LOOP 2>/dev/null
+            losetup $loopDevice $1 && {
                 mount -t ext4 -o loop $loopDevice $2
                 is_mounted $2 || /system/bin/toolbox mount -t ext4 -o loop $loopDevice $2
                 is_mounted $2 || /system/bin/toybox mount -t ext4 -o loop $loopDevice $2
-            fi
+            }
             is_mounted $2 && break
-        fi
+        }
     done
-    is_mounted $mountPath || exit 1
+    is_mounted $2 || exit 1
 }
 
 gen_done_script() {
@@ -88,14 +87,14 @@ EOF
 $doskscript &>/dev/null
 exitcode=\$?
 
-if [ \$exitcode -eq 1 ]; then
+if [ "\$exitcode" -eq 1 ]; then
     echo ""
     echo "! 无法卸载 magisk 镜像!"
     echo ""
     exit 1
 fi
 
-if [ \$exitcode -eq 2 ]; then
+if [ "\$exitcode" -eq 2 ]; then
     echo "*******************************"
     echo " 请安装 Magisk v17.0 以上的版本! "
     echo "*******************************"
