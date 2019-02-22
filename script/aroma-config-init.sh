@@ -1,6 +1,8 @@
 #!/sbin/sh
 
-ls_mount_path() { ls -1 /magisk | grep -v 'lost+found'; }
+workPath=/magisk
+
+ls_mount_path() { ls -1 $workPath | grep -v 'lost+found'; }
 
 get_module_info() {
     /tmp/mmr/script/get-module-info.sh $1 $2
@@ -15,7 +17,7 @@ gen_aroma_config() {
     if $migrated; then
         echo "    \"Exit\",  \"Exit to recovery\", \"@back2\"," >> $ac_tmp
     else
-        echo "    \"Exit\",  \"Unmount /magisk & exit to recovery\", \"@back2\"," >> $ac_tmp
+        echo "    \"Exit\",  \"Unmount $workPath & exit to recovery\", \"@back2\"," >> $ac_tmp
     fi
     if [ ${#installed_modules} -eq 0 ]; then
         echo "    \"If you see this option\", \"You have not installed any Magisk modules...\", \"@what\"," >> $ac_tmp
