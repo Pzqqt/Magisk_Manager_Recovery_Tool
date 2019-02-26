@@ -101,7 +101,7 @@ if [ "\$exitcode" -eq 2 ]; then
     exit 2
 fi
 
-curSizeM=\`wc -c < $IMG\`
+curSizeM=\`ls -l $IMG 2>/dev/null | awk '{print \$5}'\`
 curSizeM=\$((curSizeM / 1048576))
 
 echo ""
