@@ -17,7 +17,8 @@ gen_done_script() {
     cat > $donescript <<EOF
 #!/sbin/sh
 
-rm -rf $workPath
+umount /system
+rm -f $workPath
 
 EOF
     chmod 0755 $donescript
