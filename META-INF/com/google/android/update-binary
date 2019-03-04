@@ -23,7 +23,7 @@ grep_prop() {
   shift
   FILES=$@
   if [ -z "$FILES" ]; then
-    FILES='/system/build.prop'
+    FILES='/system/build.prop /system/system/build.prop'
   fi
   cat $FILES 2>/dev/null | sed -n $REGEX | head -n 1
 }
