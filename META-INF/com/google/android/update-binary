@@ -29,7 +29,7 @@ grep_prop() {
 }
 
 # mount all
-mount /system || :
+mount -o ro /system || :
 mount /cache || :
 mount /data || :
 
