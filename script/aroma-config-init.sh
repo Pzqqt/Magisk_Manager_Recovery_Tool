@@ -215,18 +215,18 @@ then
     if prop("modoperations.prop", "selected") != "4" then
         back("1");
     endif;
-else
+endif;
 EOF
     fi
     cat >> $ac_tmp <<EOF
-    if prop("operations.prop", "selected") == cal("$i", "+", "1") then
-        menubox(
-            "高级功能",
-            "请选择操作" + getvar("core_only_mode_warning"),
-            "@welcome",
-            "advanced.prop",
+if prop("operations.prop", "selected") == cal("$i", "+", "1") then
+    menubox(
+        "高级功能",
+        "请选择操作" + getvar("core_only_mode_warning"),
+        "@welcome",
+        "advanced.prop",
 
-            "保存 recovery 日志",   "复制 /tmp/recovery.log 到内部存储", "@action",
+        "保存 recovery 日志",   "复制 /tmp/recovery.log 到内部存储", "@action",
 EOF
     if $migrated; then
         echo "\"瘦身 magisk.img\", \"该选项不可用.\", \"@crash\"," >> $ac_tmp
@@ -234,80 +234,78 @@ EOF
         echo "\"瘦身 magisk.img\", \"压缩 magisk.img 容量以减少其存储空间占用.\n建议在移除大型模块后使用.\", \"@action\"," >> $ac_tmp
     fi
     cat >> $ac_tmp <<EOF
-            getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
-            "返回",                 "", "@back2"
+        getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
+        "返回",                 "", "@back2"
+    );
+    if prop("advanced.prop", "selected") == "1" then
+        exec("/sbin/sh", "/tmp/mmr/script/save-rec-log.sh");
+        alert(
+            "完成",
+            "已保存 Recovery 日志到 /sdcard/recovery.log!",
+            "@done",
+            "确定"
         );
-        if prop("advanced.prop", "selected") == "1" then
-            exec("/sbin/sh", "/tmp/mmr/script/save-rec-log.sh");
-            alert(
-                "完成",
-                "已保存 Recovery 日志到 /sdcard/recovery.log!",
-                "@done",
-                "确定"
-            );
-            back("1");
-        endif;
-        if prop("advanced.prop", "selected") == "2" then
+        back("1");
+    endif;
+    if prop("advanced.prop", "selected") == "2" then
 EOF
     if $migrated; then
         echo "back(\"1\");" >> $ac_tmp
     else
         cat >> $ac_tmp <<EOF
-            pleasewait("正在执行脚本 ...");
-            setvar("exitcode", exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh"));
-            if cmp(getvar("exitcode"), "==", "0") then
-                alert(
-                    "运行成功",
-                    getvar("exec_buffer"),
-                    "@done",
-                    "确定"
-                );
-                if confirm(
-                    "注意",
-                    "magisk 镜像已取消挂载.\n\n本工具即将退出.\n如果还需使用, 请重新卡刷本工具.\n\n",
-                    "@warning",
-                    "退出到 Recovery",
-                    "重启设备") == "yes"
-                then
-                    exit("");
-                else
-                    reboot("now");
-                endif;
-            else
-                alert(
-                    "运行失败",
-                    getvar("exec_buffer"),
-                    "@crash",
-                    "退出"
-                );
-                exit("");
-            endif;
-EOF
-    fi
-    cat >> $ac_tmp <<EOF
-        endif;
-        if prop("advanced.prop", "selected") == "3" then
-            if cmp(getvar("core_only_mode_code"), "==", "0") then
-                if confirm("警告",
-                           "启用 Magisk 核心模式后, 所有模块均不会被载入.\n但 MagiskSU 和 MagiskHide 仍然会继续工作.\n您确定要继续吗?",
-                           "@warning") == "no"
-                then
-                    back("1");
-                endif;
-            endif;
-            exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "switch");
+        pleasewait("正在执行脚本 ...");
+        setvar("exitcode", exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh"));
+        if cmp(getvar("exitcode"), "==", "0") then
             alert(
-                "完成",
+                "运行成功",
                 getvar("exec_buffer"),
                 "@done",
                 "确定"
             );
-            back("1");
+            if confirm(
+                "注意",
+                "magisk 镜像已取消挂载.\n\n本工具即将退出.\n如果还需使用, 请重新卡刷本工具.\n\n",
+                "@warning",
+                "退出到 Recovery",
+                "重启设备") == "no"
+            then
+                reboot("now");
+            endif;
+        else
+            alert(
+                "运行失败",
+                getvar("exec_buffer"),
+                "@crash",
+                "退出"
+            );
         endif;
-    endif;
+        exit("");
 EOF
-    [ ${#installed_modules} -eq 0 ] || echo "endif;" >> $ac_tmp
-    echo "goto(\"main_menu\");" >> $ac_tmp
+    fi
+    cat >> $ac_tmp <<EOF
+    endif;
+    if prop("advanced.prop", "selected") == "3" then
+        if cmp(getvar("core_only_mode_code"), "==", "0") then
+            if confirm("警告",
+                       "启用 Magisk 核心模式后, 所有模块均不会被载入.\n但 MagiskSU 和 MagiskHide 仍然会继续工作.\n您确定要继续吗?",
+                       "@warning") == "no"
+            then
+                back("1");
+            endif;
+        endif;
+        exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "switch");
+        alert(
+            "完成",
+            getvar("exec_buffer"),
+            "@done",
+            "确定"
+        );
+        back("1");
+    endif;
+endif;
+
+goto("main_menu");
+EOF
     sync
 }
 
