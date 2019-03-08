@@ -132,6 +132,7 @@ EOF
             echo "if prop(\"operations.prop\", \"selected\") == \"$i\" then" >> $ac_tmp
             echo "    setvar(\"modid\", \"$module\");" >> $ac_tmp
             echo "    setvar(\"modname\", \"$(get_module_info $module name)\");" >> $ac_tmp
+            echo "    setvar(\"modsize\", \"$(get_module_info $module size)\");" >> $ac_tmp
             echo "endif;" >> $ac_tmp
             echo "" >> $ac_tmp
         done
@@ -196,6 +197,7 @@ then
     menubox(
         "Module: " + getvar("modname"),
         "Module ID: " + getvar("modid") + "\n" +
+        "Module size: " + getvar("modsize") + " MB\n" +
         "Module status: " + getvar("module_status") + "\n" +
         "auto_mount status: " + getvar("module_am_status"),
         "@welcome",
