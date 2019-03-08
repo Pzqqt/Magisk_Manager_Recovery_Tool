@@ -39,54 +39,5 @@ setvar(
     "设备名称\t\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.name")         + "</#></b>\n"    +
     "设备代号\t\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.device")       + "</#></b>\n"    +
     "Cpu 型号\t\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.board")        + "</#></b>\n"    +
-    "设备厂商\t\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.manufacturer") + "</#></b>\n\n"  +
-
-    "/system 空间\t\t: "   + "<b><#selectbg_g>" + getdisksize("/system", "m") + " MB" + "</#></b>\n"   +
-      "\t剩余\t\t\t: "     + "<b><#selectbg_g>" + getdiskfree("/system", "m") + " MB" + "</#></b>\n\n" +
-    "/data 空间\t\t: "     + "<b><#selectbg_g>" + getdisksize("/data", "m")   + " MB" + "</#></b>\n"   +
-      "\t剩余\t\t\t: "     + "<b><#selectbg_g>" + getdiskfree("/data", "m")   + " MB" + "</#></b>\n\n" +
-    "/cache 空间\t\t: "    + "<b><#selectbg_g>" + getdisksize("/cache", "m")  + " MB" + "</#></b>\n"   +
-      "\t剩余\t\t\t: "     + "<b><#selectbg_g>" + getdiskfree("/cache", "m")  + " MB" + "</#></b>\n\n" +
-    "内部存储空间\t\t: "   + "<b><#selectbg_g>" + getdisksize("/sdcard", "m") + " MB" + "</#></b>\n"   +
-      "\t剩余\t\t\t: "     + "<b><#selectbg_g>" + getdiskfree("/sdcard", "m") + " MB" + "</#></b>\n\n"
+    "设备厂商\t\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.manufacturer") + "</#></b>\n\n"
 );
-
-viewbox(
-    "<~welcome.title>",
-    "<~welcome.text1> <b>" + ini_get("rom_name") + "</b>.\n\n" + "<~welcome.text2>\n\n\n\n\n" +
-
-    "  <~welcome.version>\t\t\t: " + "<b><#selectbg_g>" + ini_get("rom_version") + "</#></b>\n" +
-    "  <~welcome.updated>\t\t: " + "<b><#selectbg_g>" + ini_get("rom_date") + "</#></b>\n\n\n" +
-
-    getvar("sysinfo"),
-
-    "@welcome"
-);
-
-gotolabel("main_menu");
-
-ini_set("text_next", "下一步");
-ini_set("icon_next", "@next");
-
-exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh");
-
-setvar("core_only_mode_code", exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "status"));
-
-if cmp(getvar("core_only_mode_code"), "==", "0") then
-    setvar("core_only_mode_warning", "");
-    setvar("core_only_mode_switch_text", "启用 Magisk 核心模式");
-    setvar("core_only_mode_switch_text2", "阻止载入所有模块");
-endif;
-if cmp(getvar("core_only_mode_code"), "==", "1") then
-    setvar("core_only_mode_warning", "\n<#f00>Magisk 核心模式已启用, 所有模块均不会被载入.</#>");
-    setvar("core_only_mode_switch_text", "禁用 Magisk 核心模式");
-    setvar("core_only_mode_switch_text2", "");
-endif;
-
-menubox(
-    "主菜单",
-    "请选择操作" + getvar("core_only_mode_warning"),
-    "@welcome",
-    "operations.prop",
-
-    "重启",                    "重启您的设备",                       "@refresh",

@@ -8,16 +8,77 @@ get_module_info() {
     /tmp/mmr/script/get-module-info.sh $1 $2
 }
 
+get_magisk_info() {
+    /tmp/mmr/script/get-magisk-info.sh $1
+}
+
 gen_aroma_config() {
     [ -d /data/adb/modules ] && migrated=true || migrated=false
     installed_modules=`ls_mount_path`
     echo $installed_modules > /tmp/mmr/script/modules_ids
     ac_tmp=/tmp/mmr/script/aroma-config
     mv /tmp/mmr/script/ac-1.in $ac_tmp
+    MAGISK_VER_CODE=$(get_magisk_info "MAGISK_VER_CODE")
+    cat >> $ac_tmp <<EOF
+setvar("sysinfo",
+    getvar("sysinfo") +
+    "Magisk 版本\t\t: " + "<b><#selectbg_g>${MAGISK_VER_CODE}</#></b>\n\n"
+);
+EOF
+    if ! $migrated; then
+        cat >> $ac_tmp <<EOF
+setvar("sysinfo",
+    getvar("sysinfo") +
+    "magisk.img 空间\t: "  + "<b><#selectbg_g>" + getdisksize("/magisk", "m") + " MB" + "</#></b>\n" +
+    "\t剩余\t\t\t: "       + "<b><#selectbg_g>" + getdiskfree("/magisk", "m") + " MB" + "</#></b>\n"
+);
+EOF
+    fi
+    cat >> $ac_tmp <<EOF
+viewbox(
+    "<~welcome.title>",
+    "<~welcome.text1> <b>" + ini_get("rom_name") + "</b>.\n\n" + "<~welcome.text2>\n\n\n\n\n" +
+
+    "  <~welcome.version>\t\t\t: " + "<b><#selectbg_g>" + ini_get("rom_version") + "</#></b>\n" +
+    "  <~welcome.updated>\t\t: " + "<b><#selectbg_g>" + ini_get("rom_date") + "</#></b>\n\n\n" +
+
+    getvar("sysinfo"),
+
+    "@welcome"
+);
+
+gotolabel("main_menu");
+
+ini_set("text_next", "下一步");
+ini_set("icon_next", "@next");
+
+exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh");
+
+setvar("core_only_mode_code", exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "status"));
+
+if cmp(getvar("core_only_mode_code"), "==", "0") then
+    setvar("core_only_mode_warning", "");
+    setvar("core_only_mode_switch_text", "启用 Magisk 核心模式");
+    setvar("core_only_mode_switch_text2", "阻止载入所有模块");
+endif;
+if cmp(getvar("core_only_mode_code"), "==", "1") then
+    setvar("core_only_mode_warning", "\n<#f00>Magisk 核心模式已启用, 所有模块均不会被载入.</#>");
+    setvar("core_only_mode_switch_text", "禁用 Magisk 核心模式");
+    setvar("core_only_mode_switch_text2", "");
+endif;
+
+menubox(
+    "主菜单",
+    "请选择操作" + getvar("core_only_mode_warning"),
+    "@welcome",
+    "operations.prop",
+
+    "重启", "重启您的设备", "@refresh",
+EOF
     if $migrated; then
-        echo "    \"退出\",  \"退出到 Recovery\", \"@back2\"," >> $ac_tmp
+        echo "    \"退出\", \"退出到 Recovery\", \"@back2\"," >> $ac_tmp
     else
-        echo "    \"退出\",  \"取消挂载 $workPath 并退出到 Recovery\", \"@back2\"," >> $ac_tmp
+        echo "    \"退出\", \"取消挂载 $workPath 并退出到 Recovery\", \"@back2\"," >> $ac_tmp
     fi
     if [ ${#installed_modules} -eq 0 ]; then
         echo "    \"如果你看到了此选项\", \"说明你尚未安装任何 Magisk 模块...\", \"@what\"," >> $ac_tmp
