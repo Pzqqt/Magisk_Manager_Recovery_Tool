@@ -204,6 +204,7 @@ then
         "modoperations.prop",
 
         "View description", "", "@info",
+        "View module content", "", "@info",
         getvar("module_status_switch_text"), getvar("module_status_switch_text2"), getvar("module_status_switch_icon"),
         getvar("module_am_status_switch_text"), getvar("module_am_status_switch_text2"), getvar("module_am_status_switch_icon"),
         "Remove", getvar("module_remove_warning"), "@delete"
@@ -218,6 +219,16 @@ then
             "Back"
         );
         back("1");
+    endif;
+    if prop("modoperations.prop", "selected") == "2" then
+        exec("/sbin/sh", "/tmp/mmr/script/get-module-tree.sh", getvar("modid"));
+        textbox(
+            "Preview",
+            "Module directory structure:",
+            "@info",
+            getvar("exec_buffer")
+        );
+        back("2");
     endif;
     if cmp(getvar("stat_code"), "==", "3") then
         alert(
@@ -237,17 +248,17 @@ then
         );
         back("1");
     endif;
-    if prop("modoperations.prop", "selected") == "2" then
+    if prop("modoperations.prop", "selected") == "3" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
               "/tmp/mmr/script/control-module.sh switch_module " + getvar("modid") + "\n");
     endif;
-    if prop("modoperations.prop", "selected") == "3" then
+    if prop("modoperations.prop", "selected") == "4" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
               "/tmp/mmr/script/control-module.sh switch_auto_mount " + getvar("modid") + "\n");
     endif;
-    if prop("modoperations.prop", "selected") == "4" then
+    if prop("modoperations.prop", "selected") == "5" then
         if confirm("Warning!",
                    "Are you sure want to remove this module?",
                    "@warning") == "yes"
@@ -275,7 +286,7 @@ then
             "OK"
         );
     endif;
-    if prop("modoperations.prop", "selected") != "4" then
+    if prop("modoperations.prop", "selected") != "5" then
         back("1");
     endif;
 endif;
