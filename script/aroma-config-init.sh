@@ -8,16 +8,77 @@ get_module_info() {
     /tmp/mmr/script/get-module-info.sh $1 $2
 }
 
+get_magisk_info() {
+    /tmp/mmr/script/get-magisk-info.sh $1
+}
+
 gen_aroma_config() {
     [ -d /data/adb/modules ] && migrated=true || migrated=false
     installed_modules=`ls_mount_path`
     echo $installed_modules > /tmp/mmr/script/modules_ids
     ac_tmp=/tmp/mmr/script/aroma-config
     mv /tmp/mmr/script/ac-1.in $ac_tmp
+    MAGISK_VER_CODE=$(get_magisk_info "MAGISK_VER_CODE")
+    cat >> $ac_tmp <<EOF
+setvar("sysinfo",
+    getvar("sysinfo") +
+    "Magisk version\t: " + "<b><#selectbg_g>${MAGISK_VER_CODE}</#></b>\n\n"
+);
+EOF
+    if ! $migrated; then
+        cat >> $ac_tmp <<EOF
+setvar("sysinfo",
+    getvar("sysinfo") +
+    "magisk.img Size\t: "  + "<b><#selectbg_g>" + getdisksize("/magisk", "m") + " MB" + "</#></b>\n" +
+    "\tFree\t\t\t: "       + "<b><#selectbg_g>" + getdiskfree("/magisk", "m") + " MB" + "</#></b>\n"
+);
+EOF
+    fi
+    cat >> $ac_tmp <<EOF
+viewbox(
+    "<~welcome.title>",
+    "<~welcome.text1> <b>" + ini_get("rom_name") + "</b>.\n\n" + "<~welcome.text2>\n\n\n\n" +
+
+    "  <~welcome.version>\t\t\t: " + "<b><#selectbg_g>" + ini_get("rom_version") + "</#></b>\n" +
+    "  <~welcome.updated>\t\t: "   + "<b><#selectbg_g>" + ini_get("rom_date")    + "</#></b>\n\n\n" +
+
+    getvar("sysinfo"),
+
+    "@welcome"
+);
+
+gotolabel("main_menu");
+
+ini_set("text_next", "Next");
+ini_set("icon_next", "@next");
+
+exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh");
+
+setvar("core_only_mode_code", exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "status"));
+
+if cmp(getvar("core_only_mode_code"), "==", "0") then
+    setvar("core_only_mode_warning", "");
+    setvar("core_only_mode_switch_text", "Enable Magisk core only mode");
+    setvar("core_only_mode_switch_text2", "Block loading all modules");
+endif;
+if cmp(getvar("core_only_mode_code"), "==", "1") then
+    setvar("core_only_mode_warning", "\n<#f00>Magisk core only mode is enabled, no modules will be load.</#>");
+    setvar("core_only_mode_switch_text", "Disable Magisk core only mode");
+    setvar("core_only_mode_switch_text2", "");
+endif;
+
+menubox(
+    "Main menu",
+    "Choose an action" + getvar("core_only_mode_warning"),
+    "@welcome",
+    "operations.prop",
+
+    "Reboot",                    "Reboot your device",                  "@refresh",
+EOF
     if $migrated; then
-        echo "    \"Exit\",  \"Exit to recovery\", \"@back2\"," >> $ac_tmp
+        echo "    \"Exit\", \"Exit to recovery\", \"@back2\"," >> $ac_tmp
     else
-        echo "    \"Exit\",  \"Unmount $workPath & exit to recovery\", \"@back2\"," >> $ac_tmp
+        echo "    \"Exit\", \"Unmount $workPath & exit to recovery\", \"@back2\"," >> $ac_tmp
     fi
     if [ ${#installed_modules} -eq 0 ]; then
         echo "    \"If you see this option\", \"You have not installed any Magisk modules...\", \"@what\"," >> $ac_tmp

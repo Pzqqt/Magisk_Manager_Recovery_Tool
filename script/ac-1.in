@@ -39,54 +39,5 @@ setvar(
     "Name\t\t\t: "         + "<b><#selectbg_g>" + sysprop("ro.product.name")            + "</#></b>\n"   +
     "Device Name\t\t: "    + "<b><#selectbg_g>" + sysprop("ro.product.device")          + "</#></b>\n"   +
     "Board Name\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.board")           + "</#></b>\n"   +
-    "Manufacturer\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.manufacturer")    + "</#></b>\n\n" +
-
-    "/system Size\t\t: "   + "<b><#selectbg_g>" + getdisksize("/system", "m")   + " MB" + "</#></b>\n"   +
-      "\tFree\t\t\t: "     + "<b><#selectbg_g>" + getdiskfree("/system", "m")   + " MB" + "</#></b>\n\n" +
-    "/data Size\t\t: "     + "<b><#selectbg_g>" + getdisksize("/data", "m")     + " MB" + "</#></b>\n"   +
-      "\tFree\t\t\t: "     + "<b><#selectbg_g>" + getdiskfree("/data", "m")     + " MB" + "</#></b>\n\n" +
-    "/cache Size\t\t: "    + "<b><#selectbg_g>" + getdisksize("/cache", "m")    + " MB" + "</#></b>\n"   +
-      "\tFree\t\t\t: "     + "<b><#selectbg_g>" + getdiskfree("/cache", "m")    + " MB" + "</#></b>\n\n" +
-    "External SD Size\t: " + "<b><#selectbg_g>" + getdisksize("/sdcard", "m")   + " MB" + "</#></b>\n"   +
-      "\tFree\t\t\t: "     + "<b><#selectbg_g>" + getdiskfree("/sdcard", "m")   + " MB" + "</#></b>\n\n"
+    "Manufacturer\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.manufacturer")    + "</#></b>\n\n"
 );
-
-viewbox(
-    "<~welcome.title>",
-    "<~welcome.text1> <b>" + ini_get("rom_name") + "</b>.\n\n" + "<~welcome.text2>\n\n\n\n" +
-
-    "  <~welcome.version>\t\t\t: " + "<b><#selectbg_g>" + ini_get("rom_version") + "</#></b>\n" +
-    "  <~welcome.updated>\t\t: "   + "<b><#selectbg_g>" + ini_get("rom_date")    + "</#></b>\n\n\n" +
-
-    getvar("sysinfo"),
-
-    "@welcome"
-);
-
-gotolabel("main_menu");
-
-ini_set("text_next", "Next");
-ini_set("icon_next", "@next");
-
-exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh");
-
-setvar("core_only_mode_code", exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "status"));
-
-if cmp(getvar("core_only_mode_code"), "==", "0") then
-    setvar("core_only_mode_warning", "");
-    setvar("core_only_mode_switch_text", "Enable Magisk core only mode");
-    setvar("core_only_mode_switch_text2", "Block loading all modules");
-endif;
-if cmp(getvar("core_only_mode_code"), "==", "1") then
-    setvar("core_only_mode_warning", "\n<#f00>Magisk core only mode is enabled, no modules will be load.</#>");
-    setvar("core_only_mode_switch_text", "Disable Magisk core only mode");
-    setvar("core_only_mode_switch_text2", "");
-endif;
-
-menubox(
-    "Main menu",
-    "Choose an action" + getvar("core_only_mode_warning"),
-    "@welcome",
-    "operations.prop",
-
-    "Reboot",                    "Reboot your device",                  "@refresh",
