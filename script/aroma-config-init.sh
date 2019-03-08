@@ -204,6 +204,7 @@ then
         "modoperations.prop",
 
         "查看模块描述", "", "@info",
+        "预览模块内容", "", "@info",
         getvar("module_status_switch_text"), getvar("module_status_switch_text2"), getvar("module_status_switch_icon"),
         getvar("module_am_status_switch_text"), getvar("module_am_status_switch_text2"), getvar("module_am_status_switch_icon"),
         "移除", getvar("module_remove_warning"), "@delete"
@@ -218,6 +219,16 @@ then
             "返回"
         );
         back("1");
+    endif;
+    if prop("modoperations.prop", "selected") == "2" then
+        exec("/sbin/sh", "/tmp/mmr/script/get-module-tree.sh", getvar("modid"));
+        textbox(
+            "预览",
+            "模块目录结构:",
+            "@info",
+            getvar("exec_buffer")
+        );
+        back("2");
     endif;
     if cmp(getvar("stat_code"), "==", "3") then
         alert(
@@ -237,17 +248,17 @@ then
         );
         back("1");
     endif;
-    if prop("modoperations.prop", "selected") == "2" then
+    if prop("modoperations.prop", "selected") == "3" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
               "/tmp/mmr/script/control-module.sh switch_module " + getvar("modid") + "\n");
     endif;
-    if prop("modoperations.prop", "selected") == "3" then
+    if prop("modoperations.prop", "selected") == "4" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
               "/tmp/mmr/script/control-module.sh switch_auto_mount " + getvar("modid") + "\n");
     endif;
-    if prop("modoperations.prop", "selected") == "4" then
+    if prop("modoperations.prop", "selected") == "5" then
         if confirm("警告",
                    "您确定要移除该模块吗? 此操作不可恢复!",
                    "@warning") == "yes"
@@ -275,7 +286,7 @@ then
             "确定"
         );
     endif;
-    if prop("modoperations.prop", "selected") != "4" then
+    if prop("modoperations.prop", "selected") != "5" then
         back("1");
     endif;
 endif;
