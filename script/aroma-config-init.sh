@@ -132,6 +132,7 @@ EOF
             echo "if prop(\"operations.prop\", \"selected\") == \"$i\" then" >> $ac_tmp
             echo "    setvar(\"modid\", \"$module\");" >> $ac_tmp
             echo "    setvar(\"modname\", \"$(get_module_info $module name)\");" >> $ac_tmp
+            echo "    setvar(\"modsize\", \"$(get_module_info $module size)\");" >> $ac_tmp
             echo "endif;" >> $ac_tmp
             echo "" >> $ac_tmp
         done
@@ -196,6 +197,7 @@ then
     menubox(
         "模块: " + getvar("modname"),
         "模块 ID: " + getvar("modid") + "\n" +
+        "占用空间: " + getvar("modsize") + " MB\n" +
         "模块状态: " + getvar("module_status") + "\n" +
         "auto_mount 状态: " + getvar("module_am_status"),
         "@welcome",
