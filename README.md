@@ -18,6 +18,7 @@
 - <a href="https://forum.xda-developers.com/apps/magisk/module-tool-magisk-manager-recovery-mode-t3693165">Magisk Manager for Recovery Mode (mm)</a>(magisk.img 镜像挂载方法)<br>
 - <a href="https://elementalx.org/devices/">ElementalX Kernel</a>(Aroma Installer 主题)<br>
 - <a href="https://sourceforge.net/projects/p7zip/files/p7zip/16.02/">p7zip</a>(7za 二进制文件)<br>
+- <a href="http://mama.indstate.edu/users/ice/tree/">tree</a>(tree 二进制文件)<br>
 
 ## License
 - <a href="https://opensource.org/licenses/MIT">MIT</a>
