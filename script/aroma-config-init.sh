@@ -22,7 +22,7 @@ gen_aroma_config() {
     cat >> $ac_tmp <<EOF
 setvar("sysinfo",
     getvar("sysinfo") +
-    "Magisk version\t: " + "<b><#selectbg_g>${MAGISK_VER_CODE}</#></b>\n\n"
+    "Magisk Version\t: " + "<b><#selectbg_g>${MAGISK_VER_CODE}</#></b>\n\n"
 );
 EOF
     if ! $migrated; then
@@ -73,7 +73,7 @@ menubox(
     "@welcome",
     "operations.prop",
 
-    "Reboot",                    "Reboot your device",                  "@refresh",
+    "Reboot", "Reboot your device", "@refresh",
 EOF
     if $migrated; then
         echo "    \"Exit\", \"Exit to recovery\", \"@back2\"," >> $ac_tmp
@@ -204,7 +204,7 @@ then
     endif;
 
     if cmp(getvar("stat_code"), "==", "4") then
-        setvar("module_remove_switch_text", "<b><i>Undo</i></b> remove module at next reboot");
+        setvar("module_remove_switch_text", "<b><i>Undo</i></b>  remove module at next reboot");
         setvar("module_remove_switch_text2", "");
         setvar("module_remove_switch_icon", "@refresh");
     else
@@ -212,10 +212,10 @@ then
 
         if cmp(getvar("stat_code"), "==", "3") then
             setvar("module_remove_switch_text2", "Unallowed operation");
-            setvar("module_remove_switch_icon", "@crash");
+            setvar("module_remove_switch_icon",  "@crash");
         else
             setvar("module_remove_switch_text2", "");
-            setvar("module_remove_switch_icon", "@delete");
+            setvar("module_remove_switch_icon",  "@delete");
         endif;
     endif;
 
