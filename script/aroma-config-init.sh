@@ -181,15 +181,21 @@ then
         setvar("module_am_status_switch_text2", "不允许的操作");
         setvar("module_am_status_switch_icon",  "@crash");
     else
-        if cmp(getvar("stat_code"), "==", "0") then
-            setvar("module_status_switch_text",  "启用该模块");
+        if cmp(getvar("stat_code"), "==", "4") then
+            setvar("module_status_switch_text",  "启用/禁用该模块");
             setvar("module_status_switch_text2", "");
-            setvar("module_status_switch_icon",  "@action2");
-        endif;
-        if cmp(getvar("stat_code"), "==", "1") then
-            setvar("module_status_switch_text",  "禁用该模块");
-            setvar("module_status_switch_text2", "");
-            setvar("module_status_switch_icon",  "@offaction");
+            setvar("module_status_switch_icon",  "@what");
+        else
+            if cmp(getvar("stat_code"), "==", "0") then
+                setvar("module_status_switch_text",  "启用该模块");
+                setvar("module_status_switch_text2", "");
+                setvar("module_status_switch_icon",  "@action2");
+            endif;
+            if cmp(getvar("stat_code"), "==", "1") then
+                setvar("module_status_switch_text",  "禁用该模块");
+                setvar("module_status_switch_text2", "");
+                setvar("module_status_switch_icon",  "@offaction");
+            endif;
         endif;
         if cmp(getvar("stat_am_code"), "==", "0") then
             setvar("module_am_status_switch_text",  "启用 auto_mount");
