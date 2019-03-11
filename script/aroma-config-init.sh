@@ -181,15 +181,21 @@ then
         setvar("module_am_status_switch_text2", "Unallowed operation");
         setvar("module_am_status_switch_icon",  "@crash");
     else
-        if cmp(getvar("stat_code"), "==", "0") then
-            setvar("module_status_switch_text",  "Enable module");
+        if cmp(getvar("stat_code"), "==", "4") then
+            setvar("module_status_switch_text",  "Enable/Disable module");
             setvar("module_status_switch_text2", "");
-            setvar("module_status_switch_icon",  "@action2");
-        endif;
-        if cmp(getvar("stat_code"), "==", "1") then
-            setvar("module_status_switch_text",  "Disable module");
-            setvar("module_status_switch_text2", "");
-            setvar("module_status_switch_icon",  "@offaction");
+            setvar("module_status_switch_icon",  "@what");
+        else
+            if cmp(getvar("stat_code"), "==", "0") then
+                setvar("module_status_switch_text",  "Enable module");
+                setvar("module_status_switch_text2", "");
+                setvar("module_status_switch_icon",  "@action2");
+            endif;
+            if cmp(getvar("stat_code"), "==", "1") then
+                setvar("module_status_switch_text",  "Disable module");
+                setvar("module_status_switch_text2", "");
+                setvar("module_status_switch_icon",  "@offaction");
+            endif;
         endif;
         if cmp(getvar("stat_am_code"), "==", "0") then
             setvar("module_am_status_switch_text",  "Enable auto_mount");
