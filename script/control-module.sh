@@ -48,6 +48,20 @@ if [ "$operate" = "switch_auto_mount" ]; then
     fi
 fi
 
+if [ "$operate" = "switch_remove" ]; then
+    if [ -f ${workPath}/${module}/remove ]; then
+        rm -rf ${workPath}/${module}/remove && {
+            echo "Successful undo."
+            exit 0
+        }
+    else
+        touch ${workPath}/${module}/remove && {
+            echo "Module $module will be removed at next reboot."
+            exit 0
+        }
+    fi
+fi
+
 if [ "$operate" = "remove" ]; then
     rm -rf /magisk/$module && {
         echo "Successfully removed module $module !"
