@@ -143,19 +143,6 @@ then
     setvar("stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
     setvar("stat_am_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_am", getvar("modid")));
 
-    setvar("module_remove_warning", "");
-    if cmp(getvar("stat_code"), "==", "0") then
-        setvar("module_status", "已禁用");
-        setvar("module_status_switch_text",  "启用该模块");
-        setvar("module_status_switch_text2", "");
-        setvar("module_status_switch_icon",  "@action2");
-    endif;
-    if cmp(getvar("stat_code"), "==", "1") then
-        setvar("module_status", "已启用");
-        setvar("module_status_switch_text",  "禁用该模块");
-        setvar("module_status_switch_text2", "");
-        setvar("module_status_switch_icon",  "@offaction");
-    endif;
     if cmp(getvar("stat_code"), "==", "2") then
         alert(
             "注意",
@@ -164,6 +151,13 @@ then
             "确定"
         );
         back("1");
+    endif;
+
+    if cmp(getvar("stat_code"), "==", "0") then
+        setvar("module_status", "已禁用");
+    endif;
+    if cmp(getvar("stat_code"), "==", "1") then
+        setvar("module_status", "已启用");
     endif;
     if cmp(getvar("stat_code"), "==", "3") then
         setvar("module_status", "待更新");
@@ -174,24 +168,63 @@ then
 
     if cmp(getvar("stat_am_code"), "==", "0") then
         setvar("module_am_status", "已禁用");
-        setvar("module_am_status_switch_text",  "启用 auto_mount");
-        setvar("module_am_status_switch_text2", "");
-        setvar("module_am_status_switch_icon",  "@action2");
     endif;
     if cmp(getvar("stat_am_code"), "==", "1") then
         setvar("module_am_status", "已启用");
-        setvar("module_am_status_switch_text",  "禁用 auto_mount");
-        setvar("module_am_status_switch_text2", "");
-        setvar("module_am_status_switch_icon",  "@offaction");
     endif;
-    if cmp(getvar("stat_code"), "==", "3") || cmp(getvar("stat_code"), "==", "4") then
+
+    if cmp(getvar("stat_code"), "==", "3") then
         setvar("module_status_switch_text",     "启用/禁用该模块");
         setvar("module_status_switch_text2",    "不允许的操作");
         setvar("module_status_switch_icon",     "@crash");
         setvar("module_am_status_switch_text",  "启用/禁用 auto_mount");
         setvar("module_am_status_switch_text2", "不允许的操作");
         setvar("module_am_status_switch_icon",  "@crash");
-        setvar("module_remove_warning",         "不允许的操作");
+    else
+        if cmp(getvar("stat_code"), "==", "0") then
+            setvar("module_status_switch_text",  "启用该模块");
+            setvar("module_status_switch_text2", "");
+            setvar("module_status_switch_icon",  "@action2");
+        endif;
+        if cmp(getvar("stat_code"), "==", "1") then
+            setvar("module_status_switch_text",  "禁用该模块");
+            setvar("module_status_switch_text2", "");
+            setvar("module_status_switch_icon",  "@offaction");
+        endif;
+        if cmp(getvar("stat_am_code"), "==", "0") then
+            setvar("module_am_status_switch_text",  "启用 auto_mount");
+            setvar("module_am_status_switch_text2", "");
+            setvar("module_am_status_switch_icon",  "@action2");
+        endif;
+        if cmp(getvar("stat_am_code"), "==", "1") then
+            setvar("module_am_status_switch_text",  "禁用 auto_mount");
+            setvar("module_am_status_switch_text2", "");
+            setvar("module_am_status_switch_icon",  "@offaction");
+        endif;
+    endif;
+
+    if cmp(getvar("stat_code"), "==", "4") then
+        setvar("module_remove_switch_text", "<b><i>撤销</i></b> 重启后移除该模块");
+        setvar("module_remove_switch_text2", "");
+        setvar("module_remove_switch_icon", "@refresh");
+    else
+        setvar("module_remove_switch_text", "重启后移除该模块");
+
+        if cmp(getvar("stat_code"), "==", "3") then
+            setvar("module_remove_switch_text2", "不允许的操作");
+            setvar("module_remove_switch_icon", "@crash");
+        else
+            setvar("module_remove_switch_text2", "");
+            setvar("module_remove_switch_icon", "@delete");
+        endif;
+    endif;
+
+    if cmp(getvar("stat_code"), "==", "3") then
+        setvar("module_remove_warning", "不允许的操作");
+        setvar("module_remove_icon",    "@crash");
+    else
+        setvar("module_remove_warning", "");
+        setvar("module_remove_icon",    "@delete");
     endif;
 
     menubox(
@@ -207,7 +240,8 @@ then
         "预览模块内容", "", "@info",
         getvar("module_status_switch_text"), getvar("module_status_switch_text2"), getvar("module_status_switch_icon"),
         getvar("module_am_status_switch_text"), getvar("module_am_status_switch_text2"), getvar("module_am_status_switch_icon"),
-        "移除", getvar("module_remove_warning"), "@delete"
+        getvar("module_remove_switch_text"), getvar("module_remove_switch_text2"), getvar("module_remove_switch_icon"),
+        "立即移除", getvar("module_remove_warning"), getvar("module_remove_icon")
     );
 
     if prop("modoperations.prop", "selected") == "1" then
@@ -239,15 +273,6 @@ then
         );
         back("1");
     endif;
-    if cmp(getvar("stat_code"), "==", "4") then
-        alert(
-            "不允许的操作",
-            "该模块将在重启后完成移除,\n请重启一次后再试.",
-            "@crash",
-            "返回"
-        );
-        back("1");
-    endif;
     if prop("modoperations.prop", "selected") == "3" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
@@ -259,6 +284,11 @@ then
               "/tmp/mmr/script/control-module.sh switch_auto_mount " + getvar("modid") + "\n");
     endif;
     if prop("modoperations.prop", "selected") == "5" then
+        write("/tmp/mmr/cmd.sh",
+              "#!/sbin/sh\n" +
+              "/tmp/mmr/script/control-module.sh switch_remove " + getvar("modid") + "\n");
+    endif;
+    if prop("modoperations.prop", "selected") == "6" then
         if confirm("警告",
                    "您确定要移除该模块吗? 此操作不可恢复!",
                    "@warning") == "yes"
@@ -286,7 +316,7 @@ then
             "确定"
         );
     endif;
-    if prop("modoperations.prop", "selected") != "5" then
+    if prop("modoperations.prop", "selected") != "6" then
         back("1");
     endif;
 endif;

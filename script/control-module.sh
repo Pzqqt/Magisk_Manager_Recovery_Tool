@@ -48,6 +48,20 @@ if [ "$operate" = "switch_auto_mount" ]; then
     fi
 fi
 
+if [ "$operate" = "switch_remove" ]; then
+    if [ -f ${workPath}/${module}/remove ]; then
+        rm -rf ${workPath}/${module}/remove && {
+            echo "已撤销操作!"
+            exit 0
+        }
+    else
+        touch ${workPath}/${module}/remove && {
+            echo "模块 $module 将在下次重启后移除!"
+            exit 0
+        }
+    fi
+fi
+
 if [ "$operate" = "remove" ]; then
     rm -rf ${workPath}/${module} && {
         echo "已成功移除模块 ${module} !"
