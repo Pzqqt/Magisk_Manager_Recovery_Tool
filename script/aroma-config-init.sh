@@ -215,18 +215,18 @@ then
     if prop("modoperations.prop", "selected") != "4" then
         back("1");
     endif;
-else
+endif;
 EOF
     fi
     cat >> $ac_tmp <<EOF
-    if prop("operations.prop", "selected") == cal("$i", "+", "1") then
-        menubox(
-            "advanced options",
-            "Choose an action" + getvar("core_only_mode_warning"),
-            "@welcome",
-            "advanced.prop",
+if prop("operations.prop", "selected") == cal("$i", "+", "1") then
+    menubox(
+        "advanced options",
+        "Choose an action" + getvar("core_only_mode_warning"),
+        "@welcome",
+        "advanced.prop",
 
-            "Save recovery log",    "Copies /tmp/recovery.log to internal SD", "@action",
+        "Save recovery log",    "Copies /tmp/recovery.log to internal SD", "@action",
 EOF
     if $migrated; then
         echo "\"Shrinking magisk.img\", \"Not available\", \"@crash\"," >> $ac_tmp
@@ -234,80 +234,78 @@ EOF
         echo "\"Shrinking magisk.img\", \"Shrinking magisk.img capacity.\nRecommended to use after removing large modules.\", \"@action\"," >> $ac_tmp
     fi
     cat >> $ac_tmp <<EOF
-            getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
-            "Back",                 "", "@back2"
+        getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
+        "Back",                 "", "@back2"
+    );
+    if prop("advanced.prop", "selected") == "1" then
+        exec("/sbin/sh", "/tmp/mmr/script/save-rec-log.sh");
+        alert(
+            "Done",
+            "Recovery log has been saved to /sdcard/recovery.log!",
+            "@done",
+            "OK"
         );
-        if prop("advanced.prop", "selected") == "1" then
-            exec("/sbin/sh", "/tmp/mmr/script/save-rec-log.sh");
-            alert(
-                "Done",
-                "Recovery log has been saved to /sdcard/recovery.log!",
-                "@done",
-                "OK"
-            );
-            back("1");
-        endif;
-        if prop("advanced.prop", "selected") == "2" then
+        back("1");
+    endif;
+    if prop("advanced.prop", "selected") == "2" then
 EOF
     if $migrated; then
         echo "back(\"1\");" >> $ac_tmp
     else
         cat >> $ac_tmp <<EOF
-            pleasewait("Executing Shell...");
-            setvar("exitcode", exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh"));
-            if cmp(getvar("exitcode"), "==", "0") then
-                alert(
-                    "Done",
-                    getvar("exec_buffer"),
-                    "@done",
-                    "OK"
-                );
-                if confirm(
-                    "Note",
-                    "The magisk image has been unmounted.\n\nThis tool will exit.\nIf you still need to use, please reflash this tool.\n\n",
-                    "@warning",
-                    "Exit to Recovery",
-                    "Reboot") == "yes"
-                then
-                    exit("");
-                else
-                    reboot("now");
-                endif;
-            else
-                alert(
-                    "Failed",
-                    getvar("exec_buffer"),
-                    "@crash",
-                    "Exit"
-                );
-                exit("");
-            endif;
-EOF
-    fi
-    cat >> $ac_tmp <<EOF
-        endif;
-        if prop("advanced.prop", "selected") == "3" then
-            if cmp(getvar("core_only_mode_code"), "==", "0") then
-                if confirm("Warning",
-                           "If you enable Magisk core only mode,\nno modules will be load.\nBut MagiskSU and MagiskHide will still be enabled.\nContinue?",
-                           "@warning") == "no"
-                then
-                    back("1");
-                endif;
-            endif;
-            exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "switch");
+        pleasewait("Executing Shell...");
+        setvar("exitcode", exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh"));
+        if cmp(getvar("exitcode"), "==", "0") then
             alert(
                 "Done",
                 getvar("exec_buffer"),
                 "@done",
                 "OK"
             );
-            back("1");
+            if confirm(
+                "Note",
+                "The magisk image has been unmounted.\n\nThis tool will exit.\nIf you still need to use, please reflash this tool.\n\n",
+                "@warning",
+                "Exit to Recovery",
+                "Reboot") == "yes"
+            then
+                reboot("now");
+            endif;
+        else
+            alert(
+                "Failed",
+                getvar("exec_buffer"),
+                "@crash",
+                "Exit"
+            );
         endif;
-    endif;
+        exit("");
 EOF
-    [ ${#installed_modules} -eq 0 ] || echo "endif;" >> $ac_tmp
-    echo "goto(\"main_menu\");" >> $ac_tmp
+    fi
+    cat >> $ac_tmp <<EOF
+    endif;
+    if prop("advanced.prop", "selected") == "3" then
+        if cmp(getvar("core_only_mode_code"), "==", "0") then
+            if confirm("Warning",
+                       "If you enable Magisk core only mode,\nno modules will be load.\nBut MagiskSU and MagiskHide will still be enabled.\nContinue?",
+                       "@warning") == "no"
+            then
+                back("1");
+            endif;
+        endif;
+        exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "switch");
+        alert(
+            "Done",
+            getvar("exec_buffer"),
+            "@done",
+            "OK"
+        );
+        back("1");
+    endif;
+endif;
+
+goto("main_menu");
+EOF
     sync
 }
 
