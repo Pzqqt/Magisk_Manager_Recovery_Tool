@@ -212,10 +212,10 @@ then
 
         if cmp(getvar("stat_code"), "==", "3") then
             setvar("module_remove_switch_text2", "不允许的操作");
-            setvar("module_remove_switch_icon", "@crash");
+            setvar("module_remove_switch_icon",  "@crash");
         else
             setvar("module_remove_switch_text2", "");
-            setvar("module_remove_switch_icon", "@delete");
+            setvar("module_remove_switch_icon",  "@delete");
         endif;
     endif;
 
