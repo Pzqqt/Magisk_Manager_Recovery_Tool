@@ -20,19 +20,16 @@ gen_aroma_config() {
     mv /tmp/mmr/script/ac-1.in $ac_tmp
     MAGISK_VER_CODE=$(get_magisk_info "MAGISK_VER_CODE")
     cat >> $ac_tmp <<EOF
-setvar("sysinfo",
-    getvar("sysinfo") +
-    "Magisk Version\t: " + "<b><#selectbg_g>${MAGISK_VER_CODE}</#></b>\n\n"
+appendvar("sysinfo",
+    "Magisk Version\t\t: " + "<b><#selectbg_g>${MAGISK_VER_CODE}</#></b>\n\n"
 );
 EOF
     if ! $migrated; then
         cat >> $ac_tmp <<EOF
-setvar("imgused", cal(getdisksize("/magisk", "m"), "-", getdiskfree("/magisk", "m")));
-setvar("sysinfo",
-    getvar("sysinfo") +
-    "magisk.img Size\t: "  + "<b><#selectbg_g>" + getdisksize("/magisk", "m") + " MB" + "</#></b>\n" +
-    "\tUsed\t\t\t: "       + "<b><#selectbg_g>" + getvar("imgused") + " MB" +
-    " (" + cal(cal(getvar("imgused"), "*", "100"), "/", getdisksize("/magisk", "m")) + "%)" + "</#></b>\n"
+appendvar("sysinfo",
+    "magisk.img Size\t: " + "<b><#selectbg_g>" + getdisksize("/magisk", "m") + " MB" + "</#></b>\n" +
+    "\tUsed\t\t\t: " + "<b><#selectbg_g>" + cal(getdisksize("/magisk", "m"), "-", getdiskfree("/magisk", "m")) +" MB" +
+    " (" + getdiskusedpercent("/magisk") + "%)" + "</#></b>\n"
 );
 EOF
     fi
