@@ -27,10 +27,12 @@ setvar("sysinfo",
 EOF
     if ! $migrated; then
         cat >> $ac_tmp <<EOF
+setvar("imgused", cal(getdisksize("/magisk", "m"), "-", getdiskfree("/magisk", "m")));
 setvar("sysinfo",
     getvar("sysinfo") +
     "magisk.img Size\t: "  + "<b><#selectbg_g>" + getdisksize("/magisk", "m") + " MB" + "</#></b>\n" +
-    "\tFree\t\t\t: "       + "<b><#selectbg_g>" + getdiskfree("/magisk", "m") + " MB" + "</#></b>\n"
+    "\tUsed\t\t\t: "       + "<b><#selectbg_g>" + getvar("imgused") + " MB" +
+    " (" + cal(cal(getvar("imgused"), "*", "100"), "/", getdisksize("/magisk", "m")) + "%)" + "</#></b>\n"
 );
 EOF
     fi
