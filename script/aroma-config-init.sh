@@ -8,10 +8,6 @@ get_module_info() {
     /tmp/mmr/script/get-module-info.sh $1 $2
 }
 
-get_magisk_info() {
-    /tmp/mmr/script/get-magisk-info.sh $1
-}
-
 gen_aroma_config() {
     [ -d /data/adb/modules ] && migrated=true || migrated=false
     installed_modules=`ls_mount_path`
@@ -21,7 +17,8 @@ gen_aroma_config() {
     MAGISK_VER_CODE=$(get_magisk_info "MAGISK_VER_CODE")
     cat >> $ac_tmp <<EOF
 appendvar("sysinfo",
-    "Magisk Version\t\t: " + "<b><#selectbg_g>${MAGISK_VER_CODE}</#></b>\n\n"
+    "Magisk Version\t\t: " + "<b><#selectbg_g>" + file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER") + "</#></b>\n" +
+    "Version Code\t\t: " + "<b><#selectbg_g>" + file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER_CODE") + "</#></b>\n\n"
 );
 EOF
     if ! $migrated; then
