@@ -87,9 +87,7 @@ $doskscript &>/dev/null
 exitcode=\$?
 
 if [ "\$exitcode" -eq 1 ]; then
-    echo ""
-    echo "! Failed to unmount magisk.img!"
-    echo ""
+    echo -e "\n! Failed to unmount magisk.img!\n"
     exit 1
 fi
 
@@ -103,9 +101,7 @@ fi
 curSizeM=\`ls -l $IMG 2>/dev/null | awk '{print \$5}'\`
 curSizeM=\$((curSizeM / 1048576))
 
-echo ""
-echo "- Shrinking $IMG to \${curSizeM}M"
-echo ""
+echo -e "\n- Shrinking $IMG to \${curSizeM}M\n"
 
 EOF
     chmod 0755 $doskscript

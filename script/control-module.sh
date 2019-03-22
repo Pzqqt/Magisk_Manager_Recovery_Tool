@@ -69,6 +69,5 @@ if [ "$operate" = "remove" ]; then
     }
 fi
 
-echo ""
-echo "Script execution failed!"
+echo -e "\nScript execution failed!"
 exit 1

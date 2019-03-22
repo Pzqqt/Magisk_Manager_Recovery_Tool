@@ -39,5 +39,8 @@ setvar(
     "Name\t\t\t: "         + "<b><#selectbg_g>" + sysprop("ro.product.name")            + "</#></b>\n"   +
     "Device Name\t\t: "    + "<b><#selectbg_g>" + sysprop("ro.product.device")          + "</#></b>\n"   +
     "Board Name\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.board")           + "</#></b>\n"   +
-    "Manufacturer\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.manufacturer")    + "</#></b>\n\n"
+    "Manufacturer\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.manufacturer")    + "</#></b>\n"   +
+    "\n" +
+    "Magisk Version\t\t: " + "<b><#selectbg_g>" + file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER") + "</#></b>\n" +
+    "Version Code\t\t: " + "<b><#selectbg_g>" + file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER_CODE") + "</#></b>\n\n"
 );

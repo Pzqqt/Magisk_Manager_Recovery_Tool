@@ -14,13 +14,6 @@ gen_aroma_config() {
     echo $installed_modules > /tmp/mmr/script/modules_ids
     ac_tmp=/tmp/mmr/script/aroma-config
     mv /tmp/mmr/script/ac-1.in $ac_tmp
-    MAGISK_VER_CODE=$(get_magisk_info "MAGISK_VER_CODE")
-    cat >> $ac_tmp <<EOF
-appendvar("sysinfo",
-    "Magisk Version\t\t: " + "<b><#selectbg_g>" + file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER") + "</#></b>\n" +
-    "Version Code\t\t: " + "<b><#selectbg_g>" + file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER_CODE") + "</#></b>\n\n"
-);
-EOF
     if ! $migrated; then
         cat >> $ac_tmp <<EOF
 appendvar("sysinfo",
@@ -28,6 +21,9 @@ appendvar("sysinfo",
     "\tUsed\t\t\t: " + "<b><#selectbg_g>" + cal(getdisksize("/magisk", "m"), "-", getdiskfree("/magisk", "m")) +" MB" +
     " (" + getdiskusedpercent("/magisk") + "%)" + "</#></b>\n"
 );
+
+ini_set("text_quit", "Quit without unmount /magisk");
+ini_set("text_quit_msg", "You can operate the module by operating the /magisk directory later. Only for advanced users. Do NOT forget to unmount /magisk.");
 EOF
     fi
     cat >> $ac_tmp <<EOF
@@ -52,12 +48,12 @@ exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh");
 
 setvar("core_only_mode_code", exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "status"));
 
-if cmp(getvar("core_only_mode_code"), "==", "0") then
+if getvar("core_only_mode_code") == "0" then
     setvar("core_only_mode_warning", "");
     setvar("core_only_mode_switch_text", "Enable Magisk core only mode");
     setvar("core_only_mode_switch_text2", "Block loading all modules");
 endif;
-if cmp(getvar("core_only_mode_code"), "==", "1") then
+if getvar("core_only_mode_code") == "1" then
     setvar("core_only_mode_warning", "\n<#f00>Magisk core only mode is enabled, no modules will be load.</#>");
     setvar("core_only_mode_switch_text", "Disable Magisk core only mode");
     setvar("core_only_mode_switch_text2", "");
@@ -139,7 +135,7 @@ then
     setvar("stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
     setvar("stat_am_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_am", getvar("modid")));
 
-    if cmp(getvar("stat_code"), "==", "2") then
+    if getvar("stat_code") == "2" then
         alert(
             "Note",
             "This module has been removed.\n\n",
@@ -149,27 +145,27 @@ then
         back("1");
     endif;
 
-    if cmp(getvar("stat_code"), "==", "0") then
+    if getvar("stat_code") == "0" then
         setvar("module_status", "Disabled");
     endif;
-    if cmp(getvar("stat_code"), "==", "1") then
+    if getvar("stat_code") == "1" then
         setvar("module_status", "Enabled");
     endif;
-    if cmp(getvar("stat_code"), "==", "3") then
+    if getvar("stat_code") == "3" then
         setvar("module_status", "Ready update");
     endif;
-    if cmp(getvar("stat_code"), "==", "4") then
+    if getvar("stat_code") == "4" then
         setvar("module_status", "Ready remove");
     endif;
 
-    if cmp(getvar("stat_am_code"), "==", "0") then
+    if getvar("stat_am_code") == "0" then
         setvar("module_am_status", "Disabled");
     endif;
-    if cmp(getvar("stat_am_code"), "==", "1") then
+    if getvar("stat_am_code") == "1" then
         setvar("module_am_status", "Enabled");
     endif;
 
-    if cmp(getvar("stat_code"), "==", "3") then
+    if getvar("stat_code") == "3" then
         setvar("module_status_switch_text",     "Enable/Disable module");
         setvar("module_status_switch_text2",    "Unallowed operation");
         setvar("module_status_switch_icon",     "@crash");
@@ -177,42 +173,42 @@ then
         setvar("module_am_status_switch_text2", "Unallowed operation");
         setvar("module_am_status_switch_icon",  "@crash");
     else
-        if cmp(getvar("stat_code"), "==", "4") then
+        if getvar("stat_code") == "4" then
             setvar("module_status_switch_text",  "Enable/Disable module");
             setvar("module_status_switch_text2", "");
             setvar("module_status_switch_icon",  "@what");
         else
-            if cmp(getvar("stat_code"), "==", "0") then
+            if getvar("stat_code") == "0" then
                 setvar("module_status_switch_text",  "Enable module");
                 setvar("module_status_switch_text2", "");
                 setvar("module_status_switch_icon",  "@action2");
             endif;
-            if cmp(getvar("stat_code"), "==", "1") then
+            if getvar("stat_code") == "1" then
                 setvar("module_status_switch_text",  "Disable module");
                 setvar("module_status_switch_text2", "");
                 setvar("module_status_switch_icon",  "@offaction");
             endif;
         endif;
-        if cmp(getvar("stat_am_code"), "==", "0") then
+        if getvar("stat_am_code") == "0" then
             setvar("module_am_status_switch_text",  "Enable auto_mount");
             setvar("module_am_status_switch_text2", "");
             setvar("module_am_status_switch_icon",  "@action2");
         endif;
-        if cmp(getvar("stat_am_code"), "==", "1") then
+        if getvar("stat_am_code") == "1" then
             setvar("module_am_status_switch_text",  "Disable auto_mount");
             setvar("module_am_status_switch_text2", "");
             setvar("module_am_status_switch_icon",  "@offaction");
         endif;
     endif;
 
-    if cmp(getvar("stat_code"), "==", "4") then
-        setvar("module_remove_switch_text", "<b><i>Undo</i></b>  remove module at next reboot");
+    if getvar("stat_code") == "4" then
+        setvar("module_remove_switch_text", "<b><i>Undo</i></b> remove module at next reboot");
         setvar("module_remove_switch_text2", "");
         setvar("module_remove_switch_icon", "@refresh");
     else
         setvar("module_remove_switch_text", "Remove at next reboot");
 
-        if cmp(getvar("stat_code"), "==", "3") then
+        if getvar("stat_code") == "3" then
             setvar("module_remove_switch_text2", "Unallowed operation");
             setvar("module_remove_switch_icon",  "@crash");
         else
@@ -221,7 +217,7 @@ then
         endif;
     endif;
 
-    if cmp(getvar("stat_code"), "==", "3") then
+    if getvar("stat_code") == "3" then
         setvar("module_remove_warning", "Unallowed operation");
         setvar("module_remove_icon",    "@crash");
     else
@@ -266,7 +262,7 @@ then
         );
         back("2");
     endif;
-    if cmp(getvar("stat_code"), "==", "3") then
+    if getvar("stat_code") == "3" then
         alert(
             "Unallowed operation",
             "This module will be updated after reboot.\nPlease reboot once and try again.",
@@ -302,8 +298,7 @@ then
             back("1");
         endif;
     endif;
-    setvar("exitcode", exec("/sbin/sh", "/tmp/mmr/cmd.sh"));
-    if cmp(getvar("exitcode"), "==", "0") then
+    if exec("/sbin/sh", "/tmp/mmr/cmd.sh") == "0" then
         alert(
             "Done",
             getvar("exec_buffer"),
@@ -332,7 +327,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         "@welcome",
         "advanced.prop",
 
-        "Save recovery log",    "Copies /tmp/recovery.log to internal SD", "@action",
+        "Save recovery log", "Copies /tmp/recovery.log to internal SD", "@action",
 EOF
     if $migrated; then
         echo "\"Shrinking magisk.img\", \"Not available\", \"@crash\"," >> $ac_tmp
@@ -341,7 +336,7 @@ EOF
     fi
     cat >> $ac_tmp <<EOF
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
-        "Back",                 "", "@back2"
+        "Back", "", "@back2"
     );
     if prop("advanced.prop", "selected") == "1" then
         exec("/sbin/sh", "/tmp/mmr/script/save-rec-log.sh");
@@ -360,8 +355,7 @@ EOF
     else
         cat >> $ac_tmp <<EOF
         pleasewait("Executing Shell...");
-        setvar("exitcode", exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh"));
-        if cmp(getvar("exitcode"), "==", "0") then
+        if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
             alert(
                 "Done",
                 getvar("exec_buffer"),
@@ -391,7 +385,7 @@ EOF
     cat >> $ac_tmp <<EOF
     endif;
     if prop("advanced.prop", "selected") == "3" then
-        if cmp(getvar("core_only_mode_code"), "==", "0") then
+        if getvar("core_only_mode_code") == "0" then
             if confirm("Warning",
                        "If you enable Magisk core only mode,\nno modules will be load.\nBut MagiskSU and MagiskHide will still be enabled.\nContinue?",
                        "@warning") == "no"
