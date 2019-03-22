@@ -69,6 +69,5 @@ if [ "$operate" = "remove" ]; then
     }
 fi
 
-echo ""
-echo "命令执行失败!"
+echo -e "\n命令执行失败!"
 exit 1

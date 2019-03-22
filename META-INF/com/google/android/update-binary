@@ -64,22 +64,19 @@ cd /tmp/mmr/
 unzip "${zipfile}"
 
 chmod 0755 ./script/*
-langs_dir=/tmp/mmr/template/META-INF/com/google/android/aroma/langs
 if $migrated; then
   ui_print "Symlink $modulesPath to $workPath"
   ./script/symlink-magisk.sh $modulesPath $workPath
-  mv ${langs_dir}/cn-2.lang ${langs_dir}/cn.lang
 else
   ui_print "Mount $IMG to $workPath"
   ./script/mount-magisk.sh $IMG $workPath || abort "Error: Failed to mount magisk.img!"
-  mv ${langs_dir}/cn-1.lang ${langs_dir}/cn.lang
 fi
 ui_print "Generating AROMA config"
 ./script/aroma-config-init.sh
 
 cp -f ./script/aroma-config ./template/META-INF/com/google/android/
 cd /tmp/mmr/template
-/tmp/mmr/script/7za a -tzip -mx=0 /tmp/mmr/aroma.zip ./META-INF || :
+/tmp/mmr/script/7za a -tzip -mx=0 /tmp/mmr/aroma.zip ./META-INF
 [ -f /tmp/mmr/aroma.zip ] || abort "Error: Cannot generate aroma.zip!"
 
 cd /tmp/mmr/

@@ -87,9 +87,7 @@ $doskscript &>/dev/null
 exitcode=\$?
 
 if [ "\$exitcode" -eq 1 ]; then
-    echo ""
-    echo "! 无法卸载 magisk 镜像!"
-    echo ""
+    echo -e "\n! 无法卸载 magisk 镜像!\n"
     exit 1
 fi
 
@@ -103,9 +101,7 @@ fi
 curSizeM=\`ls -l $IMG 2>/dev/null | awk '{print \$5}'\`
 curSizeM=\$((curSizeM / 1048576))
 
-echo ""
-echo "- 已将 $IMG 瘦身为 \${curSizeM}M"
-echo ""
+echo -e "\n- 已将 $IMG 瘦身为 \${curSizeM}M\n"
 
 EOF
     chmod 0755 $doskscript

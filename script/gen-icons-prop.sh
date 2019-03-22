@@ -2,8 +2,7 @@
 
 dst_prop_file=/tmp/aroma/module_icon.prop
 
-rm -f $dst_prop_file
-touch $dst_prop_file
+: > $dst_prop_file
 
 for module in `cat /tmp/mmr/script/modules_ids`; do
   module_status=`/tmp/mmr/script/control-module.sh status $module; echo $?`

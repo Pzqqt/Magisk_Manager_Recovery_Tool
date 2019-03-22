@@ -35,9 +35,12 @@ setvar(
     "sysinfo",
     "<@center><b>设备信息 :</b></@>\n\n" +
 
-    "设备型号\t\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.model")        + "</#></b>\n"    +
-    "设备名称\t\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.name")         + "</#></b>\n"    +
-    "设备代号\t\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.device")       + "</#></b>\n"    +
-    "Cpu 型号\t\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.board")        + "</#></b>\n"    +
-    "设备厂商\t\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.manufacturer") + "</#></b>\n\n"
+    "设备型号\t\t\t: " + "<b><#selectbg_g>" + sysprop("ro.product.model")        + "</#></b>\n" +
+    "设备名称\t\t\t: " + "<b><#selectbg_g>" + sysprop("ro.product.name")         + "</#></b>\n" +
+    "设备代号\t\t\t: " + "<b><#selectbg_g>" + sysprop("ro.product.device")       + "</#></b>\n" +
+    "Cpu 型号\t\t\t: " + "<b><#selectbg_g>" + sysprop("ro.product.board")        + "</#></b>\n" +
+    "设备厂商\t\t\t: " + "<b><#selectbg_g>" + sysprop("ro.product.manufacturer") + "</#></b>\n" +
+    "\n" +
+    "Magisk 版本\t\t: " + "<b><#selectbg_g>" + file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER") + "</#></b>\n" +
+    "\t版本号\t\t: " + "<b><#selectbg_g>" + file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER_CODE") + "</#></b>\n\n"
 );

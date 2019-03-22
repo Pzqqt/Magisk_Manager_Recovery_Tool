@@ -14,13 +14,6 @@ gen_aroma_config() {
     echo $installed_modules > /tmp/mmr/script/modules_ids
     ac_tmp=/tmp/mmr/script/aroma-config
     mv /tmp/mmr/script/ac-1.in $ac_tmp
-    MAGISK_VER_CODE=$(get_magisk_info "MAGISK_VER_CODE")
-    cat >> $ac_tmp <<EOF
-appendvar("sysinfo",
-    "Magisk 版本\t\t: " + "<b><#selectbg_g>" + file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER") + "</#></b>\n" +
-    "\t版本号\t\t: " + "<b><#selectbg_g>" + file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER_CODE") + "</#></b>\n\n"
-);
-EOF
     if ! $migrated; then
         cat >> $ac_tmp <<EOF
 appendvar("sysinfo",
@@ -28,6 +21,9 @@ appendvar("sysinfo",
     "\t已用\t\t\t: " + "<b><#selectbg_g>" + cal(getdisksize("/magisk", "m"), "-", getdiskfree("/magisk", "m")) +" MB" +
     " (" + getdiskusedpercent("/magisk") + "%)" + "</#></b>\n"
 );
+
+ini_set("text_quit", "保持 /magisk 挂载状态并退出");
+ini_set("text_quit_msg", "稍候你可以自行操作 /magisk 目录来操作模块. 此功能仅面向高级用户. 别忘了在重启前取消挂载.");
 EOF
     fi
     cat >> $ac_tmp <<EOF
@@ -52,12 +48,12 @@ exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh");
 
 setvar("core_only_mode_code", exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "status"));
 
-if cmp(getvar("core_only_mode_code"), "==", "0") then
+if getvar("core_only_mode_code") == "0" then
     setvar("core_only_mode_warning", "");
     setvar("core_only_mode_switch_text", "启用 Magisk 核心模式");
     setvar("core_only_mode_switch_text2", "阻止载入所有模块");
 endif;
-if cmp(getvar("core_only_mode_code"), "==", "1") then
+if getvar("core_only_mode_code") == "1" then
     setvar("core_only_mode_warning", "\n<#f00>Magisk 核心模式已启用, 所有模块均不会被载入.</#>");
     setvar("core_only_mode_switch_text", "禁用 Magisk 核心模式");
     setvar("core_only_mode_switch_text2", "");
@@ -139,7 +135,7 @@ then
     setvar("stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
     setvar("stat_am_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_am", getvar("modid")));
 
-    if cmp(getvar("stat_code"), "==", "2") then
+    if getvar("stat_code") == "2" then
         alert(
             "注意",
             "这个模块已经被移除了.\n\n",
@@ -149,27 +145,27 @@ then
         back("1");
     endif;
 
-    if cmp(getvar("stat_code"), "==", "0") then
+    if getvar("stat_code") == "0" then
         setvar("module_status", "已禁用");
     endif;
-    if cmp(getvar("stat_code"), "==", "1") then
+    if getvar("stat_code") == "1" then
         setvar("module_status", "已启用");
     endif;
-    if cmp(getvar("stat_code"), "==", "3") then
+    if getvar("stat_code") == "3" then
         setvar("module_status", "待更新");
     endif;
-    if cmp(getvar("stat_code"), "==", "4") then
+    if getvar("stat_code") == "4" then
         setvar("module_status", "待移除");
     endif;
 
-    if cmp(getvar("stat_am_code"), "==", "0") then
+    if getvar("stat_am_code") == "0" then
         setvar("module_am_status", "已禁用");
     endif;
-    if cmp(getvar("stat_am_code"), "==", "1") then
+    if getvar("stat_am_code") == "1" then
         setvar("module_am_status", "已启用");
     endif;
 
-    if cmp(getvar("stat_code"), "==", "3") then
+    if getvar("stat_code") == "3" then
         setvar("module_status_switch_text",     "启用/禁用该模块");
         setvar("module_status_switch_text2",    "不允许的操作");
         setvar("module_status_switch_icon",     "@crash");
@@ -177,42 +173,42 @@ then
         setvar("module_am_status_switch_text2", "不允许的操作");
         setvar("module_am_status_switch_icon",  "@crash");
     else
-        if cmp(getvar("stat_code"), "==", "4") then
+        if getvar("stat_code") == "4" then
             setvar("module_status_switch_text",  "启用/禁用该模块");
             setvar("module_status_switch_text2", "");
             setvar("module_status_switch_icon",  "@what");
         else
-            if cmp(getvar("stat_code"), "==", "0") then
+            if getvar("stat_code") == "0" then
                 setvar("module_status_switch_text",  "启用该模块");
                 setvar("module_status_switch_text2", "");
                 setvar("module_status_switch_icon",  "@action2");
             endif;
-            if cmp(getvar("stat_code"), "==", "1") then
+            if getvar("stat_code") == "1" then
                 setvar("module_status_switch_text",  "禁用该模块");
                 setvar("module_status_switch_text2", "");
                 setvar("module_status_switch_icon",  "@offaction");
             endif;
         endif;
-        if cmp(getvar("stat_am_code"), "==", "0") then
+        if getvar("stat_am_code") == "0" then
             setvar("module_am_status_switch_text",  "启用 auto_mount");
             setvar("module_am_status_switch_text2", "");
             setvar("module_am_status_switch_icon",  "@action2");
         endif;
-        if cmp(getvar("stat_am_code"), "==", "1") then
+        if getvar("stat_am_code") == "1" then
             setvar("module_am_status_switch_text",  "禁用 auto_mount");
             setvar("module_am_status_switch_text2", "");
             setvar("module_am_status_switch_icon",  "@offaction");
         endif;
     endif;
 
-    if cmp(getvar("stat_code"), "==", "4") then
+    if getvar("stat_code") == "4" then
         setvar("module_remove_switch_text", "<b><i>撤销</i></b> 重启后移除该模块");
         setvar("module_remove_switch_text2", "");
         setvar("module_remove_switch_icon", "@refresh");
     else
         setvar("module_remove_switch_text", "重启后移除该模块");
 
-        if cmp(getvar("stat_code"), "==", "3") then
+        if getvar("stat_code") == "3" then
             setvar("module_remove_switch_text2", "不允许的操作");
             setvar("module_remove_switch_icon",  "@crash");
         else
@@ -221,7 +217,7 @@ then
         endif;
     endif;
 
-    if cmp(getvar("stat_code"), "==", "3") then
+    if getvar("stat_code") == "3" then
         setvar("module_remove_warning", "不允许的操作");
         setvar("module_remove_icon",    "@crash");
     else
@@ -266,7 +262,7 @@ then
         );
         back("2");
     endif;
-    if cmp(getvar("stat_code"), "==", "3") then
+    if getvar("stat_code") == "3" then
         alert(
             "不允许的操作",
             "该模块将在重启后完成更新,\n请重启一次后再试.",
@@ -302,8 +298,7 @@ then
             back("1");
         endif;
     endif;
-    setvar("exitcode", exec("/sbin/sh", "/tmp/mmr/cmd.sh"));
-    if cmp(getvar("exitcode"), "==", "0") then
+    if exec("/sbin/sh", "/tmp/mmr/cmd.sh") == "0" then
         alert(
             "成功",
             getvar("exec_buffer"),
@@ -332,7 +327,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         "@welcome",
         "advanced.prop",
 
-        "保存 recovery 日志",   "复制 /tmp/recovery.log 到内部存储", "@action",
+        "保存 recovery 日志", "复制 /tmp/recovery.log 到内部存储", "@action",
 EOF
     if $migrated; then
         echo "\"瘦身 magisk.img\", \"该选项不可用.\", \"@crash\"," >> $ac_tmp
@@ -341,7 +336,7 @@ EOF
     fi
     cat >> $ac_tmp <<EOF
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
-        "返回",                 "", "@back2"
+        "返回", "", "@back2"
     );
     if prop("advanced.prop", "selected") == "1" then
         exec("/sbin/sh", "/tmp/mmr/script/save-rec-log.sh");
@@ -360,8 +355,7 @@ EOF
     else
         cat >> $ac_tmp <<EOF
         pleasewait("正在执行脚本 ...");
-        setvar("exitcode", exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh"));
-        if cmp(getvar("exitcode"), "==", "0") then
+        if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
             alert(
                 "运行成功",
                 getvar("exec_buffer"),
@@ -391,7 +385,7 @@ EOF
     cat >> $ac_tmp <<EOF
     endif;
     if prop("advanced.prop", "selected") == "3" then
-        if cmp(getvar("core_only_mode_code"), "==", "0") then
+        if getvar("core_only_mode_code") == "0" then
             if confirm("警告",
                        "启用 Magisk 核心模式后, 所有模块均不会被载入.\n但 MagiskSU 和 MagiskHide 仍然会继续工作.\n您确定要继续吗?",
                        "@warning") == "no"
