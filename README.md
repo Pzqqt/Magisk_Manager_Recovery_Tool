@@ -21,4 +21,4 @@
 - <a href="http://mama.indstate.edu/users/ice/tree/">tree</a>(tree 二进制文件)<br>
 
 ## License
-- <a href="https://opensource.org/licenses/MIT">MIT</a>
+- <a href="https://github.com/Pzqqt/Magisk_Manager_Recovery_Tool/blob/master/LICENSE">GPL-3.0</a>
