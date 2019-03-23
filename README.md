@@ -21,4 +21,4 @@ This tool will allows you to perform certain operations, such as enabling, disab
 - <a href="http://mama.indstate.edu/users/ice/tree/">tree</a>(tree binary)<br>
 
 ## License
-- <a href="https://opensource.org/licenses/MIT">MIT</a>
+- <a href="https://github.com/Pzqqt/Magisk_Manager_Recovery_Tool/blob/master/LICENSE">GPL-3.0</a>
