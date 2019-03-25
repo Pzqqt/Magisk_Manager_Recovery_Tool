@@ -1,5 +1,7 @@
 #!/sbin/sh
 
+imageless_magisk=$1
+
 workPath=/magisk
 
 ls_mount_path() { ls -1 $workPath | grep -v 'lost+found'; }
@@ -9,12 +11,12 @@ get_module_info() {
 }
 
 gen_aroma_config() {
-    [ -d /data/adb/modules ] && migrated=true || migrated=false
     installed_modules=`ls_mount_path`
     echo $installed_modules > /tmp/mmr/script/modules_ids
     ac_tmp=/tmp/mmr/script/aroma-config
     mv /tmp/mmr/script/ac-1.in $ac_tmp
-    if ! $migrated; then
+    $imageless_magisk && mount_switch_flag="skip" || mount_switch_flag="auto"
+    if ! $imageless_magisk; then
         cat >> $ac_tmp <<EOF
 appendvar("sysinfo",
     "magisk.img Size\t: " + "<b><#selectbg_g>" + getdisksize("/magisk", "m") + " MB" + "</#></b>\n" +
@@ -67,7 +69,7 @@ menubox(
 
     "Reboot", "Reboot your device", "@refresh",
 EOF
-    if $migrated; then
+    if $imageless_magisk; then
         echo "    \"Exit\", \"Exit to recovery\", \"@back2\"," >> $ac_tmp
     else
         echo "    \"Exit\", \"Unmount $workPath & exit to recovery\", \"@back2\"," >> $ac_tmp
@@ -133,7 +135,7 @@ if cmp(prop("operations.prop", "selected"), ">=", "3") &&
    cmp(prop("operations.prop", "selected"), "<=", "$i")
 then
     setvar("stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
-    setvar("stat_am_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_am", getvar("modid")));
+    setvar("stat_mount_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_${mount_switch_flag}_mount", getvar("modid")));
 
     if getvar("stat_code") == "2" then
         alert(
@@ -158,10 +160,10 @@ then
         setvar("module_status", "Ready remove");
     endif;
 
-    if getvar("stat_am_code") == "0" then
+    if getvar("stat_mount_code") == "0" then
         setvar("module_am_status", "Disabled");
     endif;
-    if getvar("stat_am_code") == "1" then
+    if getvar("stat_mount_code") == "1" then
         setvar("module_am_status", "Enabled");
     endif;
 
@@ -169,9 +171,9 @@ then
         setvar("module_status_switch_text",     "Enable/Disable module");
         setvar("module_status_switch_text2",    "Unallowed operation");
         setvar("module_status_switch_icon",     "@crash");
-        setvar("module_am_status_switch_text",  "Enable/Disable auto_mount");
-        setvar("module_am_status_switch_text2", "Unallowed operation");
-        setvar("module_am_status_switch_icon",  "@crash");
+        setvar("module_mount_status_switch_text",  "Enable/Disable auto_mount");
+        setvar("module_mount_status_switch_text2", "Unallowed operation");
+        setvar("module_mount_status_switch_icon",  "@crash");
     else
         if getvar("stat_code") == "4" then
             setvar("module_status_switch_text",  "Enable/Disable module");
@@ -190,14 +192,14 @@ then
             endif;
         endif;
         if getvar("stat_am_code") == "0" then
-            setvar("module_am_status_switch_text",  "Enable auto_mount");
-            setvar("module_am_status_switch_text2", "");
-            setvar("module_am_status_switch_icon",  "@action2");
+            setvar("module_mount_status_switch_text",  "Enable auto_mount");
+            setvar("module_mount_status_switch_text2", "");
+            setvar("module_mount_status_switch_icon",  "@action2");
         endif;
         if getvar("stat_am_code") == "1" then
-            setvar("module_am_status_switch_text",  "Disable auto_mount");
-            setvar("module_am_status_switch_text2", "");
-            setvar("module_am_status_switch_icon",  "@offaction");
+            setvar("module_mount_status_switch_text",  "Disable auto_mount");
+            setvar("module_mount_status_switch_text2", "");
+            setvar("module_mount_status_switch_icon",  "@offaction");
         endif;
     endif;
 
@@ -230,14 +232,14 @@ then
         "Module ID: " + getvar("modid") + "\n" +
         "Module size: " + getvar("modsize") + " MB\n" +
         "Module status: " + getvar("module_status") + "\n" +
-        "auto_mount status: " + getvar("module_am_status"),
+        "Mount status: " + getvar("module_mount_status"),
         "@welcome",
         "modoperations.prop",
 
         "View description", "", "@info",
         "View module content", "", "@info",
         getvar("module_status_switch_text"), getvar("module_status_switch_text2"), getvar("module_status_switch_icon"),
-        getvar("module_am_status_switch_text"), getvar("module_am_status_switch_text2"), getvar("module_am_status_switch_icon"),
+        getvar("module_mount_status_switch_text"), getvar("module_mount_status_switch_text2"), getvar("module_mount_status_switch_icon"),
         getvar("module_remove_switch_text"), getvar("module_remove_switch_text2"), getvar("module_remove_switch_icon"),
         "Remove", getvar("module_remove_warning"), getvar("module_remove_icon")
     );
@@ -279,7 +281,7 @@ then
     if prop("modoperations.prop", "selected") == "4" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh switch_auto_mount " + getvar("modid") + "\n");
+              "/tmp/mmr/script/control-module.sh switch_${mount_switch_flag}_mount " + getvar("modid") + "\n");
     endif;
     if prop("modoperations.prop", "selected") == "5" then
         write("/tmp/mmr/cmd.sh",
@@ -329,7 +331,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
 
         "Save recovery log", "Copies /tmp/recovery.log to internal SD", "@action",
 EOF
-    if $migrated; then
+    if $imageless_magisk; then
         echo "\"Shrinking magisk.img\", \"Not available\", \"@crash\"," >> $ac_tmp
     else
         echo "\"Shrinking magisk.img\", \"Shrinking magisk.img capacity.\nRecommended to use after removing large modules.\", \"@action\"," >> $ac_tmp
@@ -350,7 +352,7 @@ EOF
     endif;
     if prop("advanced.prop", "selected") == "2" then
 EOF
-    if $migrated; then
+    if $imageless_magisk; then
         echo "back(\"1\");" >> $ac_tmp
     else
         cat >> $ac_tmp <<EOF
