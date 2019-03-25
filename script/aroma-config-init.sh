@@ -1,5 +1,7 @@
 #!/sbin/sh
 
+imageless_magisk=$1
+
 workPath=/magisk
 
 ls_mount_path() { ls -1 $workPath | grep -v 'lost+found'; }
@@ -9,12 +11,12 @@ get_module_info() {
 }
 
 gen_aroma_config() {
-    [ -d /data/adb/modules ] && migrated=true || migrated=false
     installed_modules=`ls_mount_path`
     echo $installed_modules > /tmp/mmr/script/modules_ids
     ac_tmp=/tmp/mmr/script/aroma-config
     mv /tmp/mmr/script/ac-1.in $ac_tmp
-    if ! $migrated; then
+    $imageless_magisk && mount_switch_flag="skip" || mount_switch_flag="auto"
+    if ! $imageless_magisk; then
         cat >> $ac_tmp <<EOF
 appendvar("sysinfo",
     "magisk.img 空间\t: " + "<b><#selectbg_g>" + getdisksize("/magisk", "m") + " MB" + "</#></b>\n" +
@@ -67,7 +69,7 @@ menubox(
 
     "重启", "重启您的设备", "@refresh",
 EOF
-    if $migrated; then
+    if $imageless_magisk; then
         echo "    \"退出\", \"退出到 Recovery\", \"@back2\"," >> $ac_tmp
     else
         echo "    \"退出\", \"取消挂载 $workPath 并退出到 Recovery\", \"@back2\"," >> $ac_tmp
@@ -133,7 +135,7 @@ if cmp(prop("operations.prop", "selected"), ">=", "3") &&
    cmp(prop("operations.prop", "selected"), "<=", "$i")
 then
     setvar("stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
-    setvar("stat_am_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_am", getvar("modid")));
+    setvar("stat_mount_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_${mount_switch_flag}_mount", getvar("modid")));
 
     if getvar("stat_code") == "2" then
         alert(
@@ -158,20 +160,20 @@ then
         setvar("module_status", "待移除");
     endif;
 
-    if getvar("stat_am_code") == "0" then
-        setvar("module_am_status", "已禁用");
+    if getvar("stat_mount_code") == "0" then
+        setvar("module_mount_status", "已禁用");
     endif;
-    if getvar("stat_am_code") == "1" then
-        setvar("module_am_status", "已启用");
+    if getvar("stat_mount_code") == "1" then
+        setvar("module_mount_status", "已启用");
     endif;
 
     if getvar("stat_code") == "3" then
         setvar("module_status_switch_text",     "启用/禁用该模块");
         setvar("module_status_switch_text2",    "不允许的操作");
         setvar("module_status_switch_icon",     "@crash");
-        setvar("module_am_status_switch_text",  "启用/禁用 auto_mount");
-        setvar("module_am_status_switch_text2", "不允许的操作");
-        setvar("module_am_status_switch_icon",  "@crash");
+        setvar("module_mount_status_switch_text",  "启用/禁用挂载");
+        setvar("module_mount_status_switch_text2", "不允许的操作");
+        setvar("module_mount_status_switch_icon",  "@crash");
     else
         if getvar("stat_code") == "4" then
             setvar("module_status_switch_text",  "启用/禁用该模块");
@@ -189,15 +191,15 @@ then
                 setvar("module_status_switch_icon",  "@offaction");
             endif;
         endif;
-        if getvar("stat_am_code") == "0" then
-            setvar("module_am_status_switch_text",  "启用 auto_mount");
-            setvar("module_am_status_switch_text2", "");
-            setvar("module_am_status_switch_icon",  "@action2");
+        if getvar("stat_mount_code") == "0" then
+            setvar("module_mount_status_switch_text",  "启用挂载");
+            setvar("module_mount_status_switch_text2", "");
+            setvar("module_mount_status_switch_icon",  "@action2");
         endif;
-        if getvar("stat_am_code") == "1" then
-            setvar("module_am_status_switch_text",  "禁用 auto_mount");
-            setvar("module_am_status_switch_text2", "");
-            setvar("module_am_status_switch_icon",  "@offaction");
+        if getvar("stat_mount_code") == "1" then
+            setvar("module_mount_status_switch_text",  "禁用挂载");
+            setvar("module_mount_status_switch_text2", "");
+            setvar("module_mount_status_switch_icon",  "@offaction");
         endif;
     endif;
 
@@ -230,14 +232,14 @@ then
         "模块 ID: " + getvar("modid") + "\n" +
         "占用空间: " + getvar("modsize") + " MB\n" +
         "模块状态: " + getvar("module_status") + "\n" +
-        "auto_mount 状态: " + getvar("module_am_status"),
+        "挂载状态: " + getvar("module_mount_status"),
         "@welcome",
         "modoperations.prop",
 
         "查看模块描述", "", "@info",
         "预览模块内容", "", "@info",
         getvar("module_status_switch_text"), getvar("module_status_switch_text2"), getvar("module_status_switch_icon"),
-        getvar("module_am_status_switch_text"), getvar("module_am_status_switch_text2"), getvar("module_am_status_switch_icon"),
+        getvar("module_mount_status_switch_text"), getvar("module_mount_status_switch_text2"), getvar("module_mount_status_switch_icon"),
         getvar("module_remove_switch_text"), getvar("module_remove_switch_text2"), getvar("module_remove_switch_icon"),
         "立即移除", getvar("module_remove_warning"), getvar("module_remove_icon")
     );
@@ -279,7 +281,7 @@ then
     if prop("modoperations.prop", "selected") == "4" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh switch_auto_mount " + getvar("modid") + "\n");
+              "/tmp/mmr/script/control-module.sh switch_${mount_switch_flag}_mount " + getvar("modid") + "\n");
     endif;
     if prop("modoperations.prop", "selected") == "5" then
         write("/tmp/mmr/cmd.sh",
@@ -329,7 +331,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
 
         "保存 recovery 日志", "复制 /tmp/recovery.log 到内部存储", "@action",
 EOF
-    if $migrated; then
+    if $imageless_magisk; then
         echo "\"瘦身 magisk.img\", \"该选项不可用.\", \"@crash\"," >> $ac_tmp
     else
         echo "\"瘦身 magisk.img\", \"压缩 magisk.img 容量以减少其存储空间占用.\n建议在移除大型模块后使用.\", \"@action\"," >> $ac_tmp
@@ -350,7 +352,7 @@ EOF
     endif;
     if prop("advanced.prop", "selected") == "2" then
 EOF
-    if $migrated; then
+    if $imageless_magisk; then
         echo "back(\"1\");" >> $ac_tmp
     else
         cat >> $ac_tmp <<EOF
