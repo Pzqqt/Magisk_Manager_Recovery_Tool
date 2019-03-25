@@ -31,6 +31,9 @@ theme("default");
 fontresload("0", "ttf/DroidSansFallback.ttf", "12");
 fontresload("1", "ttf/DroidSansFallback.ttf", "14");
 
+setvar("MAGISK_VER", file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER"));
+setvar("MAGISK_VER_CODE", file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER_CODE"));
+
 setvar(
     "sysinfo",
     "<@center><b>Your device:</b></@>\n\n" +
@@ -41,6 +44,6 @@ setvar(
     "Board Name\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.board")           + "</#></b>\n"   +
     "Manufacturer\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.manufacturer")    + "</#></b>\n"   +
     "\n" +
-    "Magisk Version\t\t: " + "<b><#selectbg_g>" + file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER") + "</#></b>\n" +
-    "Version Code\t\t: " + "<b><#selectbg_g>" + file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER_CODE") + "</#></b>\n\n"
+    "Magisk Version\t\t: " + "<b><#selectbg_g>" + getvar("MAGISK_VER") + "</#></b>\n" +
+    "Version Code\t\t: " + "<b><#selectbg_g>" + getvar("MAGISK_VER_CODE") + "</#></b>\n\n"
 );

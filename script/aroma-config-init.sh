@@ -289,15 +289,25 @@ then
               "/tmp/mmr/script/control-module.sh switch_remove " + getvar("modid") + "\n");
     endif;
     if prop("modoperations.prop", "selected") == "6" then
-        if confirm("Warning!",
-                   "Are you sure want to remove this module?",
-                   "@warning") == "yes"
-        then
-            write("/tmp/mmr/cmd.sh",
-                  "#!/sbin/sh\n" +
-                  "/tmp/mmr/script/control-module.sh remove " + getvar("modid") + "\n");
-        else
+        if cmp(getvar("MAGISK_VER_CODE"), ">", "18100") then
+            alert(
+                "Note",
+                "Direct removal the module is not allowed when the Magisk version code is greater than 18100.\nBut you can set the module to remove at next reboot.",
+                "@warning",
+                "确定"
+            );
             back("1");
+        else
+            if confirm("警告",
+                       "您确定要移除该模块吗? 此操作不可恢复!",
+                       "@warning") == "yes"
+            then
+                write("/tmp/mmr/cmd.sh",
+                      "#!/sbin/sh\n" +
+                      "/tmp/mmr/script/control-module.sh remove " + getvar("modid") + "\n");
+            else
+                back("1");
+            endif;
         endif;
     endif;
     if exec("/sbin/sh", "/tmp/mmr/cmd.sh") == "0" then
