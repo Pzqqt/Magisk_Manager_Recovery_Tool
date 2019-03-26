@@ -18,6 +18,7 @@ gen_aroma_config() {
     $imageless_magisk && mount_switch_flag="skip" || mount_switch_flag="auto"
     if ! $imageless_magisk; then
         cat >> $ac_tmp <<EOF
+
 appendvar("sysinfo",
     "magisk.img Size\t: " + "<b><#selectbg_g>" + getdisksize("/magisk", "m") + " MB" + "</#></b>\n" +
     "\tUsed\t\t\t: " + "<b><#selectbg_g>" + cal(getdisksize("/magisk", "m"), "-", getdiskfree("/magisk", "m")) +" MB" +
@@ -26,6 +27,8 @@ appendvar("sysinfo",
 
 ini_set("text_quit", "Quit without unmount /magisk");
 ini_set("text_quit_msg", "You can operate the module by operating the /magisk directory later. Only for advanced users. Do NOT forget to unmount /magisk.");
+
+>>>>>>> 6f140fd... Code clean
 EOF
     fi
     cat >> $ac_tmp <<EOF
@@ -110,15 +113,11 @@ if prop("operations.prop", "selected") == "2" then
     endif;
 endif;
 
-setvar("modid", "NONE");
+setvar("modid", "");
 
 EOF
     if [ ${#installed_modules} -eq 0 ]; then
         i=3
-        echo "if prop(\"operations.prop\", \"selected\") == \"3\" then" >> $ac_tmp
-        echo "    back(\"1\");" >> $ac_tmp
-        echo "endif;" >> $ac_tmp
-        echo "" >> $ac_tmp
     else
         i=2
         for module in ${installed_modules}; do
@@ -130,10 +129,13 @@ EOF
             echo "endif;" >> $ac_tmp
             echo "" >> $ac_tmp
         done
-        cat >> $ac_tmp <<EOF
+    fi
+    cat >> $ac_tmp <<EOF
 if cmp(prop("operations.prop", "selected"), ">=", "3") &&
-   cmp(prop("operations.prop", "selected"), "<=", "$i")
+   cmp(prop("operations.prop", "selected"), "<=", "$i") &&
+   getvar("modid") != ""
 then
+
     setvar("stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
     setvar("stat_mount_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_${mount_switch_flag}_mount", getvar("modid")));
 
@@ -329,9 +331,7 @@ then
         back("1");
     endif;
 endif;
-EOF
-    fi
-    cat >> $ac_tmp <<EOF
+
 if prop("operations.prop", "selected") == cal("$i", "+", "1") then
     menubox(
         "advanced options",
@@ -342,9 +342,9 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         "Save recovery log", "Copies /tmp/recovery.log to internal SD", "@action",
 EOF
     if $imageless_magisk; then
-        echo "\"Shrinking magisk.img\", \"Not available\", \"@crash\"," >> $ac_tmp
+        echo "        \"Shrinking magisk.img\", \"Not available\", \"@crash\"," >> $ac_tmp
     else
-        echo "\"Shrinking magisk.img\", \"Shrinking magisk.img capacity.\nRecommended to use after removing large modules.\", \"@action\"," >> $ac_tmp
+        echo "        \"Shrinking magisk.img\", \"Shrinking magisk.img capacity.\nRecommended to use after removing large modules.\", \"@action\"," >> $ac_tmp
     fi
     cat >> $ac_tmp <<EOF
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
@@ -363,7 +363,7 @@ EOF
     if prop("advanced.prop", "selected") == "2" then
 EOF
     if $imageless_magisk; then
-        echo "back(\"1\");" >> $ac_tmp
+        echo "        back(\"1\");" >> $ac_tmp
     else
         cat >> $ac_tmp <<EOF
         pleasewait("Executing Shell...");
