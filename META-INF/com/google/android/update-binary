@@ -47,7 +47,7 @@ ABILONG=$(grep_prop ro.product.cpu.abi)
 [ "$ABILONG" = "x86_64" ] && abort "Error: X64 arch is not supported"
 [ "$ABILONG" = "arm64-v8a" ] && ARCH=arm64
 
-# find magisk.img
+# find modules path or magisk.img
 workPath=/magisk
 imagelessPath=/data/adb/modules
 MAGISK_VER_CODE=$(file_getprop /data/adb/magisk/util_functions.sh "MAGISK_VER_CODE")
@@ -56,7 +56,7 @@ if [ "$MAGISK_VER_CODE" -gt 18100 ] && [ -d "$imagelessPath" ]; then
   imageless_magisk=true
 else
   [ -d /data/adb/magisk ] && IMG=/data/adb/magisk.img || IMG=/data/magisk.img
-  [ ! -f "$IMG" ] && abort "Error: Please install or upgrade Magisk."
+  [ -f "$IMG" ] || abort "Error: Please install or upgrade Magisk."
   ui_print "Found magisk.img: $IMG"
   imageless_magisk=false
 fi
@@ -79,7 +79,7 @@ ui_print "Generating AROMA config"
 
 cp -f ./script/aroma-config ./template/META-INF/com/google/android/
 cd /tmp/mmr/template
-/tmp/mmr/script/7za a -tzip -mx=0 /tmp/mmr/aroma.zip ./META-INF
+/tmp/mmr/script/7za a -tzip -mx=0 /tmp/mmr/aroma.zip ./META-INF || :
 [ -f /tmp/mmr/aroma.zip ] || abort "Error: Cannot generate aroma.zip!"
 
 cd /tmp/mmr/

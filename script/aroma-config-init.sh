@@ -18,6 +18,7 @@ gen_aroma_config() {
     $imageless_magisk && mount_switch_flag="skip" || mount_switch_flag="auto"
     if ! $imageless_magisk; then
         cat >> $ac_tmp <<EOF
+
 appendvar("sysinfo",
     "magisk.img 空间\t: " + "<b><#selectbg_g>" + getdisksize("/magisk", "m") + " MB" + "</#></b>\n" +
     "\t已用\t\t\t: " + "<b><#selectbg_g>" + cal(getdisksize("/magisk", "m"), "-", getdiskfree("/magisk", "m")) +" MB" +
@@ -26,6 +27,7 @@ appendvar("sysinfo",
 
 ini_set("text_quit", "保持 /magisk 挂载状态并退出");
 ini_set("text_quit_msg", "稍候你可以自行操作 /magisk 目录来操作模块. 此功能仅面向高级用户. 别忘了在重启前取消挂载.");
+
 EOF
     fi
     cat >> $ac_tmp <<EOF
@@ -110,15 +112,11 @@ if prop("operations.prop", "selected") == "2" then
     endif;
 endif;
 
-setvar("modid", "NONE");
+setvar("modid", "");
 
 EOF
     if [ ${#installed_modules} -eq 0 ]; then
         i=3
-        echo "if prop(\"operations.prop\", \"selected\") == \"3\" then" >> $ac_tmp
-        echo "    back(\"1\");" >> $ac_tmp
-        echo "endif;" >> $ac_tmp
-        echo "" >> $ac_tmp
     else
         i=2
         for module in ${installed_modules}; do
@@ -130,10 +128,13 @@ EOF
             echo "endif;" >> $ac_tmp
             echo "" >> $ac_tmp
         done
-        cat >> $ac_tmp <<EOF
+    fi
+    cat >> $ac_tmp <<EOF
 if cmp(prop("operations.prop", "selected"), ">=", "3") &&
-   cmp(prop("operations.prop", "selected"), "<=", "$i")
+   cmp(prop("operations.prop", "selected"), "<=", "$i") &&
+   getvar("modid") != ""
 then
+
     setvar("stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
     setvar("stat_mount_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_${mount_switch_flag}_mount", getvar("modid")));
 
@@ -329,9 +330,7 @@ then
         back("1");
     endif;
 endif;
-EOF
-    fi
-    cat >> $ac_tmp <<EOF
+
 if prop("operations.prop", "selected") == cal("$i", "+", "1") then
     menubox(
         "高级功能",
@@ -342,9 +341,9 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         "保存 recovery 日志", "复制 /tmp/recovery.log 到内部存储", "@action",
 EOF
     if $imageless_magisk; then
-        echo "\"瘦身 magisk.img\", \"该选项不可用.\", \"@crash\"," >> $ac_tmp
+        echo "        \"瘦身 magisk.img\", \"该选项不可用.\", \"@crash\"," >> $ac_tmp
     else
-        echo "\"瘦身 magisk.img\", \"压缩 magisk.img 容量以减少其存储空间占用.\n建议在移除大型模块后使用.\", \"@action\"," >> $ac_tmp
+        echo "        \"瘦身 magisk.img\", \"压缩 magisk.img 容量以减少其存储空间占用.\n建议在移除大型模块后使用.\", \"@action\"," >> $ac_tmp
     fi
     cat >> $ac_tmp <<EOF
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
@@ -363,7 +362,7 @@ EOF
     if prop("advanced.prop", "selected") == "2" then
 EOF
     if $imageless_magisk; then
-        echo "back(\"1\");" >> $ac_tmp
+        echo "        back(\"1\");" >> $ac_tmp
     else
         cat >> $ac_tmp <<EOF
         pleasewait("正在执行脚本 ...");
