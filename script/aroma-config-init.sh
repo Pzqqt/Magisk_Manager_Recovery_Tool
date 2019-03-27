@@ -1,10 +1,6 @@
 #!/sbin/sh
 
-imageless_magisk=$1
-
-workPath=/magisk
-
-ls_mount_path() { ls -1 $workPath | grep -v 'lost+found'; }
+ls_mount_path() { ls -1 /magisk | grep -v 'lost+found'; }
 
 get_module_info() {
     /tmp/mmr/script/get-module-info.sh $1 $2
@@ -15,21 +11,6 @@ gen_aroma_config() {
     echo $installed_modules > /tmp/mmr/script/modules_ids
     ac_tmp=/tmp/mmr/script/aroma-config
     mv /tmp/mmr/script/ac-1.in $ac_tmp
-    $imageless_magisk && mount_switch_flag="skip" || mount_switch_flag="auto"
-    if ! $imageless_magisk; then
-        cat >> $ac_tmp <<EOF
-
-appendvar("sysinfo",
-    "magisk.img 空间\t: " + "<b><#selectbg_g>" + getdisksize("/magisk", "m") + " MB" + "</#></b>\n" +
-    "\t已用\t\t\t: " + "<b><#selectbg_g>" + cal(getdisksize("/magisk", "m"), "-", getdiskfree("/magisk", "m")) +" MB" +
-    " (" + getdiskusedpercent("/magisk") + "%)" + "</#></b>\n"
-);
-
-ini_set("text_quit", "保持 /magisk 挂载状态并退出");
-ini_set("text_quit_msg", "稍候你可以自行操作 /magisk 目录来操作模块. 此功能仅面向高级用户. 别忘了在重启前取消挂载.");
-
-EOF
-    fi
     cat >> $ac_tmp <<EOF
 viewbox(
     "<~welcome.title>",
@@ -70,12 +51,8 @@ menubox(
     "operations.prop",
 
     "重启", "重启您的设备", "@refresh",
+    "退出", getvar("exit_text2"), "@back2",
 EOF
-    if $imageless_magisk; then
-        echo "    \"退出\", \"退出到 Recovery\", \"@back2\"," >> $ac_tmp
-    else
-        echo "    \"退出\", \"取消挂载 $workPath 并退出到 Recovery\", \"@back2\"," >> $ac_tmp
-    fi
     if [ ${#installed_modules} -eq 0 ]; then
         echo "    \"如果你看到了此选项\", \"说明你尚未安装任何 Magisk 模块...\", \"@what\"," >> $ac_tmp
     else
@@ -136,7 +113,7 @@ if cmp(prop("operations.prop", "selected"), ">=", "3") &&
 then
 
     setvar("stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
-    setvar("stat_mount_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_${mount_switch_flag}_mount", getvar("modid")));
+    setvar("stat_mount_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_" + getvar("mount_switch_flag") + "_mount", getvar("modid")));
 
     if getvar("stat_code") == "2" then
         alert(
@@ -282,7 +259,7 @@ then
     if prop("modoperations.prop", "selected") == "4" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh switch_${mount_switch_flag}_mount " + getvar("modid") + "\n");
+              "/tmp/mmr/script/control-module.sh switch_" + getvar("mount_switch_flag") + "_mount " + getvar("modid") + "\n");
     endif;
     if prop("modoperations.prop", "selected") == "5" then
         write("/tmp/mmr/cmd.sh",
@@ -339,13 +316,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         "advanced.prop",
 
         "保存 recovery 日志", "复制 /tmp/recovery.log 到内部存储", "@action",
-EOF
-    if $imageless_magisk; then
-        echo "        \"瘦身 magisk.img\", \"该选项不可用.\", \"@crash\"," >> $ac_tmp
-    else
-        echo "        \"瘦身 magisk.img\", \"压缩 magisk.img 容量以减少其存储空间占用.\n建议在移除大型模块后使用.\", \"@action\"," >> $ac_tmp
-    fi
-    cat >> $ac_tmp <<EOF
+        "瘦身 magisk.img", getvar("shrink_text2"), getvar("shrink_icon"),
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
         "返回", "", "@back2"
     );
@@ -360,40 +331,36 @@ EOF
         back("1");
     endif;
     if prop("advanced.prop", "selected") == "2" then
-EOF
-    if $imageless_magisk; then
-        echo "        back(\"1\");" >> $ac_tmp
-    else
-        cat >> $ac_tmp <<EOF
-        pleasewait("正在执行脚本 ...");
-        if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
-            alert(
-                "运行成功",
-                getvar("exec_buffer"),
-                "@done",
-                "确定"
-            );
-            if confirm(
-                "注意",
-                "magisk 镜像已取消挂载.\n\n本工具即将退出.\n如果还需使用, 请重新卡刷本工具.\n\n",
-                "@warning",
-                "退出到 Recovery",
-                "重启设备") == "no"
-            then
-                reboot("now");
-            endif;
+        if cmp(getvar("MAGISK_VER_CODE"), ">", "18100") then
+            back("1");
         else
-            alert(
-                "运行失败",
-                getvar("exec_buffer"),
-                "@crash",
-                "退出"
-            );
+            pleasewait("正在执行脚本 ...");
+            if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
+                alert(
+                    "运行成功",
+                    getvar("exec_buffer"),
+                    "@done",
+                    "确定"
+                );
+                if confirm(
+                    "注意",
+                    "magisk 镜像已取消挂载.\n\n本工具即将退出.\n如果还需使用, 请重新卡刷本工具.\n\n",
+                    "@warning",
+                    "退出到 Recovery",
+                    "重启设备") == "no"
+                then
+                    reboot("now");
+                endif;
+            else
+                alert(
+                    "运行失败",
+                    getvar("exec_buffer"),
+                    "@crash",
+                    "退出"
+                );
+            endif;
+            exit("");
         endif;
-        exit("");
-EOF
-    fi
-    cat >> $ac_tmp <<EOF
     endif;
     if prop("advanced.prop", "selected") == "3" then
         if getvar("core_only_mode_code") == "0" then

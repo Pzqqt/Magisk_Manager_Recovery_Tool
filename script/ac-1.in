@@ -47,3 +47,22 @@ setvar(
     "Magisk 版本\t\t: " + "<b><#selectbg_g>" + getvar("MAGISK_VER") + "</#></b>\n" +
     "\t版本号\t\t: " + "<b><#selectbg_g>" + getvar("MAGISK_VER_CODE") + "</#></b>\n\n"
 );
+
+if cmp(getvar("MAGISK_VER_CODE"), ">", "18100") then
+    setvar("mount_switch_flag", "skip");
+    setvar("exit_text2", "退出到 Recovery");
+    setvar("shrink_text2", "该选项不可用");
+    setvar("shrink_icon", "@crash");
+else
+    setvar("mount_switch_flag", "auto");
+    setvar("exit_text2", "取消挂载 /magisk 并退出到 Recovery");
+    setvar("shrink_text2", "压缩 magisk.img 容量以减少其存储空间占用.\n建议在移除大型模块后使用.");
+    setvar("shrink_icon", "@action");
+    appendvar("sysinfo",
+        "magisk.img 空间\t: " + "<b><#selectbg_g>" + getdisksize("/magisk", "m") + " MB" + "</#></b>\n" +
+        "\t已用\t\t\t: " + "<b><#selectbg_g>" + cal(getdisksize("/magisk", "m"), "-", getdiskfree("/magisk", "m")) +" MB" +
+        " (" + getdiskusedpercent("/magisk") + "%)" + "</#></b>\n"
+    );
+    ini_set("text_quit", "保持 /magisk 挂载状态并退出");
+    ini_set("text_quit_msg", "稍候你可以自行操作 /magisk 目录来操作模块. 此功能仅面向高级用户. 别忘了在重启前取消挂载.");
+endif;

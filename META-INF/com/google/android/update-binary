@@ -75,7 +75,7 @@ else
   ./script/mount-magisk.sh $IMG $workPath || abort "Error: Failed to mount magisk.img!"
 fi
 ui_print "Generating AROMA config"
-./script/aroma-config-init.sh $imageless_magisk
+./script/aroma-config-init.sh
 
 cp -f ./script/aroma-config ./template/META-INF/com/google/android/
 cd /tmp/mmr/template
