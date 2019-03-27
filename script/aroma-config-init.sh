@@ -1,10 +1,6 @@
 #!/sbin/sh
 
-imageless_magisk=$1
-
-workPath=/magisk
-
-ls_mount_path() { ls -1 $workPath | grep -v 'lost+found'; }
+ls_mount_path() { ls -1 /magisk | grep -v 'lost+found'; }
 
 get_module_info() {
     /tmp/mmr/script/get-module-info.sh $1 $2
@@ -15,22 +11,6 @@ gen_aroma_config() {
     echo $installed_modules > /tmp/mmr/script/modules_ids
     ac_tmp=/tmp/mmr/script/aroma-config
     mv /tmp/mmr/script/ac-1.in $ac_tmp
-    $imageless_magisk && mount_switch_flag="skip" || mount_switch_flag="auto"
-    if ! $imageless_magisk; then
-        cat >> $ac_tmp <<EOF
-
-appendvar("sysinfo",
-    "magisk.img Size\t: " + "<b><#selectbg_g>" + getdisksize("/magisk", "m") + " MB" + "</#></b>\n" +
-    "\tUsed\t\t\t: " + "<b><#selectbg_g>" + cal(getdisksize("/magisk", "m"), "-", getdiskfree("/magisk", "m")) +" MB" +
-    " (" + getdiskusedpercent("/magisk") + "%)" + "</#></b>\n"
-);
-
-ini_set("text_quit", "Quit without unmount /magisk");
-ini_set("text_quit_msg", "You can operate the module by operating the /magisk directory later. Only for advanced users. Do NOT forget to unmount /magisk.");
-
->>>>>>> 6f140fd... Code clean
-EOF
-    fi
     cat >> $ac_tmp <<EOF
 viewbox(
     "<~welcome.title>",
@@ -71,12 +51,8 @@ menubox(
     "operations.prop",
 
     "Reboot", "Reboot your device", "@refresh",
+    "Exit", getvar("exit_text2"), "@back2",
 EOF
-    if $imageless_magisk; then
-        echo "    \"Exit\", \"Exit to recovery\", \"@back2\"," >> $ac_tmp
-    else
-        echo "    \"Exit\", \"Unmount $workPath & exit to recovery\", \"@back2\"," >> $ac_tmp
-    fi
     if [ ${#installed_modules} -eq 0 ]; then
         echo "    \"If you see this option\", \"You have not installed any Magisk modules...\", \"@what\"," >> $ac_tmp
     else
@@ -137,7 +113,7 @@ if cmp(prop("operations.prop", "selected"), ">=", "3") &&
 then
 
     setvar("stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
-    setvar("stat_mount_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_${mount_switch_flag}_mount", getvar("modid")));
+    setvar("stat_mount_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_" + getvar("mount_switch_flag") + "_mount", getvar("modid")));
 
     if getvar("stat_code") == "2" then
         alert(
@@ -283,7 +259,7 @@ then
     if prop("modoperations.prop", "selected") == "4" then
         write("/tmp/mmr/cmd.sh",
               "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh switch_${mount_switch_flag}_mount " + getvar("modid") + "\n");
+              "/tmp/mmr/script/control-module.sh switch_" + getvar("mount_switch_flag") + "_mount " + getvar("modid") + "\n");
     endif;
     if prop("modoperations.prop", "selected") == "5" then
         write("/tmp/mmr/cmd.sh",
@@ -340,13 +316,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         "advanced.prop",
 
         "Save recovery log", "Copies /tmp/recovery.log to internal SD", "@action",
-EOF
-    if $imageless_magisk; then
-        echo "        \"Shrinking magisk.img\", \"Not available\", \"@crash\"," >> $ac_tmp
-    else
-        echo "        \"Shrinking magisk.img\", \"Shrinking magisk.img capacity.\nRecommended to use after removing large modules.\", \"@action\"," >> $ac_tmp
-    fi
-    cat >> $ac_tmp <<EOF
+        "Shrinking magisk.img", getvar("shrink_text2"), getvar("shrink_icon"),
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
         "Back", "", "@back2"
     );
@@ -361,40 +331,36 @@ EOF
         back("1");
     endif;
     if prop("advanced.prop", "selected") == "2" then
-EOF
-    if $imageless_magisk; then
-        echo "        back(\"1\");" >> $ac_tmp
-    else
-        cat >> $ac_tmp <<EOF
-        pleasewait("Executing Shell...");
-        if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
-            alert(
-                "Done",
-                getvar("exec_buffer"),
-                "@done",
-                "OK"
-            );
-            if confirm(
-                "Note",
-                "The magisk image has been unmounted.\n\nThis tool will exit.\nIf you still need to use, please reflash this tool.\n\n",
-                "@warning",
-                "Exit to Recovery",
-                "Reboot") == "yes"
-            then
-                reboot("now");
-            endif;
+        if cmp(getvar("MAGISK_VER_CODE"), ">", "18100") then
+            back("1");
         else
-            alert(
-                "Failed",
-                getvar("exec_buffer"),
-                "@crash",
-                "Exit"
-            );
+            pleasewait("Executing Shell...");
+            if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
+                alert(
+                    "Done",
+                    getvar("exec_buffer"),
+                    "@done",
+                    "OK"
+                );
+                if confirm(
+                    "Note",
+                    "The magisk image has been unmounted.\n\nThis tool will exit.\nIf you still need to use, please reflash this tool.\n\n",
+                    "@warning",
+                    "Exit to Recovery",
+                    "Reboot") == "yes"
+                then
+                    reboot("now");
+                endif;
+            else
+                alert(
+                    "Failed",
+                    getvar("exec_buffer"),
+                    "@crash",
+                    "Exit"
+                );
+            endif;
+            exit("");
         endif;
-        exit("");
-EOF
-    fi
-    cat >> $ac_tmp <<EOF
     endif;
     if prop("advanced.prop", "selected") == "3" then
         if getvar("core_only_mode_code") == "0" then
