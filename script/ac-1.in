@@ -17,10 +17,10 @@
 #
 
 ini_set("rom_name",    "Magisk Manager Recovery Tool");
-ini_set("rom_version", "v1.7 Alpha");
+ini_set("rom_version", "v1.8 Alpha");
 ini_set("rom_author",  "Pzqqt");
 ini_set("rom_device",  "");
-ini_set("rom_date",    "2019.03.11");
+ini_set("rom_date",    "2019.03.29");
 # English By Pzqqt
 
 ini_set("force_colorspace", "rgba");
