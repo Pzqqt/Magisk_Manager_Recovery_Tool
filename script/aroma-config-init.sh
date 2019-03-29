@@ -139,10 +139,10 @@ then
     endif;
 
     if getvar("stat_mount_code") == "0" then
-        setvar("module_am_status", "Disabled");
+        setvar("module_mount_status", "Disabled");
     endif;
     if getvar("stat_mount_code") == "1" then
-        setvar("module_am_status", "Enabled");
+        setvar("module_mount_status", "Enabled");
     endif;
 
     if getvar("stat_code") == "3" then
@@ -169,12 +169,12 @@ then
                 setvar("module_status_switch_icon",  "@offaction");
             endif;
         endif;
-        if getvar("stat_am_code") == "0" then
+        if getvar("stat_mount_code") == "0" then
             setvar("module_mount_status_switch_text",  "Enable auto_mount");
             setvar("module_mount_status_switch_text2", "");
             setvar("module_mount_status_switch_icon",  "@action2");
         endif;
-        if getvar("stat_am_code") == "1" then
+        if getvar("stat_mount_code") == "1" then
             setvar("module_mount_status_switch_text",  "Disable auto_mount");
             setvar("module_mount_status_switch_text2", "");
             setvar("module_mount_status_switch_icon",  "@offaction");

@@ -44,7 +44,7 @@ setvar(
     "Board Name\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.board")           + "</#></b>\n"   +
     "Manufacturer\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.manufacturer")    + "</#></b>\n"   +
     "\n" +
-    "Magisk Version\t\t: " + "<b><#selectbg_g>" + getvar("MAGISK_VER") + "</#></b>\n" +
+    "Magisk Version\t: " + "<b><#selectbg_g>" + getvar("MAGISK_VER") + "</#></b>\n" +
     "Version Code\t\t: " + "<b><#selectbg_g>" + getvar("MAGISK_VER_CODE") + "</#></b>\n\n"
 );
 
