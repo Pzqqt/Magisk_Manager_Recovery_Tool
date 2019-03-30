@@ -6,6 +6,8 @@ module=$2
 workPath=/magisk
 modulePath=${workPath}/${module}
 
+touch_flag() { touch ${1}/${2} || { cd ${1}? && touch ./${2}; }; }
+
 case $operate in
     "status") {
         # Enable: 1, Disable: 0, Removed: 2, UpdateFlag: 3, RemoveFlag: 4
@@ -32,7 +34,7 @@ case $operate in
                 exit 0
             }
         else
-            touch $modulePath/disable && {
+            touch_flag $modulePath disable && {
                 echo "Successfully disable module ${module} !"
                 exit 0
             }
@@ -45,7 +47,7 @@ case $operate in
                 exit 0
             }
         else
-            touch $modulePath/auto_mount && {
+            touch_flag $modulePath auto_mount && {
                 echo "Successfully enable mount for $module !"
                 exit 0
             }
@@ -58,7 +60,7 @@ case $operate in
                 exit 0
             }
         else
-            touch $modulePath/skip_mount && {
+            touch_flag $modulePath skip_mount && {
                 echo "Successfully disable mount for $module !"
                 exit 0
             }
@@ -71,7 +73,7 @@ case $operate in
                 exit 0
             }
         else
-            touch $modulePath/remove && {
+            touch_flag $modulePath remove && {
                 echo "Module $module will be removed at next reboot."
                 exit 0
             }
