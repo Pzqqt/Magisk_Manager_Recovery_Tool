@@ -11,48 +11,6 @@ gen_aroma_config() {
     echo $installed_modules > /tmp/mmr/script/modules_ids
     ac_tmp=/tmp/mmr/script/aroma-config
     mv /tmp/mmr/script/ac-1.in $ac_tmp
-    cat >> $ac_tmp <<EOF
-viewbox(
-    "<~welcome.title>",
-    "<~welcome.text1> <b>" + ini_get("rom_name") + "</b>.\n\n" + "<~welcome.text2>\n\n\n\n\n" +
-
-    "  <~welcome.version>\t\t\t: " + "<b><#selectbg_g>" + ini_get("rom_version") + "</#></b>\n" +
-    "  <~welcome.updated>\t\t: " + "<b><#selectbg_g>" + ini_get("rom_date") + "</#></b>\n\n\n" +
-
-    getvar("sysinfo"),
-
-    "@welcome"
-);
-
-gotolabel("main_menu");
-
-ini_set("text_next", "下一步");
-ini_set("icon_next", "@next");
-
-exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh");
-
-setvar("core_only_mode_code", exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "status"));
-
-if getvar("core_only_mode_code") == "0" then
-    setvar("core_only_mode_warning", "");
-    setvar("core_only_mode_switch_text", "启用 Magisk 核心模式");
-    setvar("core_only_mode_switch_text2", "阻止载入所有模块");
-endif;
-if getvar("core_only_mode_code") == "1" then
-    setvar("core_only_mode_warning", "\n<#f00>Magisk 核心模式已启用, 所有模块均不会被载入.</#>");
-    setvar("core_only_mode_switch_text", "禁用 Magisk 核心模式");
-    setvar("core_only_mode_switch_text2", "");
-endif;
-
-menubox(
-    "主菜单",
-    "请选择操作" + getvar("core_only_mode_warning"),
-    "@welcome",
-    "operations.prop",
-
-    "重启", "重启您的设备", "@refresh",
-    "退出", getvar("exit_text2"), "@back2",
-EOF
     if [ ${#installed_modules} -eq 0 ]; then
         echo "    \"如果你看到了此选项\", \"说明你尚未安装任何 Magisk 模块...\", \"@what\"," >> $ac_tmp
     else
