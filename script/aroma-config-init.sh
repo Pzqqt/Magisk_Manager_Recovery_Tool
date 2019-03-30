@@ -11,48 +11,6 @@ gen_aroma_config() {
     echo $installed_modules > /tmp/mmr/script/modules_ids
     ac_tmp=/tmp/mmr/script/aroma-config
     mv /tmp/mmr/script/ac-1.in $ac_tmp
-    cat >> $ac_tmp <<EOF
-viewbox(
-    "<~welcome.title>",
-    "<~welcome.text1> <b>" + ini_get("rom_name") + "</b>.\n\n" + "<~welcome.text2>\n\n\n\n" +
-
-    "  <~welcome.version>\t\t\t: " + "<b><#selectbg_g>" + ini_get("rom_version") + "</#></b>\n" +
-    "  <~welcome.updated>\t\t: " + "<b><#selectbg_g>" + ini_get("rom_date") + "</#></b>\n\n\n" +
-
-    getvar("sysinfo"),
-
-    "@welcome"
-);
-
-gotolabel("main_menu");
-
-ini_set("text_next", "Next");
-ini_set("icon_next", "@next");
-
-exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh");
-
-setvar("core_only_mode_code", exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "status"));
-
-if getvar("core_only_mode_code") == "0" then
-    setvar("core_only_mode_warning", "");
-    setvar("core_only_mode_switch_text", "Enable Magisk core only mode");
-    setvar("core_only_mode_switch_text2", "Block loading all modules");
-endif;
-if getvar("core_only_mode_code") == "1" then
-    setvar("core_only_mode_warning", "\n<#f00>Magisk core only mode is enabled, no modules will be load.</#>");
-    setvar("core_only_mode_switch_text", "Disable Magisk core only mode");
-    setvar("core_only_mode_switch_text2", "");
-endif;
-
-menubox(
-    "Main menu",
-    "Choose an action" + getvar("core_only_mode_warning"),
-    "@welcome",
-    "operations.prop",
-
-    "Reboot", "Reboot your device", "@refresh",
-    "Exit", getvar("exit_text2"), "@back2",
-EOF
     if [ ${#installed_modules} -eq 0 ]; then
         echo "    \"If you see this option\", \"You have not installed any Magisk modules...\", \"@what\"," >> $ac_tmp
     else
