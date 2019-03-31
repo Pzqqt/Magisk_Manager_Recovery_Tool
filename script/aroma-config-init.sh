@@ -2,10 +2,6 @@
 
 ls_mount_path() { ls -1 /magisk | grep -v 'lost+found'; }
 
-get_module_info() {
-    /tmp/mmr/script/get-module-info.sh $1 $2
-}
-
 gen_aroma_config() {
     installed_modules=`ls_mount_path`
     echo $installed_modules > /tmp/mmr/script/modules_ids
