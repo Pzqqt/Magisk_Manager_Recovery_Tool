@@ -69,7 +69,7 @@ unzip "${zipfile}"
 chmod 0755 ./script/*
 if $imageless_magisk; then
   ui_print "Symlink $imagelessPath to $workPath"
-  ./script/symlink-magisk.sh $imagelessPath $workPath
+  ./script/symlink-magisk.sh $imagelessPath $workPath || abort "Error: Failed to symlink modules path!"
 else
   ui_print "Mount $IMG to $workPath"
   ./script/mount-magisk.sh $IMG $workPath || abort "Error: Failed to mount magisk.img!"
