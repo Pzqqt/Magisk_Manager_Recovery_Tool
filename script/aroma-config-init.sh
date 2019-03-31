@@ -15,10 +15,10 @@ gen_aroma_config() {
         echo "    \"如果你看到了此选项\", \"说明你尚未安装任何 Magisk 模块...\", \"@what\"," >> $ac_tmp
     else
         for module in ${installed_modules}; do
-            module_name=$(get_module_info $module name)
-            module_author=$(get_module_info $module author)
-            module_version=$(get_module_info $module version)
-            echo "    \"$module_name\", \"<i><b>$module_version\n作者: $module_author</b></i>\", prop(\"module_icon.prop\", \"module.icon.${module}\")," >> $ac_tmp
+            echo "    file_getprop(\"/magisk/${module}/module.prop\", \"name\")," >> $ac_tmp
+            echo "    \"<i><b>\" + file_getprop(\"/magisk/${module}/module.prop\", \"version\") +" >> $ac_tmp
+            echo "    \"\n作者: \" + file_getprop(\"/magisk/${module}/module.prop\", \"author\") + \"</b></i>\"," >> $ac_tmp
+            echo "    prop(\"module_icon.prop\", \"module.icon.${module}\")," >> $ac_tmp
         done
     fi
     cat >> $ac_tmp <<EOF
@@ -58,8 +58,8 @@ EOF
             let i+=1
             echo "if prop(\"operations.prop\", \"selected\") == \"$i\" then" >> $ac_tmp
             echo "    setvar(\"modid\", \"$module\");" >> $ac_tmp
-            echo "    setvar(\"modname\", \"$(get_module_info $module name)\");" >> $ac_tmp
-            echo "    setvar(\"modsize\", \"$(get_module_info $module size)\");" >> $ac_tmp
+            echo "    setvar(\"modname\", file_getprop(\"/magisk/${module}/module.prop\", \"name\"));" >> $ac_tmp
+            echo "    setvar(\"modsize\", \"$(du -sh /magisk/${module} | awk '{print $1}')\");" >> $ac_tmp
             echo "endif;" >> $ac_tmp
             echo "" >> $ac_tmp
         done
@@ -166,7 +166,7 @@ then
     menubox(
         "模块: " + getvar("modname"),
         "模块 ID: " + getvar("modid") + "\n" +
-        "占用空间: " + getvar("modsize") + " MB\n" +
+        "占用空间: " + getvar("modsize") + "\n" +
         "模块状态: " + getvar("module_status") + "\n" +
         "挂载状态: " + getvar("module_mount_status"),
         "@welcome",
@@ -181,10 +181,9 @@ then
     );
 
     if prop("modoperations.prop", "selected") == "1" then
-        exec("/sbin/sh", "/tmp/mmr/script/get-module-info.sh", getvar("modid"), "description");
         alert(
             "描述",
-            getvar("exec_buffer"),
+            file_getprop("/magisk/" + getvar("modid") + "/module.prop", "description"),
             "@info",
             "返回"
         );
