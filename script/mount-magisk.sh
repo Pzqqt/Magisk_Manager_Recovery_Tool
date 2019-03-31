@@ -12,12 +12,15 @@ is_mounted() { mountpoint -q $1; }
 mount_image() {
     e2fsck -fy $1 &>/dev/null
     mount -o remount,rw /
-    [ -d "$2" ] && is_mounted $2 && {
-        loopedA=`mount | grep $2 | head -n1 | cut -d " " -f1`
-        umount $2
-        losetup -d $loopedA
+    [ -L "$2" ] && rm -f $2
+    [ -d "$2" ] && {
+        is_mounted $2 && {
+            loopedA=`mount | grep $2 | head -n1 | cut -d " " -f1`
+            umount $2
+            losetup -d $loopedA
+        }
+        rm -rf $2
     }
-    rm -rf $2
     mkdir -p $2
     loopDevice=
     for LOOP in 0 1 2 3 4 5 6 7; do
