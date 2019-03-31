@@ -267,7 +267,7 @@ endif;
 
 if prop("operations.prop", "selected") == cal("$i", "+", "1") then
     menubox(
-        "advanced options",
+        "Advanced options",
         "Choose an action" + getvar("core_only_mode_warning"),
         "@welcome",
         "advanced.prop",
