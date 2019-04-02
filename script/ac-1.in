@@ -81,10 +81,8 @@ viewbox(
 
 gotolabel("main_menu");
 
-ini_set("text_next", "下一步");
-ini_set("icon_next", "@next");
-
-exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh");
+exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh", getvar("modid"));
+setvar("modid", "");
 
 setvar("core_only_mode_code", exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "status"));
 
