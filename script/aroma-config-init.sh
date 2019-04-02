@@ -77,30 +77,18 @@ then
         back("1");
     endif;
 
-    if getvar("stat_code") == "0" then
-        setvar("module_status", "Disabled");
-    endif;
-    if getvar("stat_code") == "1" then
-        setvar("module_status", "Enabled");
-    endif;
-    if getvar("stat_code") == "3" then
-        setvar("module_status", "Ready update");
-    endif;
-    if getvar("stat_code") == "4" then
-        setvar("module_status", "Ready remove");
-    endif;
+    getvar("stat_code") == "0" && setvar("module_status", "Disabled");
+    getvar("stat_code") == "1" && setvar("module_status", "Enabled");
+    getvar("stat_code") == "3" && setvar("module_status", "Ready update");
+    getvar("stat_code") == "4" && setvar("module_status", "Ready remove");
 
-    if getvar("stat_mount_code") == "0" then
-        setvar("module_mount_status", "Disabled");
-    endif;
-    if getvar("stat_mount_code") == "1" then
-        setvar("module_mount_status", "Enabled");
-    endif;
+    getvar("stat_mount_code") == "0" && setvar("module_mount_status", "Disabled");
+    getvar("stat_mount_code") == "1" && setvar("module_mount_status", "Enabled");
 
     if getvar("stat_code") == "3" then
-        setvar("module_status_switch_text",     "Enable/Disable module");
-        setvar("module_status_switch_text2",    "Unallowed operation");
-        setvar("module_status_switch_icon",     "@crash");
+        setvar("module_status_switch_text",        "Enable/Disable module");
+        setvar("module_status_switch_text2",       "Unallowed operation");
+        setvar("module_status_switch_icon",        "@crash");
         setvar("module_mount_status_switch_text",  "Enable/Disable auto_mount");
         setvar("module_mount_status_switch_text2", "Unallowed operation");
         setvar("module_mount_status_switch_icon",  "@crash");
@@ -150,11 +138,11 @@ then
     endif;
 
     if getvar("stat_code") == "3" then
-        setvar("module_remove_warning", "Unallowed operation");
-        setvar("module_remove_icon",    "@crash");
+        setvar("module_remove_text2", "Unallowed operation");
+        setvar("module_remove_icon",  "@crash");
     else
-        setvar("module_remove_warning", "");
-        setvar("module_remove_icon",    "@delete");
+        setvar("module_remove_text2", "");
+        setvar("module_remove_icon",  "@delete");
     endif;
 
     menubox(
@@ -171,7 +159,7 @@ then
         getvar("module_status_switch_text"), getvar("module_status_switch_text2"), getvar("module_status_switch_icon"),
         getvar("module_mount_status_switch_text"), getvar("module_mount_status_switch_text2"), getvar("module_mount_status_switch_icon"),
         getvar("module_remove_switch_text"), getvar("module_remove_switch_text2"), getvar("module_remove_switch_icon"),
-        "Remove", getvar("module_remove_warning"), getvar("module_remove_icon")
+        "Remove", getvar("module_remove_text2"), getvar("module_remove_icon")
     );
 
     if prop("modoperations.prop", "selected") == "1" then
@@ -254,9 +242,7 @@ then
             "OK"
         );
     endif;
-    if prop("modoperations.prop", "selected") != "6" then
-        back("1");
-    endif;
+    prop("modoperations.prop", "selected") != "6" && back("1");
 endif;
 
 if prop("operations.prop", "selected") == cal("$i", "+", "1") then
