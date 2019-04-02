@@ -11,9 +11,9 @@ gen_aroma_config() {
         echo "    \"如果你看到了此选项\", \"说明你尚未安装任何 Magisk 模块...\", \"@what\"," >> $ac_tmp
     else
         for module in ${installed_modules}; do
-            echo "    file_getprop(\"/magisk/${module}/module.prop\", \"name\")," >> $ac_tmp
-            echo "    \"<i><b>\" + file_getprop(\"/magisk/${module}/module.prop\", \"version\") +" >> $ac_tmp
-            echo "    \"\n作者: \" + file_getprop(\"/magisk/${module}/module.prop\", \"author\") + \"</b></i>\"," >> $ac_tmp
+            echo "    file_getprop(\"/magisk/${module}/module.prop\", \"name\") || \"(未提供信息)\"," >> $ac_tmp
+            echo "    \"<i><b>\" + (file_getprop(\"/magisk/${module}/module.prop\", \"version\") || \"(未提供信息)\") +" >> $ac_tmp
+            echo "    \"\n作者: \" + (file_getprop(\"/magisk/${module}/module.prop\", \"author\") || \"(未提供信息)\") + \"</b></i>\"," >> $ac_tmp
             echo "    prop(\"module_icon.prop\", \"module.icon.${module}\")," >> $ac_tmp
         done
     fi
@@ -54,7 +54,7 @@ EOF
             let i+=1
             echo "if prop(\"operations.prop\", \"selected\") == \"$i\" then" >> $ac_tmp
             echo "    setvar(\"modid\", \"$module\");" >> $ac_tmp
-            echo "    setvar(\"modname\", file_getprop(\"/magisk/${module}/module.prop\", \"name\"));" >> $ac_tmp
+            echo "    setvar(\"modname\", file_getprop(\"/magisk/${module}/module.prop\", \"name\") || \"(未提供信息)\");" >> $ac_tmp
             echo "    setvar(\"modsize\", \"$(du -sh /magisk/${module} | awk '{print $1}')\");" >> $ac_tmp
             echo "endif;" >> $ac_tmp
             echo "" >> $ac_tmp
@@ -179,7 +179,7 @@ then
     if prop("modoperations.prop", "selected") == "1" then
         alert(
             "描述",
-            file_getprop("/magisk/" + getvar("modid") + "/module.prop", "description"),
+            file_getprop("/magisk/" + getvar("modid") + "/module.prop", "description") || "(未提供信息)",
             "@info",
             "返回"
         );
