@@ -11,9 +11,9 @@ gen_aroma_config() {
         echo "    \"If you see this option\", \"You have not installed any Magisk modules...\", \"@what\"," >> $ac_tmp
     else
         for module in ${installed_modules}; do
-            echo "    file_getprop(\"/magisk/${module}/module.prop\", \"name\")," >> $ac_tmp
-            echo "    \"<i><b>\" + file_getprop(\"/magisk/${module}/module.prop\", \"version\") +" >> $ac_tmp
-            echo "    \"\nAuthor: \" + file_getprop(\"/magisk/${module}/module.prop\", \"author\") + \"</b></i>\"," >> $ac_tmp
+            echo "    file_getprop(\"/magisk/${module}/module.prop\", \"name\") || \"(No info provided)\"," >> $ac_tmp
+            echo "    \"<i><b>\" + (file_getprop(\"/magisk/${module}/module.prop\", \"version\") || \"(No info provided)\") +" >> $ac_tmp
+            echo "    \"\nnAuthor: \" + (file_getprop(\"/magisk/${module}/module.prop\", \"author\") || \"(No info provided)\") + \"</b></i>\"," >> $ac_tmp
             echo "    prop(\"module_icon.prop\", \"module.icon.${module}\")," >> $ac_tmp
         done
     fi
@@ -54,7 +54,7 @@ EOF
             let i+=1
             echo "if prop(\"operations.prop\", \"selected\") == \"$i\" then" >> $ac_tmp
             echo "    setvar(\"modid\", \"$module\");" >> $ac_tmp
-            echo "    setvar(\"modname\", file_getprop(\"/magisk/${module}/module.prop\", \"name\"));" >> $ac_tmp
+            echo "    setvar(\"modname\", file_getprop(\"/magisk/${module}/module.prop\", \"name\") || \"(No info provided)\");" >> $ac_tmp
             echo "    setvar(\"modsize\", \"$(du -sh /magisk/${module} | awk '{print $1}')\");" >> $ac_tmp
             echo "endif;" >> $ac_tmp
             echo "" >> $ac_tmp
@@ -179,7 +179,7 @@ then
     if prop("modoperations.prop", "selected") == "1" then
         alert(
             "Description",
-            file_getprop("/magisk/" + getvar("modid") + "/module.prop", "description"),
+            file_getprop("/magisk/" + getvar("modid") + "/module.prop", "description") || "(No info provided)",
             "@info",
             "Back"
         );
