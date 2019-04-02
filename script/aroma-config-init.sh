@@ -43,8 +43,6 @@ if prop("operations.prop", "selected") == "2" then
     endif;
 endif;
 
-setvar("modid", "");
-
 EOF
     if [ ${#installed_modules} -eq 0 ]; then
         i=3
