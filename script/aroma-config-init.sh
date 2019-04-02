@@ -77,30 +77,18 @@ then
         back("1");
     endif;
 
-    if getvar("stat_code") == "0" then
-        setvar("module_status", "已禁用");
-    endif;
-    if getvar("stat_code") == "1" then
-        setvar("module_status", "已启用");
-    endif;
-    if getvar("stat_code") == "3" then
-        setvar("module_status", "待更新");
-    endif;
-    if getvar("stat_code") == "4" then
-        setvar("module_status", "待移除");
-    endif;
+    getvar("stat_code") == "0" && setvar("module_status", "已禁用");
+    getvar("stat_code") == "1" && setvar("module_status", "已启用");
+    getvar("stat_code") == "3" && setvar("module_status", "待更新");
+    getvar("stat_code") == "4" && setvar("module_status", "待移除");
 
-    if getvar("stat_mount_code") == "0" then
-        setvar("module_mount_status", "已禁用");
-    endif;
-    if getvar("stat_mount_code") == "1" then
-        setvar("module_mount_status", "已启用");
-    endif;
+    getvar("stat_mount_code") == "0" && setvar("module_mount_status", "已禁用");
+    getvar("stat_mount_code") == "1" && setvar("module_mount_status", "已启用");
 
     if getvar("stat_code") == "3" then
-        setvar("module_status_switch_text",     "启用/禁用该模块");
-        setvar("module_status_switch_text2",    "不允许的操作");
-        setvar("module_status_switch_icon",     "@crash");
+        setvar("module_status_switch_text",        "启用/禁用该模块");
+        setvar("module_status_switch_text2",       "不允许的操作");
+        setvar("module_status_switch_icon",        "@crash");
         setvar("module_mount_status_switch_text",  "启用/禁用挂载");
         setvar("module_mount_status_switch_text2", "不允许的操作");
         setvar("module_mount_status_switch_icon",  "@crash");
@@ -150,11 +138,11 @@ then
     endif;
 
     if getvar("stat_code") == "3" then
-        setvar("module_remove_warning", "不允许的操作");
-        setvar("module_remove_icon",    "@crash");
+        setvar("module_remove_text2", "不允许的操作");
+        setvar("module_remove_icon",  "@crash");
     else
-        setvar("module_remove_warning", "");
-        setvar("module_remove_icon",    "@delete");
+        setvar("module_remove_text2", "");
+        setvar("module_remove_icon",  "@delete");
     endif;
 
     menubox(
@@ -171,7 +159,7 @@ then
         getvar("module_status_switch_text"), getvar("module_status_switch_text2"), getvar("module_status_switch_icon"),
         getvar("module_mount_status_switch_text"), getvar("module_mount_status_switch_text2"), getvar("module_mount_status_switch_icon"),
         getvar("module_remove_switch_text"), getvar("module_remove_switch_text2"), getvar("module_remove_switch_icon"),
-        "立即移除", getvar("module_remove_warning"), getvar("module_remove_icon")
+        "立即移除", getvar("module_remove_text2"), getvar("module_remove_icon")
     );
 
     if prop("modoperations.prop", "selected") == "1" then
@@ -254,9 +242,7 @@ then
             "确定"
         );
     endif;
-    if prop("modoperations.prop", "selected") != "6" then
-        back("1");
-    endif;
+    prop("modoperations.prop", "selected") != "6" && back("1");
 endif;
 
 if prop("operations.prop", "selected") == cal("$i", "+", "1") then
