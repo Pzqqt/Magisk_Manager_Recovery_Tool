@@ -13,7 +13,7 @@ gen_aroma_config() {
         for module in ${installed_modules}; do
             echo "    file_getprop(\"/magisk/${module}/module.prop\", \"name\") || \"(No info provided)\"," >> $ac_tmp
             echo "    \"<i><b>\" + (file_getprop(\"/magisk/${module}/module.prop\", \"version\") || \"(No info provided)\") +" >> $ac_tmp
-            echo "    \"\nnAuthor: \" + (file_getprop(\"/magisk/${module}/module.prop\", \"author\") || \"(No info provided)\") + \"</b></i>\"," >> $ac_tmp
+            echo "    \"\nAuthor: \" + (file_getprop(\"/magisk/${module}/module.prop\", \"author\") || \"(No info provided)\") + \"</b></i>\"," >> $ac_tmp
             echo "    prop(\"module_icon.prop\", \"module.icon.${module}\")," >> $ac_tmp
         done
     fi
@@ -284,7 +284,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
                     "The magisk image has been unmounted.\n\nThis tool will exit.\nIf you still need to use, please reflash this tool.\n\n",
                     "@warning",
                     "Exit to Recovery",
-                    "Reboot") == "yes"
+                    "Reboot") == "no"
                 then
                     reboot("now");
                 endif;
