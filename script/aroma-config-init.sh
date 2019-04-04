@@ -159,7 +159,7 @@ then
         getvar("module_status_switch_text"), getvar("module_status_switch_text2"), getvar("module_status_switch_icon"),
         getvar("module_mount_status_switch_text"), getvar("module_mount_status_switch_text2"), getvar("module_mount_status_switch_icon"),
         getvar("module_remove_switch_text"), getvar("module_remove_switch_text2"), getvar("module_remove_switch_icon"),
-        "Remove", getvar("module_remove_text2"), getvar("module_remove_icon")
+        getvar("module_remove_text"), getvar("module_remove_text2"), getvar("module_remove_icon")
     );
 
     if prop("modoperations.prop", "selected") == "1" then
@@ -206,25 +206,15 @@ then
               "/tmp/mmr/script/control-module.sh switch_remove " + getvar("modid") + "\n");
     endif;
     if prop("modoperations.prop", "selected") == "6" then
-        if cmp(getvar("MAGISK_VER_CODE"), ">", "18100") then
-            alert(
-                "Note",
-                "Direct removal the module is not allowed when the Magisk version code is greater than 18100.\nBut you can set the module to remove at next reboot.",
-                "@warning",
-                "确定"
-            );
-            back("1");
+        if confirm("警告",
+                   "您确定要移除该模块吗? 此操作不可恢复!",
+                   "@warning") == "yes"
+        then
+            write("/tmp/mmr/cmd.sh",
+                  "#!/sbin/sh\n" +
+                  "/tmp/mmr/script/control-module.sh remove " + getvar("modid") + "\n");
         else
-            if confirm("警告",
-                       "您确定要移除该模块吗? 此操作不可恢复!",
-                       "@warning") == "yes"
-            then
-                write("/tmp/mmr/cmd.sh",
-                      "#!/sbin/sh\n" +
-                      "/tmp/mmr/script/control-module.sh remove " + getvar("modid") + "\n");
-            else
-                back("1");
-            endif;
+            back("1");
         endif;
     endif;
     if exec("/sbin/sh", "/tmp/mmr/cmd.sh") == "0" then
@@ -253,8 +243,8 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         "advanced.prop",
 
         "Save recovery log", "Copies /tmp/recovery.log to internal SD", "@action",
-        "Shrinking magisk.img", getvar("shrink_text2"), getvar("shrink_icon"),
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
+        getvar("shrink_text"), "Shrinking magisk.img capacity.\nRecommended to use after removing large modules.", "@action",
         "Back", "", "@back2"
     );
     if prop("advanced.prop", "selected") == "1" then
@@ -268,38 +258,6 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         back("1");
     endif;
     if prop("advanced.prop", "selected") == "2" then
-        if cmp(getvar("MAGISK_VER_CODE"), ">", "18100") then
-            back("1");
-        else
-            pleasewait("Executing Shell...");
-            if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
-                alert(
-                    "Done",
-                    getvar("exec_buffer"),
-                    "@done",
-                    "OK"
-                );
-                if confirm(
-                    "Note",
-                    "The magisk image has been unmounted.\n\nThis tool will exit.\nIf you still need to use, please reflash this tool.\n\n",
-                    "@warning",
-                    "Exit to Recovery",
-                    "Reboot") == "no"
-                then
-                    reboot("now");
-                endif;
-            else
-                alert(
-                    "Failed",
-                    getvar("exec_buffer"),
-                    "@crash",
-                    "Exit"
-                );
-            endif;
-            exit("");
-        endif;
-    endif;
-    if prop("advanced.prop", "selected") == "3" then
         if getvar("core_only_mode_code") == "0" then
             if confirm("Warning",
                        "If you enable Magisk core only mode,\nno modules will be load.\nBut MagiskSU and MagiskHide will still be enabled.\nContinue?",
@@ -316,6 +274,34 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
             "OK"
         );
         back("1");
+    endif;
+    if prop("advanced.prop", "selected") == "3" && cmp(getvar("MAGISK_VER_CODE"), "<=", "18100") then
+        pleasewait("Executing Shell...");
+        if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
+            alert(
+                "Done",
+                getvar("exec_buffer"),
+                "@done",
+                "OK"
+            );
+            if confirm(
+                "Note",
+                "The magisk image has been unmounted.\n\nThis tool will exit.\nIf you still need to use, please reflash this tool.\n\n",
+                "@warning",
+                "Exit to Recovery",
+                "Reboot") == "no"
+            then
+                reboot("now");
+            endif;
+        else
+            alert(
+                "Failed",
+                getvar("exec_buffer"),
+                "@crash",
+                "Exit"
+            );
+        endif;
+        exit("");
     endif;
 endif;
 
