@@ -30,7 +30,7 @@ case $operate in
     "switch_module") {
         if [ -f $modulePath/disable ]; then
             rm -rf $modulePath/disable && {
-                echo "已成功启用模块 ${module} !"
+                echo "已成功启用模块 $module !"
                 exit 0
             }
         else
@@ -43,12 +43,12 @@ case $operate in
     "switch_auto_mount") {
         if [ -f $modulePath/auto_mount ]; then
             rm -rf $modulePath/auto_mount && {
-                echo "已成功为模块 ${module} 禁用挂载!"
+                echo "已成功为模块 $module 禁用挂载!"
                 exit 0
             }
         else
             touch_flag $modulePath auto_mount && {
-                echo "已成功为模块 ${module} 启用挂载!"
+                echo "已成功为模块 $module 启用挂载!"
                 exit 0
             }
         fi
@@ -56,12 +56,12 @@ case $operate in
     "switch_skip_mount") {
         if [ -f $modulePath/skip_mount ]; then
             rm -rf $modulePath/skip_mount && {
-                echo "已成功为模块 ${module} 启用挂载!"
+                echo "已成功为模块 $module 启用挂载!"
                 exit 0
             }
         else
             touch_flag $modulePath skip_mount && {
-                echo "已成功为模块 ${module} 禁用挂载!"
+                echo "已成功为模块 $module 禁用挂载!"
                 exit 0
             }
         fi
@@ -81,7 +81,7 @@ case $operate in
     } ;;
     "remove") {
         rm -rf $modulePath && {
-            echo "已成功移除模块 ${module} !"
+            echo "已成功移除模块 $module !"
             exit 0
         }
     } ;;
