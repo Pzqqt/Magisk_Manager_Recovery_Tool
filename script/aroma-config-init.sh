@@ -70,79 +70,64 @@ then
     if getvar("stat_code") == "2" then
         alert(
             "注意",
-            "这个模块已经被移除了.\n\n",
+            "这个模块已经被移除了.\n",
             "@warning",
             "确定"
         );
         back("1");
     endif;
 
-    getvar("stat_code") == "0" && setvar("module_status", "已禁用");
-    getvar("stat_code") == "1" && setvar("module_status", "已启用");
-    getvar("stat_code") == "3" && setvar("module_status", "待更新");
-    getvar("stat_code") == "4" && setvar("module_status", "待移除");
+    if getvar("stat_code") == "0" then
+        setvar("module_status", "已禁用");
+        setvar("module_status_switch_text",  "启用该模块");
+        setvar("module_status_switch_text2", "");
+        setvar("module_status_switch_icon",  "@action2");
+    endif;
+    if getvar("stat_code") == "1" then
+        setvar("module_status", "已启用");
+        setvar("module_status_switch_text",  "禁用该模块");
+        setvar("module_status_switch_text2", "");
+        setvar("module_status_switch_icon",  "@offaction");
+    endif;
+    if getvar("stat_code") == "4" then
+        setvar("module_status", "待移除");
+        setvar("module_status_switch_text",  "启用/禁用该模块");
+        setvar("module_status_switch_text2", "");
+        setvar("module_status_switch_icon",  "@what");
+        setvar("module_remove_switch_text",  "<b><i>撤销</i></b> 重启后移除该模块");
+        setvar("module_remove_switch_text2", "");
+        setvar("module_remove_switch_icon",  "@refresh");
+    else
+        setvar("module_remove_switch_text",  "重启后移除该模块");
+        setvar("module_remove_switch_text2", "");
+        setvar("module_remove_switch_icon",  "@delete");
+    endif;
 
-    getvar("stat_mount_code") == "0" && setvar("module_mount_status", "已禁用");
-    getvar("stat_mount_code") == "1" && setvar("module_mount_status", "已启用");
+    if getvar("stat_mount_code") == "0" then
+        setvar("module_mount_status", "已禁用");
+        setvar("module_mount_status_switch_text",  "启用挂载");
+        setvar("module_mount_status_switch_text2", "");
+        setvar("module_mount_status_switch_icon",  "@action2");
+    endif;
+    if getvar("stat_mount_code") == "1" then
+        setvar("module_mount_status", "已启用");
+        setvar("module_mount_status_switch_text",  "禁用挂载");
+        setvar("module_mount_status_switch_text2", "");
+        setvar("module_mount_status_switch_icon",  "@offaction");
+    endif;
 
     if getvar("stat_code") == "3" then
+        setvar("module_status", "待更新");
         setvar("module_status_switch_text",        "启用/禁用该模块");
         setvar("module_status_switch_text2",       "不允许的操作");
         setvar("module_status_switch_icon",        "@crash");
         setvar("module_mount_status_switch_text",  "启用/禁用挂载");
         setvar("module_mount_status_switch_text2", "不允许的操作");
         setvar("module_mount_status_switch_icon",  "@crash");
-    else
-        if getvar("stat_code") == "4" then
-            setvar("module_status_switch_text",  "启用/禁用该模块");
-            setvar("module_status_switch_text2", "");
-            setvar("module_status_switch_icon",  "@what");
-        else
-            if getvar("stat_code") == "0" then
-                setvar("module_status_switch_text",  "启用该模块");
-                setvar("module_status_switch_text2", "");
-                setvar("module_status_switch_icon",  "@action2");
-            endif;
-            if getvar("stat_code") == "1" then
-                setvar("module_status_switch_text",  "禁用该模块");
-                setvar("module_status_switch_text2", "");
-                setvar("module_status_switch_icon",  "@offaction");
-            endif;
-        endif;
-        if getvar("stat_mount_code") == "0" then
-            setvar("module_mount_status_switch_text",  "启用挂载");
-            setvar("module_mount_status_switch_text2", "");
-            setvar("module_mount_status_switch_icon",  "@action2");
-        endif;
-        if getvar("stat_mount_code") == "1" then
-            setvar("module_mount_status_switch_text",  "禁用挂载");
-            setvar("module_mount_status_switch_text2", "");
-            setvar("module_mount_status_switch_icon",  "@offaction");
-        endif;
-    endif;
-
-    if getvar("stat_code") == "4" then
-        setvar("module_remove_switch_text", "<b><i>撤销</i></b> 重启后移除该模块");
-        setvar("module_remove_switch_text2", "");
-        setvar("module_remove_switch_icon", "@refresh");
-    else
-        setvar("module_remove_switch_text", "重启后移除该模块");
-
-        if getvar("stat_code") == "3" then
-            setvar("module_remove_switch_text2", "不允许的操作");
-            setvar("module_remove_switch_icon",  "@crash");
-        else
-            setvar("module_remove_switch_text2", "");
-            setvar("module_remove_switch_icon",  "@delete");
-        endif;
-    endif;
-
-    if getvar("stat_code") == "3" then
-        setvar("module_remove_text2", "不允许的操作");
-        setvar("module_remove_icon",  "@crash");
-    else
-        setvar("module_remove_text2", "");
-        setvar("module_remove_icon",  "@delete");
+        setvar("module_remove_switch_text2",       "不允许的操作");
+        setvar("module_remove_switch_icon",        "@crash");
+        setvar("module_remove_text2",              "不允许的操作");
+        setvar("module_remove_icon",               "@crash");
     endif;
 
     menubox(
