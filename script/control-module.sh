@@ -30,12 +30,12 @@ case $operate in
     "switch_module") {
         if [ -f $modulePath/disable ]; then
             rm -rf $modulePath/disable && {
-                echo "Successfully enable module ${module} !"
+                echo "Successfully enable module $module !"
                 exit 0
             }
         else
             touch_flag $modulePath disable && {
-                echo "Successfully disable module ${module} !"
+                echo "Successfully disable module $module !"
                 exit 0
             }
         fi
