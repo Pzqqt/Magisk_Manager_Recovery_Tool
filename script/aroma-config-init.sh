@@ -70,79 +70,64 @@ then
     if getvar("stat_code") == "2" then
         alert(
             "Note",
-            "This module has been removed.\n\n",
+            "This module has been removed.\n",
             "@warning",
             "OK"
         );
         back("1");
     endif;
 
-    getvar("stat_code") == "0" && setvar("module_status", "Disabled");
-    getvar("stat_code") == "1" && setvar("module_status", "Enabled");
-    getvar("stat_code") == "3" && setvar("module_status", "Ready update");
-    getvar("stat_code") == "4" && setvar("module_status", "Ready remove");
+    if getvar("stat_code") == "0" then
+        setvar("module_status", "Disabled");
+        setvar("module_status_switch_text",  "Enable module");
+        setvar("module_status_switch_text2", "");
+        setvar("module_status_switch_icon",  "@action2");
+    endif;
+    if getvar("stat_code") == "1" then
+        setvar("module_status", "Enabled");
+        setvar("module_status_switch_text",  "Disable module");
+        setvar("module_status_switch_text2", "");
+        setvar("module_status_switch_icon",  "@offaction");
+    endif;
+    if getvar("stat_code") == "4" then
+        setvar("module_status", "Ready remove");
+        setvar("module_status_switch_text",  "Enable/Disable module");
+        setvar("module_status_switch_text2", "");
+        setvar("module_status_switch_icon",  "@what");
+        setvar("module_remove_switch_text",  "<b><i>Undo</i></b> remove at next reboot");
+        setvar("module_remove_switch_text2", "");
+        setvar("module_remove_switch_icon",  "@refresh");
+    else
+        setvar("module_remove_switch_text",  "Remove at next reboot");
+        setvar("module_remove_switch_text2", "");
+        setvar("module_remove_switch_icon",  "@delete");
+    endif;
 
-    getvar("stat_mount_code") == "0" && setvar("module_mount_status", "Disabled");
-    getvar("stat_mount_code") == "1" && setvar("module_mount_status", "Enabled");
+    if getvar("stat_mount_code") == "0" then
+        setvar("module_mount_status", "Disabled");
+        setvar("module_mount_status_switch_text",  "Enable mount");
+        setvar("module_mount_status_switch_text2", "");
+        setvar("module_mount_status_switch_icon",  "@action2");
+    endif;
+    if getvar("stat_mount_code") == "1" then
+        setvar("module_mount_status", "Enabled");
+        setvar("module_mount_status_switch_text",  "Disable mount");
+        setvar("module_mount_status_switch_text2", "");
+        setvar("module_mount_status_switch_icon",  "@offaction");
+    endif;
 
     if getvar("stat_code") == "3" then
+        setvar("module_status", "Ready update");
         setvar("module_status_switch_text",        "Enable/Disable module");
         setvar("module_status_switch_text2",       "Unallowed operation");
         setvar("module_status_switch_icon",        "@crash");
-        setvar("module_mount_status_switch_text",  "Enable/Disable auto_mount");
+        setvar("module_mount_status_switch_text",  "Enable/Disable mount");
         setvar("module_mount_status_switch_text2", "Unallowed operation");
         setvar("module_mount_status_switch_icon",  "@crash");
-    else
-        if getvar("stat_code") == "4" then
-            setvar("module_status_switch_text",  "Enable/Disable module");
-            setvar("module_status_switch_text2", "");
-            setvar("module_status_switch_icon",  "@what");
-        else
-            if getvar("stat_code") == "0" then
-                setvar("module_status_switch_text",  "Enable module");
-                setvar("module_status_switch_text2", "");
-                setvar("module_status_switch_icon",  "@action2");
-            endif;
-            if getvar("stat_code") == "1" then
-                setvar("module_status_switch_text",  "Disable module");
-                setvar("module_status_switch_text2", "");
-                setvar("module_status_switch_icon",  "@offaction");
-            endif;
-        endif;
-        if getvar("stat_mount_code") == "0" then
-            setvar("module_mount_status_switch_text",  "Enable auto_mount");
-            setvar("module_mount_status_switch_text2", "");
-            setvar("module_mount_status_switch_icon",  "@action2");
-        endif;
-        if getvar("stat_mount_code") == "1" then
-            setvar("module_mount_status_switch_text",  "Disable auto_mount");
-            setvar("module_mount_status_switch_text2", "");
-            setvar("module_mount_status_switch_icon",  "@offaction");
-        endif;
-    endif;
-
-    if getvar("stat_code") == "4" then
-        setvar("module_remove_switch_text", "<b><i>Undo</i></b> remove module at next reboot");
-        setvar("module_remove_switch_text2", "");
-        setvar("module_remove_switch_icon", "@refresh");
-    else
-        setvar("module_remove_switch_text", "Remove at next reboot");
-
-        if getvar("stat_code") == "3" then
-            setvar("module_remove_switch_text2", "Unallowed operation");
-            setvar("module_remove_switch_icon",  "@crash");
-        else
-            setvar("module_remove_switch_text2", "");
-            setvar("module_remove_switch_icon",  "@delete");
-        endif;
-    endif;
-
-    if getvar("stat_code") == "3" then
-        setvar("module_remove_text2", "Unallowed operation");
-        setvar("module_remove_icon",  "@crash");
-    else
-        setvar("module_remove_text2", "");
-        setvar("module_remove_icon",  "@delete");
+        setvar("module_remove_switch_text2",       "Unallowed operation");
+        setvar("module_remove_switch_icon",        "@crash");
+        setvar("module_remove_text2",              "Unallowed operation");
+        setvar("module_remove_icon",               "@crash");
     endif;
 
     menubox(
