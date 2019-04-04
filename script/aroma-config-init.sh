@@ -206,8 +206,8 @@ then
               "/tmp/mmr/script/control-module.sh switch_remove " + getvar("modid") + "\n");
     endif;
     if prop("modoperations.prop", "selected") == "6" then
-        if confirm("警告",
-                   "您确定要移除该模块吗? 此操作不可恢复!",
+        if confirm("Warning!",
+                   "Are you sure want to remove this module?",
                    "@warning") == "yes"
         then
             write("/tmp/mmr/cmd.sh",
