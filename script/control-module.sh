@@ -10,12 +10,15 @@ touch_flag() { touch ${1}/${2} || { cd ${1}? && touch ./${2}; }; }
 
 case $operate in
     "status") {
-        # Enable: 1, Disable: 0, Removed: 2, UpdateFlag: 3, RemoveFlag: 4
+        # Enable: 1, Disable: 0, Removed: 2, UpdateFlag: 3,
+        # RemoveFlag & Enable: 4, RemoveFlag & Disable: 5
         [ ! -d $modulePath ] && exit 2
         [ -f $modulePath/update ] && exit 3
-        [ -f $modulePath/remove ] && exit 4
-        [ -f $modulePath/disable ] && exit 0
-        exit 1
+        if [ -f $modulePath/remove ]; then
+            [ -f $modulePath/disable ] && exit 5 || exit 4
+        else
+            [ -f $modulePath/disable ] && exit 0 || exit 1
+        fi
     } ;;
     "status_auto_mount") {
         # Enable: 1, Disable: 0, Removed: 2

@@ -78,23 +78,20 @@ then
         back("1");
     endif;
 
-    if getvar("stat_code") == "0" then
+    if getvar("stat_code") == "0" || getvar("stat_code") == "5" then
         setvar("module_status", "已禁用");
         setvar("module_status_switch_text",  "启用该模块");
         setvar("module_status_switch_text2", "");
         setvar("module_status_switch_icon",  "@action2");
     endif;
-    if getvar("stat_code") == "1" then
+    if getvar("stat_code") == "1" || getvar("stat_code") == "4" then
         setvar("module_status", "已启用");
         setvar("module_status_switch_text",  "禁用该模块");
         setvar("module_status_switch_text2", "");
         setvar("module_status_switch_icon",  "@offaction");
     endif;
-    if getvar("stat_code") == "4" then
+    if cmp(getvar("stat_code"), ">=", "4") then
         setvar("module_status", "待移除");
-        setvar("module_status_switch_text",  "启用/禁用该模块");
-        setvar("module_status_switch_text2", "");
-        setvar("module_status_switch_icon",  "@what");
         setvar("module_remove_switch_text",  "<b><i>撤销</i></b> 重启后移除该模块");
         setvar("module_remove_switch_text2", "");
         setvar("module_remove_switch_icon",  "@refresh");
