@@ -78,23 +78,20 @@ then
         back("1");
     endif;
 
-    if getvar("stat_code") == "0" then
+    if getvar("stat_code") == "0" || getvar("stat_code") == "5" then
         setvar("module_status", "Disabled");
         setvar("module_status_switch_text",  "Enable module");
         setvar("module_status_switch_text2", "");
         setvar("module_status_switch_icon",  "@action2");
     endif;
-    if getvar("stat_code") == "1" then
+    if getvar("stat_code") == "1" || getvar("stat_code") == "4" then
         setvar("module_status", "Enabled");
         setvar("module_status_switch_text",  "Disable module");
         setvar("module_status_switch_text2", "");
         setvar("module_status_switch_icon",  "@offaction");
     endif;
-    if getvar("stat_code") == "4" then
+    if cmp(getvar("stat_code"), ">=", "4") then
         setvar("module_status", "Ready remove");
-        setvar("module_status_switch_text",  "Enable/Disable module");
-        setvar("module_status_switch_text2", "");
-        setvar("module_status_switch_icon",  "@what");
         setvar("module_remove_switch_text",  "<b><i>Undo</i></b> remove at next reboot");
         setvar("module_remove_switch_text2", "");
         setvar("module_remove_switch_icon",  "@refresh");
