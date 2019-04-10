@@ -1,20 +1,21 @@
 #!/sbin/sh
 
-ls_mount_path() { ls -1 /magisk | grep -v 'lost+found'; }
+workPath=/magisk
+
+ls_mount_path() { ls -1 ${workPath} | grep -v 'lost+found'; }
 
 gen_aroma_config() {
     installed_modules=`ls_mount_path`
-    echo $installed_modules > /tmp/mmr/script/modules_ids
     ac_tmp=/tmp/mmr/script/aroma-config
     mv /tmp/mmr/script/ac-1.in $ac_tmp
     if [ ${#installed_modules} -eq 0 ]; then
         echo "    \"如果你看到了此选项\", \"说明你尚未安装任何 Magisk 模块...\", \"@what\"," >> $ac_tmp
     else
         for module in ${installed_modules}; do
-            echo "    file_getprop(\"/magisk/${module}/module.prop\", \"name\") || \"(未提供信息)\"," >> $ac_tmp
-            echo "    \"<i><b>\" + (file_getprop(\"/magisk/${module}/module.prop\", \"version\") || \"(未提供信息)\") +" >> $ac_tmp
-            echo "    \"\n作者: \" + (file_getprop(\"/magisk/${module}/module.prop\", \"author\") || \"(未提供信息)\") + \"</b></i>\"," >> $ac_tmp
-            echo "    prop(\"module_icon.prop\", \"module.icon.${module}\")," >> $ac_tmp
+            echo "    file_getprop(\"${workPath}/${module}/module.prop\", \"name\") || \"(未提供信息)\"," >> $ac_tmp
+            echo "    \"<i><b>\" + (file_getprop(\"${workPath}/${module}/module.prop\", \"version\") || \"(未提供信息)\") +" >> $ac_tmp
+            echo "    \"\n作者: \" + (file_getprop(\"${workPath}/${module}/module.prop\", \"author\") || \"(未提供信息)\") + \"</b></i>\"," >> $ac_tmp
+            echo "    prop(\"module_icon.prop\", \"module.icon.${module}\") || \"@removed\"," >> $ac_tmp
         done
     fi
     cat >> $ac_tmp <<EOF
@@ -52,8 +53,8 @@ EOF
             let i+=1
             echo "if prop(\"operations.prop\", \"selected\") == \"$i\" then" >> $ac_tmp
             echo "    setvar(\"modid\", \"$module\");" >> $ac_tmp
-            echo "    setvar(\"modname\", file_getprop(\"/magisk/${module}/module.prop\", \"name\") || \"(未提供信息)\");" >> $ac_tmp
-            echo "    setvar(\"modsize\", \"$(du -sh /magisk/${module} | awk '{print $1}')\");" >> $ac_tmp
+            echo "    setvar(\"modname\", file_getprop(\"${workPath}/${module}/module.prop\", \"name\") || \"(未提供信息)\");" >> $ac_tmp
+            echo "    setvar(\"modsize\", \"$(du -sh ${workPath}/${module} | awk '{print $1}')\");" >> $ac_tmp
             echo "endif;" >> $ac_tmp
             echo "" >> $ac_tmp
         done
@@ -150,7 +151,7 @@ then
     if prop("modoperations.prop", "selected") == "1" then
         alert(
             "描述",
-            file_getprop("/magisk/" + getvar("modid") + "/module.prop", "description") || "(未提供信息)",
+            file_getprop("${workPath}/" + getvar("modid") + "/module.prop", "description") || "(未提供信息)",
             "@info",
             "返回"
         );

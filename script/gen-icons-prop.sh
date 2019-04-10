@@ -2,7 +2,10 @@
 
 update_icon_module=$1
 
+workPath=/magisk
 dst_prop_file=/tmp/aroma/module_icon.prop
+
+ls_mount_path() { ls -1 ${workPath} | grep -v 'lost+found'; }
 
 get_useicon() {
     /tmp/mmr/script/control-module.sh status $1
@@ -18,14 +21,12 @@ get_useicon() {
         ;;
         4) useicon="@removeflag"
         ;;
-        *) useicon="@default"
-        ;;
     esac
 }
 
 if ! [ -f $dst_prop_file ]; then
     touch $dst_prop_file
-    for module in `cat /tmp/mmr/script/modules_ids`; do
+    for module in `ls_mount_path`; do
         get_useicon $module
         echo "module.icon.${module}=${useicon}" >> $dst_prop_file
     done
