@@ -226,8 +226,8 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         "advanced.prop",
 
         "保存 recovery 日志", "复制 /tmp/recovery.log 到内部存储", "@action",
+        "瘦身 magisk.img", getvar("shrink_text2"), getvar("shrink_icon"),
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
-        getvar("shrink_text"), "压缩 magisk.img 容量以减少其存储空间占用.\n建议在移除大型模块后使用.", "@action",
         "返回", "", "@back2"
     );
     if prop("advanced.prop", "selected") == "1" then
@@ -241,6 +241,38 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         back("1");
     endif;
     if prop("advanced.prop", "selected") == "2" then
+        if cmp(getvar("MAGISK_VER_CODE"), ">", "18100") then
+            back("1");
+        else
+            pleasewait("正在执行脚本 ...");
+            if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
+                alert(
+                    "运行成功",
+                    getvar("exec_buffer"),
+                    "@done",
+                    "确定"
+                );
+                if confirm(
+                    "注意",
+                    "magisk 镜像已取消挂载.\n\n本工具即将退出.\n如果还需使用, 请重新卡刷本工具.\n\n",
+                    "@warning",
+                    "退出到 Recovery",
+                    "重启设备") == "no"
+                then
+                    reboot("now");
+                endif;
+            else
+                alert(
+                    "运行失败",
+                    getvar("exec_buffer"),
+                    "@crash",
+                    "退出"
+                );
+            endif;
+            exit("");
+        endif;
+    endif;
+    if prop("advanced.prop", "selected") == "3" then
         if getvar("core_only_mode_code") == "0" then
             if confirm("警告",
                        "启用 Magisk 核心模式后, 所有模块均不会被载入.\n但 MagiskSU 和 MagiskHide 仍然会继续工作.\n您确定要继续吗?",
@@ -257,34 +289,6 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
             "确定"
         );
         back("1");
-    endif;
-    if prop("advanced.prop", "selected") == "3" && cmp(getvar("MAGISK_VER_CODE"), "<=", "18100") then
-        pleasewait("正在执行脚本 ...");
-        if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
-            alert(
-                "运行成功",
-                getvar("exec_buffer"),
-                "@done",
-                "确定"
-            );
-            if confirm(
-                "注意",
-                "magisk 镜像已取消挂载.\n\n本工具即将退出.\n如果还需使用, 请重新卡刷本工具.\n\n",
-                "@warning",
-                "退出到 Recovery",
-                "重启设备") == "no"
-            then
-                reboot("now");
-            endif;
-        else
-            alert(
-                "运行失败",
-                getvar("exec_buffer"),
-                "@crash",
-                "退出"
-            );
-        endif;
-        exit("");
     endif;
 endif;
 

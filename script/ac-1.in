@@ -51,12 +51,14 @@ setvar(
 if cmp(getvar("MAGISK_VER_CODE"), ">", "18100") then
     setvar("mount_switch_flag", "skip");
     setvar("exit_text2", "退出到 Recovery");
-    setvar("shrink_text", "");
+    setvar("shrink_text2", "该选项不可用");
+    setvar("shrink_icon", "@crash");
     setvar("module_remove_text", "");
 else
     setvar("mount_switch_flag", "auto");
     setvar("exit_text2", "取消挂载 /magisk 并退出到 Recovery");
-    setvar("shrink_text", "瘦身 magisk.img");
+    setvar("shrink_text2", "压缩 magisk.img 容量以减少其存储空间占用.\n建议在移除大型模块后使用.");
+    setvar("shrink_icon", "@action");
     setvar("module_remove_text", "立即移除");
     appendvar("sysinfo",
         "magisk.img 空间\t: " + "<b><#selectbg_g>" + getdisksize("/magisk", "m") + " MB" + "</#></b>\n" +
