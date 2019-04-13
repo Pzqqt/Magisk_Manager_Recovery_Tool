@@ -75,11 +75,10 @@ def main():
     print("\nBuilding...")
     file2dir(local_path("script", "ac-1.in"), local_path(), move=True)
     try:
-        with open(local_path("ac-1.in"), "r", encoding="utf-8") as f:
-            ac_text = f.read()
-        with open(local_path("script", "ac-1.in"), "w", encoding="utf-8") as f:
-            f.write(ac_text.replace("@BUILD_VERSION@", build_version)
-                           .replace("@BUILD_DATE@", build_date))
+        with open(local_path("ac-1.in"), "r", encoding="utf-8") as f1:
+            with open(local_path("script", "ac-1.in"), "w", encoding="utf-8", newline="\n") as f2:
+                f2.write(f1.read().replace("@BUILD_VERSION@", build_version)
+                                  .replace("@BUILD_DATE@", build_date))
         archive_file = local_path("MMRT-%s.zip" % build_version)
         remove_path(archive_file)
         with zipfile.ZipFile(archive_file, "w") as zip:
