@@ -228,6 +228,10 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         "保存 recovery 日志", "复制 /tmp/recovery.log 到内部存储", "@action",
         "瘦身 magisk.img", getvar("shrink_text2"), getvar("shrink_icon"),
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
+        "清除 MagiskSU 日志", "", "@action",
+        "移除所有 MagiskSU 授权", "移除所有已保存的应用 MagiskSU 授权", "@action",
+        "拒绝所有 MagiskSU 授权", "拒绝所有已保存的应用 MagiskSU 授权", "@action",
+        "允许所有 MagiskSU 授权", "允许所有已保存的应用 MagiskSU 授权", "@action",
         "返回", "", "@back2"
     );
     if prop("advanced.prop", "selected") == "1" then
@@ -289,6 +293,40 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
             "确定"
         );
         back("1");
+    endif;
+    prop("advanced.prop", "selected") == "4" && setvar("sqlite_command", "clear_su_log");
+    prop("advanced.prop", "selected") == "5" && setvar("sqlite_command", "clear_su_policies");
+    prop("advanced.prop", "selected") == "6" && setvar("sqlite_command", "reject_all_su");
+    prop("advanced.prop", "selected") == "7" && setvar("sqlite_command", "allow_all_su");
+    if cmp(prop("advanced.prop", "selected"), ">=", "4") &&
+       cmp(prop("advanced.prop", "selected"), "<=", "7")
+    then
+        if prop("advanced.prop", "selected") == "5" then
+            if confirm("警告",
+                       "您确定要移除所有 MagiskSU 授权吗?\n此操作不可恢复!",
+                       "@warning") == "no"
+            then
+                back("1");
+            endif;
+        endif;
+        pleasewait("正在执行脚本 ...");
+        if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", getvar("sqlite_command")) == "0" then
+            alert(
+                "成功",
+                "操作完成, 执行过程中没有发生错误.",
+                "@done",
+                "确定"
+            );
+            back("1");
+        else
+            alert(
+                "失败",
+                "执行过程中有错误发生, 请确认.\n\n" + getvar("exec_buffer"),
+                "@crash",
+                "确定"
+            );
+            back("1");
+        endif;
     endif;
 endif;
 
