@@ -228,6 +228,10 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         "Save recovery log", "Copies /tmp/recovery.log to internal SD", "@action",
         "Shrinking magisk.img", getvar("shrink_text2"), getvar("shrink_icon"),
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
+        "Clear MagiskSU logs", "", "@action",
+        "Remove all MagiskSU permissions", "Remove all saved apps MagiskSU permissions", "@action",
+        "Reject all MagiskSU permissions", "Reject all saved apps MagiskSU permissions", "@action",
+        "Allow all MagiskSU permissions", "Allow all saved apps MagiskSU permissions", "@action",
         "Back", "", "@back2"
     );
     if prop("advanced.prop", "selected") == "1" then
@@ -289,6 +293,40 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
             "OK"
         );
         back("1");
+    endif;
+    prop("advanced.prop", "selected") == "4" && setvar("sqlite_command", "clear_su_log");
+    prop("advanced.prop", "selected") == "5" && setvar("sqlite_command", "clear_su_policies");
+    prop("advanced.prop", "selected") == "6" && setvar("sqlite_command", "reject_all_su");
+    prop("advanced.prop", "selected") == "7" && setvar("sqlite_command", "allow_all_su");
+    if cmp(prop("advanced.prop", "selected"), ">=", "4") &&
+       cmp(prop("advanced.prop", "selected"), "<=", "7")
+    then
+        if prop("advanced.prop", "selected") == "5" then
+            if confirm("Warning!",
+                       "Are you sure want to remove all MagiskSU perm?\nThis operation cannot be undone.",
+                       "@warning") == "no"
+            then
+                back("1");
+            endif;
+        endif;
+        pleasewait("Executing Shell...");
+        if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", getvar("sqlite_command")) == "0" then
+            alert(
+                "Done",
+                "Operation completed, no error occurred during execution.",
+                "@done",
+                "OK"
+            );
+            back("1");
+        else
+            alert(
+                "Failed",
+                "An error occurred during execution, please check.\n\n" + getvar("exec_buffer"),
+                "@crash",
+                "OK"
+            );
+            back("1");
+        endif;
     endif;
 endif;
 
