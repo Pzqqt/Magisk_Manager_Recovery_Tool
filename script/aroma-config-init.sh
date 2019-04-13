@@ -226,8 +226,8 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         "advanced.prop",
 
         "Save recovery log", "Copies /tmp/recovery.log to internal SD", "@action",
+        "Shrinking magisk.img", getvar("shrink_text2"), getvar("shrink_icon"),
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
-        getvar("shrink_text"), "Shrinking magisk.img capacity.\nRecommended to use after removing large modules.", "@action",
         "Back", "", "@back2"
     );
     if prop("advanced.prop", "selected") == "1" then
@@ -241,6 +241,38 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         back("1");
     endif;
     if prop("advanced.prop", "selected") == "2" then
+        if cmp(getvar("MAGISK_VER_CODE"), ">", "18100") then
+            back("1");
+        else
+            pleasewait("Executing Shell...");
+            if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
+                alert(
+                    "Done",
+                    getvar("exec_buffer"),
+                    "@done",
+                    "OK"
+                );
+                if confirm(
+                    "Note",
+                    "The magisk image has been unmounted.\n\nThis tool will exit.\nIf you still need to use, please reflash this tool.\n\n",
+                    "@warning",
+                    "Exit to Recovery",
+                    "Reboot") == "no"
+                then
+                    reboot("now");
+                endif;
+            else
+                alert(
+                    "Failed",
+                    getvar("exec_buffer"),
+                    "@crash",
+                    "Exit"
+                );
+            endif;
+            exit("");
+        endif;
+    endif;
+    if prop("advanced.prop", "selected") == "3" then
         if getvar("core_only_mode_code") == "0" then
             if confirm("Warning",
                        "If you enable Magisk core only mode,\nno modules will be load.\nBut MagiskSU and MagiskHide will still be enabled.\nContinue?",
@@ -257,34 +289,6 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
             "OK"
         );
         back("1");
-    endif;
-    if prop("advanced.prop", "selected") == "3" && cmp(getvar("MAGISK_VER_CODE"), "<=", "18100") then
-        pleasewait("Executing Shell...");
-        if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
-            alert(
-                "Done",
-                getvar("exec_buffer"),
-                "@done",
-                "OK"
-            );
-            if confirm(
-                "Note",
-                "The magisk image has been unmounted.\n\nThis tool will exit.\nIf you still need to use, please reflash this tool.\n\n",
-                "@warning",
-                "Exit to Recovery",
-                "Reboot") == "no"
-            then
-                reboot("now");
-            endif;
-        else
-            alert(
-                "Failed",
-                getvar("exec_buffer"),
-                "@crash",
-                "Exit"
-            );
-        endif;
-        exit("");
     endif;
 endif;
 

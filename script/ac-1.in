@@ -51,12 +51,14 @@ setvar(
 if cmp(getvar("MAGISK_VER_CODE"), ">", "18100") then
     setvar("mount_switch_flag", "skip");
     setvar("exit_text2", "Exit to recovery");
-    setvar("shrink_text", "");
+    setvar("shrink_text2", "Not available");
+    setvar("shrink_icon", "@crash");
     setvar("module_remove_text", "");
 else
     setvar("mount_switch_flag", "auto");
     setvar("exit_text2", "Unmount /magisk & exit to recovery");
-    setvar("shrink_text", "Shrinking magisk.img");
+    setvar("shrink_text2", "Shrinking magisk.img capacity.\nRecommended to use after removing large modules.");
+    setvar("shrink_icon", "@action");
     setvar("module_remove_text", "Remove");
     appendvar("sysinfo",
         "magisk.img Size\t: " + "<b><#selectbg_g>" + getdisksize("/magisk", "m") + " MB" + "</#></b>\n" +
