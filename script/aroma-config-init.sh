@@ -173,34 +173,20 @@ then
         );
         back("1");
     endif;
-    if prop("modoperations.prop", "selected") == "3" then
-        write("/tmp/mmr/cmd.sh",
-              "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh switch_module " + getvar("modid") + "\n");
-    endif;
-    if prop("modoperations.prop", "selected") == "4" then
-        write("/tmp/mmr/cmd.sh",
-              "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh switch_" + getvar("mount_switch_flag") + "_mount " + getvar("modid") + "\n");
-    endif;
-    if prop("modoperations.prop", "selected") == "5" then
-        write("/tmp/mmr/cmd.sh",
-              "#!/sbin/sh\n" +
-              "/tmp/mmr/script/control-module.sh switch_remove " + getvar("modid") + "\n");
-    endif;
+    prop("modoperations.prop", "selected") == "3" && setvar("module_operate", "switch_module");
+    prop("modoperations.prop", "selected") == "4" && setvar("module_operate", "switch_" + getvar("mount_switch_flag") + "_mount");
+    prop("modoperations.prop", "selected") == "5" && setvar("module_operate", "switch_remove");
     if prop("modoperations.prop", "selected") == "6" then
         if confirm("警告",
                    "您确定要移除该模块吗? 此操作不可恢复!",
                    "@warning") == "yes"
         then
-            write("/tmp/mmr/cmd.sh",
-                  "#!/sbin/sh\n" +
-                  "/tmp/mmr/script/control-module.sh remove " + getvar("modid") + "\n");
+            setvar("module_operate", "remove");
         else
             back("1");
         endif;
     endif;
-    if exec("/sbin/sh", "/tmp/mmr/cmd.sh") == "0" then
+    if exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", getvar("module_operate"), getvar("modid")) == "0" then
         alert(
             "成功",
             getvar("exec_buffer"),
@@ -294,10 +280,10 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         );
         back("1");
     endif;
-    prop("advanced.prop", "selected") == "4" && setvar("sqlite_command", "clear_su_log");
-    prop("advanced.prop", "selected") == "5" && setvar("sqlite_command", "clear_su_policies");
-    prop("advanced.prop", "selected") == "6" && setvar("sqlite_command", "reject_all_su");
-    prop("advanced.prop", "selected") == "7" && setvar("sqlite_command", "allow_all_su");
+    prop("advanced.prop", "selected") == "4" && setvar("sqlite_operate", "clear_su_log");
+    prop("advanced.prop", "selected") == "5" && setvar("sqlite_operate", "clear_su_policies");
+    prop("advanced.prop", "selected") == "6" && setvar("sqlite_operate", "reject_all_su");
+    prop("advanced.prop", "selected") == "7" && setvar("sqlite_operate", "allow_all_su");
     if cmp(prop("advanced.prop", "selected"), ">=", "4") &&
        cmp(prop("advanced.prop", "selected"), "<=", "7")
     then
@@ -310,7 +296,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
             endif;
         endif;
         pleasewait("正在执行脚本 ...");
-        if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", getvar("sqlite_command")) == "0" then
+        if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", getvar("sqlite_operate")) == "0" then
             alert(
                 "成功",
                 "操作完成, 执行过程中没有发生错误.",
