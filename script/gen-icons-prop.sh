@@ -9,7 +9,7 @@ ls_mount_path() { ls -1 ${workPath} | grep -v 'lost+found'; }
 
 get_useicon() {
     /tmp/mmr/script/control-module.sh status $1
-    # Enable: 1, Disable: 0, Removed: 2, UpdateFlag: 3, RemoveFlag: 4
+    # Enable: 1, Disable: 0, Removed: 2, UpdateFlag: 3, RemoveFlag: 4 or 5
     case $? in
         1) useicon="@default"
         ;;
@@ -20,6 +20,8 @@ get_useicon() {
         3) useicon="@updateflag"
         ;;
         4) useicon="@removeflag"
+        ;;
+        5) useicon="@removeflag"
         ;;
     esac
 }
