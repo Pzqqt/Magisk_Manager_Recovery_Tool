@@ -263,14 +263,6 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         endif;
     endif;
     if prop("advanced.prop", "selected") == "3" then
-        if getvar("core_only_mode_code") == "0" then
-            if confirm("Warning",
-                       "If you enable Magisk core only mode,\nno modules will be load.\nBut MagiskSU and MagiskHide will still be enabled.\nContinue?",
-                       "@warning") == "no"
-            then
-                back("1");
-            endif;
-        endif;
         exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "switch");
         alert(
             "Done",

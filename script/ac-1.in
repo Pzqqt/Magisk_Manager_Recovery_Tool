@@ -91,10 +91,9 @@ setvar("core_only_mode_code", exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "
 if getvar("core_only_mode_code") == "0" then
     setvar("core_only_mode_warning", "");
     setvar("core_only_mode_switch_text", "Enable Magisk core only mode");
-    setvar("core_only_mode_switch_text2", "Block loading all modules");
-endif;
-if getvar("core_only_mode_code") == "1" then
-    setvar("core_only_mode_warning", "\n<#f00>Magisk core only mode is enabled, no modules will be load.</#>");
+    setvar("core_only_mode_switch_text2", "MagiskSU and MagiskHide will still be enabled,\nbut no modules will be load.");
+else
+    setvar("core_only_mode_warning", "\n<#f00>Magisk core only mode is enabled</#>");
     setvar("core_only_mode_switch_text", "Disable Magisk core only mode");
     setvar("core_only_mode_switch_text2", "");
 endif;
