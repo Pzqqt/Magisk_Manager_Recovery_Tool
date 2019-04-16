@@ -69,6 +69,11 @@ else
     ini_set("text_quit_msg", "稍候你可以自行操作 /magisk 目录来操作模块. 此功能仅面向高级用户. 别忘了在重启前取消挂载.");
 endif;
 
+setvar("sort_text2_s1", "按模块 ID 排序");
+setvar("sort_text2_s2", "按模块名称排序");
+setvar("sort_by_name", file_getprop("/sdcard/TWRP/mmrt.prop", "sort_by_name") || "0");
+setvar("sort_text2", iif(getvar("sort_by_name") == "0", getvar("sort_text2_s1"), getvar("sort_text2_s2")));
+
 viewbox(
     "<~welcome.title>",
     "<~welcome.text1> <b>" + ini_get("rom_name") + "</b>.\n\n" + "<~welcome.text2>\n\n\n\n\n" +
@@ -92,8 +97,7 @@ if getvar("core_only_mode_code") == "0" then
     setvar("core_only_mode_warning", "");
     setvar("core_only_mode_switch_text", "启用 Magisk 核心功能模式");
     setvar("core_only_mode_switch_text2", "仅启用核心功能, 所有模块均不会被载入.\n但 MagiskSU 和 MagiskHide 仍然会继续工作.");
-endif;
-if getvar("core_only_mode_code") == "1" then
+else
     setvar("core_only_mode_warning", "\n<#f00>Magisk 核心功能模式已启用</#>");
     setvar("core_only_mode_switch_text", "禁用 Magisk 核心功能模式");
     setvar("core_only_mode_switch_text2", "");

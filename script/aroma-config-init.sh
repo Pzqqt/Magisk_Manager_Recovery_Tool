@@ -1,11 +1,33 @@
 #!/sbin/sh
 
 workPath=/magisk
+settings_save_prop=/sdcard/TWRP/mmrt.prop
 
-ls_mount_path() { ls -1 ${workPath} | sort -f | grep -v 'lost+found'; }
+file_getprop() { grep "^$2=" "$1" | head -n1 | cut -d= -f2; }
+
+ls_mount_path() { ls -1 ${workPath} | grep -v 'lost+found'; }
+
+ls_modules_sort_by_id() { ls_mount_path | sort -f; }
+
+ls_modules_sort_by_name() {
+    local installed_modules_tmp=`ls_mount_path`
+    [ ${#installed_modules_tmp} -eq 0 ] && return
+    local idn_file=/tmp/mmr/modules_idm
+    : > $idn_file
+    for d in $installed_modules_tmp; do
+        echo "$d, "$(file_getprop ${workPath}/${d}/module.prop name) >> $idn_file
+    done
+    sort -k2 -f $idn_file | while read line; do
+        echo ${line%,*}
+    done
+}
 
 gen_aroma_config() {
-    installed_modules=`ls_mount_path`
+    if [ -f $settings_save_prop ] && [ $(file_getprop $settings_save_prop "sort_by_name") -eq 1 ]; then
+        installed_modules=`ls_modules_sort_by_name`
+    else
+        installed_modules=`ls_modules_sort_by_id`
+    fi
     ac_tmp=/tmp/mmr/script/aroma-config
     mv /tmp/mmr/script/ac-1.in $ac_tmp
     if [ ${#installed_modules} -eq 0 ]; then
@@ -218,6 +240,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         "移除所有 MagiskSU 授权", "移除所有已保存的应用 MagiskSU 授权", "@action",
         "拒绝所有 MagiskSU 授权", "拒绝所有已保存的应用 MagiskSU 授权", "@action",
         "允许所有 MagiskSU 授权", "允许所有已保存的应用 MagiskSU 授权", "@action",
+        "选择模块列表排序方式", "当前: " + getvar("sort_text2"), "@action",
         "返回", "", "@back2"
     );
     if prop("advanced.prop", "selected") == "1" then
@@ -305,6 +328,28 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
             );
             back("1");
         endif;
+    endif;
+    if prop("advanced.prop", "selected") == "8" then
+        if confirm(
+            "选择模块列表排序方式",
+            "请选择排序依据:",
+            "@info",
+            getvar("sort_text2_s1"),
+            getvar("sort_text2_s2")) == "yes"
+        then
+            setvar("sort_by_name", "0");
+        else
+            setvar("sort_by_name", "1");
+        endif;
+        exec("/sbin/sh", "/tmp/mmr/script/save-settings.sh", "sort_by_name", getvar("sort_by_name"));
+        alert(
+            "完成",
+            "已设置为" + iif(getvar("sort_by_name") == "0", getvar("sort_text2_s1"), getvar("sort_text2_s2")) +
+            ",\n将在下次使用本工具时生效.",
+            "@done",
+            "确定"
+        );
+        back("1");
     endif;
 endif;
 
