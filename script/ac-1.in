@@ -69,6 +69,11 @@ else
     ini_set("text_quit_msg", "You can operate the module by operating the /magisk directory later. Only for advanced users. Do NOT forget to unmount /magisk.");
 endif;
 
+setvar("sort_text2_s1", "by module ID");
+setvar("sort_text2_s2", "by module name");
+setvar("sort_by_name", file_getprop("/sdcard/TWRP/mmrt.prop", "sort_by_name") || "0");
+setvar("sort_text2", iif(getvar("sort_by_name") == "0", getvar("sort_text2_s1"), getvar("sort_text2_s2")));
+
 viewbox(
     "<~welcome.title>",
     "<~welcome.text1> <b>" + ini_get("rom_name") + "</b>.\n\n" + "<~welcome.text2>\n\n\n\n" +
