@@ -9,9 +9,9 @@ mkdir -p ${save_prop%/*}
 touch $save_prop
 
 [ -n $key ] && [ -n $value ] && {
-    if [ $(cat $save_prop | grep -c "${key}=") -eq 0 ]; then
+    if [ $(cat $save_prop | grep -c "^${key}=") -eq 0 ]; then
         echo "${key}=${value}" >> $save_prop
     else
-        sed -i "/${key}=/c${key}=${value}" $save_prop
+        sed -i "/^${key}=/c${key}=${value}" $save_prop
     fi
 }

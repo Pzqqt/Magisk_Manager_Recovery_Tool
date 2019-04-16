@@ -34,5 +34,5 @@ if ! [ -f $dst_prop_file ]; then
     done
 elif ! [ -z $update_icon_module ]; then
     get_useicon $update_icon_module
-    sed -i "/module\.icon\.${update_icon_module}/c\module\.icon\.${update_icon_module}=${useicon}" $dst_prop_file
+    sed -i "/^module\.icon\.${update_icon_module}=/cmodule\.icon\.${update_icon_module}=${useicon}" $dst_prop_file
 fi
