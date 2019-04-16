@@ -241,6 +241,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         "拒绝所有 MagiskSU 授权", "拒绝所有已保存的应用 MagiskSU 授权", "@action",
         "允许所有 MagiskSU 授权", "允许所有已保存的应用 MagiskSU 授权", "@action",
         "选择模块列表排序方式", "当前: " + getvar("sort_text2"), "@action",
+        "调试选项", "", "@action",
         "返回", "", "@back2"
     );
     if prop("advanced.prop", "selected") == "1" then
@@ -350,6 +351,18 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
             "确定"
         );
         back("1");
+    endif;
+    if prop("advanced.prop", "selected") == "9" then
+        menubox(
+            "调试选项",
+            "请选择操作",
+            "@alert",
+            "debug.prop",
+
+            "重建模块图标索引文件", "", "@action",
+            "返回", "", "@back2"
+        );
+        prop("debug.prop", "selected") == "1" && exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh", "_", "true");
     endif;
 endif;
 
