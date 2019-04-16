@@ -263,14 +263,6 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         endif;
     endif;
     if prop("advanced.prop", "selected") == "3" then
-        if getvar("core_only_mode_code") == "0" then
-            if confirm("警告",
-                       "启用 Magisk 核心模式后, 所有模块均不会被载入.\n但 MagiskSU 和 MagiskHide 仍然会继续工作.\n您确定要继续吗?",
-                       "@warning") == "no"
-            then
-                back("1");
-            endif;
-        endif;
         exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "switch");
         alert(
             "完成",

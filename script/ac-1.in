@@ -90,12 +90,12 @@ setvar("core_only_mode_code", exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "
 
 if getvar("core_only_mode_code") == "0" then
     setvar("core_only_mode_warning", "");
-    setvar("core_only_mode_switch_text", "启用 Magisk 核心模式");
-    setvar("core_only_mode_switch_text2", "阻止载入所有模块");
+    setvar("core_only_mode_switch_text", "启用 Magisk 核心功能模式");
+    setvar("core_only_mode_switch_text2", "仅启用核心功能, 所有模块均不会被载入.\n但 MagiskSU 和 MagiskHide 仍然会继续工作.");
 endif;
 if getvar("core_only_mode_code") == "1" then
-    setvar("core_only_mode_warning", "\n<#f00>Magisk 核心模式已启用, 所有模块均不会被载入.</#>");
-    setvar("core_only_mode_switch_text", "禁用 Magisk 核心模式");
+    setvar("core_only_mode_warning", "\n<#f00>Magisk 核心功能模式已启用</#>");
+    setvar("core_only_mode_switch_text", "禁用 Magisk 核心功能模式");
     setvar("core_only_mode_switch_text2", "");
 endif;
 
