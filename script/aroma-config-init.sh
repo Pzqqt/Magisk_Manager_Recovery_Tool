@@ -2,7 +2,7 @@
 
 workPath=/magisk
 
-ls_mount_path() { ls -1 ${workPath} | grep -v 'lost+found'; }
+ls_mount_path() { ls -1 ${workPath} | sort -f | grep -v 'lost+found'; }
 
 gen_aroma_config() {
     installed_modules=`ls_mount_path`
