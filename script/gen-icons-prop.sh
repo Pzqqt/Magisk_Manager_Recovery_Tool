@@ -1,6 +1,7 @@
 #!/sbin/sh
 
 update_icon_module=$1
+force_update_all=$2
 
 workPath=/magisk
 dst_prop_file=/tmp/aroma/module_icon.prop
@@ -26,13 +27,13 @@ get_useicon() {
     esac
 }
 
-if ! [ -f $dst_prop_file ]; then
-    touch $dst_prop_file
+if (! [ -f $dst_prop_file ]) || [ "$force_update_all" = true ]; then
+    : > $dst_prop_file
     for module in `ls_mount_path`; do
         get_useicon $module
         echo "module.icon.${module}=${useicon}" >> $dst_prop_file
     done
-elif ! [ -z $update_icon_module ]; then
+elif ! [ -z "$update_icon_module" ]; then
     get_useicon $update_icon_module
     sed -i "/^module\.icon\.${update_icon_module}=/cmodule\.icon\.${update_icon_module}=${useicon}" $dst_prop_file
 fi

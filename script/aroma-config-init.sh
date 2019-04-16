@@ -241,6 +241,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         "Reject all MagiskSU permissions", "Reject all saved apps MagiskSU permissions", "@action",
         "Allow all MagiskSU permissions", "Allow all saved apps MagiskSU permissions", "@action",
         "Select module list sorting method", "Current: " + getvar("sort_text2"), "@action",
+        "Debug options", "", "@action",
         "Back", "", "@back2"
     );
     if prop("advanced.prop", "selected") == "1" then
@@ -350,6 +351,18 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
             "OK"
         );
         back("1");
+    endif;
+    if prop("advanced.prop", "selected") == "9" then
+        menubox(
+            "Debug options",
+            "Choose an action",
+            "@alert",
+            "debug.prop",
+
+            "Force update module_icon.prop", "Regenerate module icon index file", "@action",
+            "Back", "", "@back2"
+        );
+        prop("debug.prop", "selected") == "1" && exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh", "_", "true");
     endif;
 endif;
 
