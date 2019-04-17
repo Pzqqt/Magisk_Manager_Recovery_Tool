@@ -11,29 +11,23 @@ ls_modules_sort_by_id() { ls_mount_path | sort -f; }
 
 ls_modules_sort_by_name() {
     local installed_modules_tmp=`ls_mount_path`
-    [ ${#installed_modules_tmp} -eq 0 ] && return
-    local idn_file=/tmp/mmr/modules_idm
-    : > $idn_file
-    for d in $installed_modules_tmp; do
-        echo "$d, "$(file_getprop ${workPath}/${d}/module.prop name) >> $idn_file
-    done
-    sort -k2 -f $idn_file | while read line; do
-        echo ${line%,*}
-    done
+    [ -z "$installed_modules_tmp" ] && return
+    for d in $installed_modules_tmp; do echo "$d, "$(file_getprop ${workPath}/${d}/module.prop name); done | \
+    sort -k2 -f | while read line; do echo ${line%,*}; done
 }
 
 gen_aroma_config() {
+    ac_tmp=/tmp/mmr/template/META-INF/com/google/android/aroma-config
+    mv /tmp/mmr/script/ac-1.in $ac_tmp
     if [ -f $settings_save_prop ] && [ $(file_getprop $settings_save_prop "sort_by_name") -eq 1 ]; then
         installed_modules=`ls_modules_sort_by_name`
     else
         installed_modules=`ls_modules_sort_by_id`
     fi
-    ac_tmp=/tmp/mmr/script/aroma-config
-    mv /tmp/mmr/script/ac-1.in $ac_tmp
-    if [ ${#installed_modules} -eq 0 ]; then
+    if [ -z "$installed_modules" ]; then
         echo "    \"如果你看到了此选项\", \"说明你尚未安装任何 Magisk 模块...\", \"@what\"," >> $ac_tmp
     else
-        for module in ${installed_modules}; do
+        for module in $installed_modules; do
             echo "    file_getprop(\"${workPath}/${module}/module.prop\", \"name\") || \"(未提供信息)\"," >> $ac_tmp
             echo "    \"<i><b>\" + (file_getprop(\"${workPath}/${module}/module.prop\", \"version\") || \"(未提供信息)\") +" >> $ac_tmp
             echo "    \"\n作者: \" + (file_getprop(\"${workPath}/${module}/module.prop\", \"author\") || \"(未提供信息)\") + \"</b></i>\"," >> $ac_tmp
@@ -69,11 +63,11 @@ if prop("operations.prop", "selected") == "2" then
 endif;
 
 EOF
-    if [ ${#installed_modules} -eq 0 ]; then
+    if [ -z "$installed_modules" ]; then
         i=3
     else
         i=2
-        for module in ${installed_modules}; do
+        for module in $installed_modules; do
             let i+=1
             echo "if prop(\"operations.prop\", \"selected\") == \"$i\" then" >> $ac_tmp
             echo "    setvar(\"modid\", \"$module\");" >> $ac_tmp
@@ -231,7 +225,7 @@ then
     prop("modoperations.prop", "selected") != "6" && back("1");
 endif;
 
-if prop("operations.prop", "selected") == cal("$i", "+", "1") then
+if prop("operations.prop", "selected") == "$(expr $i + 1)" then
     menubox(
         "高级功能",
         "请选择操作" + getvar("core_only_mode_warning"),
@@ -335,7 +329,6 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
                 "@done",
                 "确定"
             );
-            back("1");
         else
             alert(
                 "失败",
@@ -343,8 +336,8 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
                 "@crash",
                 "确定"
             );
-            back("1");
         endif;
+        back("1");
     endif;
     if prop("advanced.prop", "selected") == "5" then
         if confirm(
@@ -399,7 +392,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         else
             alert(
                 "卸载失败",
-                "很抱歉, 本工具没能成功卸载 Magisk.\n\n请尝试开机后从 Magisk Manager 中卸载.",
+                "很抱歉, 本工具未能成功卸载 Magisk.\n\n请尝试开机后从 Magisk Manager 中卸载.",
                 "@crash",
                 "退出"
             );

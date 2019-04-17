@@ -8,11 +8,6 @@ sqlite3_exec=""
 
 is_mounted() { mountpoint -q $1; }
 
-abort() {
-    echo -e "$1"
-    exit 1
-}
-
 # find available sqlite3
 find_sqlite3() {
     is_mounted /system || mount -o ro /system
@@ -26,7 +21,12 @@ find_sqlite3() {
         done
     }
     [ -n "$sqlite3_exec" ] && $sqlite3_exec --version || {
-        ps | grep "magiskd" | grep -qv "grep" || $magiskbin_path --daemon || abort "\nCannot found available sqlite3!"
+        ps | grep "magiskd" | grep -qv "grep" || {
+            $magiskbin_path --daemon || {
+                echo -e "\nCannot found available sqlite3!"
+                exit 1
+            }
+        }
         sqlite3_exec="$magiskbin_path --sqlite"
         sqlite_path=""
     }
