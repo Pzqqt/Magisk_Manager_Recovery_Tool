@@ -1,0 +1,17 @@
+#!/sbin/sh
+
+# Uninstall Magisk
+
+set -e
+
+interface="${1}"
+updater_fd="${2}"
+zipfile="${3}"
+
+tmp_dir=/tmp/magisk_uninstaller
+uninstaller_zip=/tmp/mmr/script/Magisk-uninstaller-20190328.zip
+mkdir -p $tmp_dir
+test -f $uninstaller_zip
+unzip $uninstaller_zip -d $tmp_dir
+
+exec ${tmp_dir}/META-INF/com/google/android/update-binary "${interface}" "${updater_fd}" $uninstaller_zip

@@ -240,6 +240,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
         "超级用户", "", "@action",
         "选择模块列表排序方式", "当前: " + getvar("sort_text2"), "@action",
+        "卸载 Magisk", "Root 权限将从设备中完全移除", "@action",
         "调试选项", "", "@action",
         "返回", "", "@back2"
     );
@@ -364,6 +365,44 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         back("1");
     endif;
     if prop("advanced.prop", "selected") == "6" then
+        if confirm(
+            "警告",
+            "您确定要卸载 Magisk 吗?\n\n所有模块将停用或删除, Root 会被移除.\n未加密的设备重启时可能会被进行加密.",
+            "@warning",
+            "确定卸载",
+            "点错了不好意思") == "no"
+        then
+            back("1");
+        endif;
+        setvar("uninstall_exitcode",
+            install(
+                "卸载 Magisk",
+                "正在卸载 Magisk, 请稍候...",
+                "@welcome",
+                "点击下一步以继续..."
+            )
+        );
+        if getvar("uninstall_exitcode") == "0" then
+            if confirm(
+                "卸载完成",
+                "已成功卸载 Magisk.",
+                "@warning",
+                "退出到 Recovery",
+                "重启设备") == "no"
+            then
+                reboot("onfinish");
+            endif;
+        else
+            alert(
+                "卸载失败",
+                "很抱歉, 本工具没能成功卸载 Magisk.\n\n请尝试开机后从 Magisk Manager 中卸载.",
+                "@crash",
+                "退出"
+            );
+        endif;
+        exit("");
+    endif;
+    if prop("advanced.prop", "selected") == "7" then
         menubox(
             "调试选项",
             "请选择操作",
