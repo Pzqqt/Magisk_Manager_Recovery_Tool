@@ -304,7 +304,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
     if prop("advanced.prop", "selected") == "4" then
         menubox(
             "超级用户",
-            "请选择操作",
+            "请选择操作" + getvar("core_only_mode_warning"),
             "@welcome",
             "magisksu.prop",
             "清除 MagiskSU 日志", "", "@action",
