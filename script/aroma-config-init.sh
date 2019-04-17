@@ -236,10 +236,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         "Save recovery log", "Copies /tmp/recovery.log to internal SD", "@action",
         "Shrinking magisk.img", getvar("shrink_text2"), getvar("shrink_icon"),
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
-        "Clear MagiskSU logs", "", "@action",
-        "Remove all MagiskSU permissions", "Remove all saved apps MagiskSU permissions", "@action",
-        "Reject all MagiskSU permissions", "Reject all saved apps MagiskSU permissions", "@action",
-        "Allow all MagiskSU permissions", "Allow all saved apps MagiskSU permissions", "@action",
+        "Superuser", "", "@action",
         "Select module list sorting method", "Current: " + getvar("sort_text2"), "@action",
         "Debug options", "", "@action",
         "Back", "", "@back2"
@@ -296,14 +293,24 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         );
         back("1");
     endif;
-    prop("advanced.prop", "selected") == "4" && setvar("sqlite_operate", "clear_su_log");
-    prop("advanced.prop", "selected") == "5" && setvar("sqlite_operate", "clear_su_policies");
-    prop("advanced.prop", "selected") == "6" && setvar("sqlite_operate", "reject_all_su");
-    prop("advanced.prop", "selected") == "7" && setvar("sqlite_operate", "allow_all_su");
-    if cmp(prop("advanced.prop", "selected"), ">=", "4") &&
-       cmp(prop("advanced.prop", "selected"), "<=", "7")
-    then
-        if prop("advanced.prop", "selected") == "5" then
+    if prop("advanced.prop", "selected") == "4" then
+        menubox(
+            "Superuser",
+            "Choose an action",
+            "@welcome",
+            "magisksu.prop",
+            "Clear MagiskSU logs", "", "@action",
+            "Remove all MagiskSU permissions", "Remove all saved apps MagiskSU permissions", "@action",
+            "Reject all MagiskSU permissions", "Reject all saved apps MagiskSU permissions", "@action",
+            "Allow all MagiskSU permissions", "Allow all saved apps MagiskSU permissions", "@action",
+            "Back", "", "@back2"
+        );
+        prop("magisksu.prop", "selected") == "1" && setvar("sqlite_operate", "clear_su_log");
+        prop("magisksu.prop", "selected") == "2" && setvar("sqlite_operate", "clear_su_policies");
+        prop("magisksu.prop", "selected") == "3" && setvar("sqlite_operate", "reject_all_su");
+        prop("magisksu.prop", "selected") == "4" && setvar("sqlite_operate", "allow_all_su");
+        prop("magisksu.prop", "selected") == "5" && back("2");
+        if prop("magisksu.prop", "selected") == "2" then
             if confirm("Warning!",
                        "Are you sure want to remove all MagiskSU perm?\nThis operation cannot be undone.",
                        "@warning") == "no"
@@ -330,7 +337,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
             back("1");
         endif;
     endif;
-    if prop("advanced.prop", "selected") == "8" then
+    if prop("advanced.prop", "selected") == "5" then
         if confirm(
             "Select module list sorting method",
             "Please select sorting method:",
@@ -352,7 +359,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         );
         back("1");
     endif;
-    if prop("advanced.prop", "selected") == "9" then
+    if prop("advanced.prop", "selected") == "6" then
         menubox(
             "Debug options",
             "Choose an action",
