@@ -236,10 +236,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         "保存 recovery 日志", "复制 /tmp/recovery.log 到内部存储", "@action",
         "瘦身 magisk.img", getvar("shrink_text2"), getvar("shrink_icon"),
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
-        "清除 MagiskSU 日志", "", "@action",
-        "移除所有 MagiskSU 授权", "移除所有已保存的应用 MagiskSU 授权", "@action",
-        "拒绝所有 MagiskSU 授权", "拒绝所有已保存的应用 MagiskSU 授权", "@action",
-        "允许所有 MagiskSU 授权", "允许所有已保存的应用 MagiskSU 授权", "@action",
+        "超级用户", "", "@action",
         "选择模块列表排序方式", "当前: " + getvar("sort_text2"), "@action",
         "调试选项", "", "@action",
         "返回", "", "@back2"
@@ -296,14 +293,24 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         );
         back("1");
     endif;
-    prop("advanced.prop", "selected") == "4" && setvar("sqlite_operate", "clear_su_log");
-    prop("advanced.prop", "selected") == "5" && setvar("sqlite_operate", "clear_su_policies");
-    prop("advanced.prop", "selected") == "6" && setvar("sqlite_operate", "reject_all_su");
-    prop("advanced.prop", "selected") == "7" && setvar("sqlite_operate", "allow_all_su");
-    if cmp(prop("advanced.prop", "selected"), ">=", "4") &&
-       cmp(prop("advanced.prop", "selected"), "<=", "7")
-    then
-        if prop("advanced.prop", "selected") == "5" then
+    if prop("advanced.prop", "selected") == "4" then
+        menubox(
+            "超级用户",
+            "请选择操作",
+            "@welcome",
+            "magisksu.prop",
+            "清除 MagiskSU 日志", "", "@action",
+            "移除所有 MagiskSU 授权", "移除所有已保存的应用 MagiskSU 授权", "@action",
+            "拒绝所有 MagiskSU 授权", "拒绝所有已保存的应用 MagiskSU 授权", "@action",
+            "允许所有 MagiskSU 授权", "允许所有已保存的应用 MagiskSU 授权", "@action",
+            "返回", "", "@back2"
+        );
+        prop("magisksu.prop", "selected") == "1" && setvar("sqlite_operate", "clear_su_log");
+        prop("magisksu.prop", "selected") == "2" && setvar("sqlite_operate", "clear_su_policies");
+        prop("magisksu.prop", "selected") == "3" && setvar("sqlite_operate", "reject_all_su");
+        prop("magisksu.prop", "selected") == "4" && setvar("sqlite_operate", "allow_all_su");
+        prop("magisksu.prop", "selected") == "5" && back("2");
+        if prop("magisksu.prop", "selected") == "2" then
             if confirm("警告",
                        "您确定要移除所有 MagiskSU 授权吗?\n此操作不可恢复!",
                        "@warning") == "no"
@@ -330,7 +337,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
             back("1");
         endif;
     endif;
-    if prop("advanced.prop", "selected") == "8" then
+    if prop("advanced.prop", "selected") == "5" then
         if confirm(
             "选择模块列表排序方式",
             "请选择排序依据:",
@@ -352,7 +359,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         );
         back("1");
     endif;
-    if prop("advanced.prop", "selected") == "9" then
+    if prop("advanced.prop", "selected") == "6" then
         menubox(
             "调试选项",
             "请选择操作",
