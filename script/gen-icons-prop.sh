@@ -27,7 +27,7 @@ get_useicon() {
     esac
 }
 
-if (! [ -f $dst_prop_file ]) || [ "$force_update_all" = true ]; then
+if (! [ -f $dst_prop_file ]) || [[ $force_update_all = "true" ]]; then
     : > $dst_prop_file
     for module in `ls_mount_path`; do
         get_useicon $module
