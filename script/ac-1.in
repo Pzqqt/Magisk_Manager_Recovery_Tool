@@ -74,6 +74,10 @@ setvar("sort_text2_s2", "by module name");
 setvar("sort_by_name", file_getprop("/sdcard/TWRP/mmrt.prop", "sort_by_name") || "0");
 setvar("sort_text2", iif(getvar("sort_by_name") == "0", getvar("sort_text2_s1"), getvar("sort_text2_s2")));
 
+setvar("geek_mode", file_getprop("/sdcard/TWRP/mmrt.prop", "geek_mode") || "0");
+setvar("geek_text", iif(getvar("geek_mode") == "0", "Enable Geek mode", "Disable Geek mode"));
+setvar("geek_text2", iif(getvar("geek_mode") == "0", "Disable a lot of unnecessary \"operational success\" dialog", ""));
+
 viewbox(
     "<~welcome.title>",
     "<~welcome.text1> <b>" + ini_get("rom_name") + "</b>.\n\n" + "<~welcome.text2>\n\n\n\n" +
