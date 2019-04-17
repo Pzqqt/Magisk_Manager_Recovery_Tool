@@ -84,5 +84,6 @@ cd /tmp/mmr/template
 
 cd /tmp/mmr/
 ui_print "OK. Now starting AROMA"
-chmod 755 ./template/META-INF/com/google/android/update-binary
+chmod 0755 ./template/META-INF/com/google/android/update-binary
+chmod 0755 ./template/META-INF/com/google/android/update-binary-installer
 exec ./template/META-INF/com/google/android/update-binary "${interface}" "${updater_fd}" ./aroma.zip

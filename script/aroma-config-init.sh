@@ -240,6 +240,7 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
         "Superuser", "", "@action",
         "Select module list sorting method", "Current: " + getvar("sort_text2"), "@action",
+        "Uninstall Magisk", "Root will be fully removed from the device.", "@action",
         "Debug options", "", "@action",
         "Back", "", "@back2"
     );
@@ -364,6 +365,44 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         back("1");
     endif;
     if prop("advanced.prop", "selected") == "6" then
+        if confirm(
+            "Warning!",
+            "Are you sure want to uninstall Magisk?\n\nAll modules will be disabled/removed.\nRoot will be removed. and your data\npotentially encrypted if not already.",
+            "@warning",
+            "I'm sure",
+            "Give up") == "no"
+        then
+            back("1");
+        endif;
+        setvar("uninstall_exitcode",
+            install(
+                "Uninstall Magisk",
+                "Uninstalling Magisk, please wait...",
+                "@welcome",
+                "Press Next to continue..."
+            )
+        );
+        if getvar("uninstall_exitcode") == "0" then
+            if confirm(
+                "Uninstall completed",
+                "Magisk has been successfully uninstalled.",
+                "@warning",
+                "Exit to Recovery",
+                "Reboot") == "no"
+            then
+                reboot("onfinish");
+            endif;
+        else
+            alert(
+                "Uninstall failed",
+                "Sorry, we were unable to uninstall Magisk successfully.\n\nPlease try uninstalling from Magisk Manager after booting device.",
+                "@crash",
+                "Exit"
+            );
+        endif;
+        exit("");
+    endif;
+    if prop("advanced.prop", "selected") == "7" then
         menubox(
             "Debug options",
             "Choose an action",
