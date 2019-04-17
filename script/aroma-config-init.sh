@@ -46,9 +46,10 @@ gen_aroma_config() {
 
 # Reboot
 if prop("operations.prop", "selected") == "1" then
-    if confirm("重启",
-               "您确定要重启设备吗?",
-               "@warning") == "yes"
+    if confirm(
+        "重启",
+        "您确定要重启设备吗?",
+        "@warning") == "yes"
     then
         exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
         reboot("now");
@@ -57,9 +58,10 @@ endif;
 
 # Exit
 if prop("operations.prop", "selected") == "2" then
-    if confirm("退出",
-               "您确定要退出 Magisk Manager Recovery 工具吗?",
-               "@warning") == "yes"
+    if confirm(
+        "退出",
+        "您确定要退出 Magisk Manager Recovery 工具吗?",
+        "@warning") == "yes"
     then
         exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
         exit("");
@@ -199,9 +201,10 @@ then
     prop("modoperations.prop", "selected") == "4" && setvar("module_operate", "switch_" + getvar("mount_switch_flag") + "_mount");
     prop("modoperations.prop", "selected") == "5" && setvar("module_operate", "switch_remove");
     if prop("modoperations.prop", "selected") == "6" then
-        if confirm("警告",
-                   "您确定要移除该模块吗? 此操作不可恢复!",
-                   "@warning") == "yes"
+        if confirm(
+            "警告",
+            "您确定要移除该模块吗? 此操作不可恢复!",
+            "@warning") == "yes"
         then
             setvar("module_operate", "remove");
         else
@@ -316,9 +319,10 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         prop("magisksu.prop", "selected") == "4" && setvar("sqlite_operate", "allow_all_su");
         prop("magisksu.prop", "selected") == "5" && back("2");
         if prop("magisksu.prop", "selected") == "2" then
-            if confirm("警告",
-                       "您确定要移除所有 MagiskSU 授权吗?\n此操作不可恢复!",
-                       "@warning") == "no"
+            if confirm(
+                "警告",
+                "您确定要移除所有 MagiskSU 授权吗?\n此操作不可恢复!",
+                "@warning") == "no"
             then
                 back("1");
             endif;
