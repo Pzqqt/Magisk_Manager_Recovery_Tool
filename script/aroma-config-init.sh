@@ -46,9 +46,10 @@ gen_aroma_config() {
 
 # Reboot
 if prop("operations.prop", "selected") == "1" then
-    if confirm("Reboot",
-               "Are you sure want to reboot your device?",
-               "@warning") == "yes"
+    if confirm(
+        "Reboot",
+        "Are you sure want to reboot your device?",
+        "@warning") == "yes"
     then
         exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
         reboot("now");
@@ -57,9 +58,10 @@ endif;
 
 # Exit
 if prop("operations.prop", "selected") == "2" then
-    if confirm("Exit",
-               "Are you sure to quit Magisk Manager Recovery Tool?",
-               "@warning") == "yes"
+    if confirm(
+        "Exit",
+        "Are you sure to quit Magisk Manager Recovery Tool?",
+        "@warning") == "yes"
     then
         exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
         exit("");
@@ -199,9 +201,10 @@ then
     prop("modoperations.prop", "selected") == "4" && setvar("module_operate", "switch_" + getvar("mount_switch_flag") + "_mount");
     prop("modoperations.prop", "selected") == "5" && setvar("module_operate", "switch_remove");
     if prop("modoperations.prop", "selected") == "6" then
-        if confirm("Warning!",
-                   "Are you sure want to remove this module?",
-                   "@warning") == "yes"
+        if confirm(
+            "Warning!",
+            "Are you sure want to remove this module?",
+            "@warning") == "yes"
         then
             setvar("module_operate", "remove");
         else
@@ -316,9 +319,10 @@ if prop("operations.prop", "selected") == cal("$i", "+", "1") then
         prop("magisksu.prop", "selected") == "4" && setvar("sqlite_operate", "allow_all_su");
         prop("magisksu.prop", "selected") == "5" && back("2");
         if prop("magisksu.prop", "selected") == "2" then
-            if confirm("Warning!",
-                       "Are you sure want to remove all MagiskSU perm?\nThis operation cannot be undone.",
-                       "@warning") == "no"
+            if confirm(
+                "Warning!",
+                "Are you sure want to remove all MagiskSU perm?\nThis operation cannot be undone.",
+                "@warning") == "no"
             then
                 back("1");
             endif;
