@@ -9,7 +9,7 @@ updater_fd="${2}"
 zipfile="${3}"
 
 tmp_dir=/tmp/magisk_uninstaller
-uninstaller_zip=/tmp/mmr/script/Magisk-uninstaller-20190328.zip
+uninstaller_zip=/tmp/mmr/template/Magisk-uninstaller-20190328.zip
 
 mkdir -p $tmp_dir
 test -f $uninstaller_zip
