@@ -17,8 +17,8 @@ file_getprop() { grep "^$2=" "$1" | head -n1 | cut -d= -f2; }
     if ! [ -f $num_uid_prop ]; then
         touch $num_uid_prop
         i=1
-        for un in `/tmp/mmr/script/control-sqlite.sh get_saved_package_name_uid | sed 's/|/=/g' | sort`; do
-            echo "item.0.${i}=${un#*=}" >> $num_uid_prop
+        for pu in `/tmp/mmr/script/control-sqlite.sh get_saved_package_name_uid | sed 's/|/=/g' | sort`; do
+            echo "item.0.${i}=${pu#*=}" >> $num_uid_prop
             let i+=1
         done
     fi

@@ -24,6 +24,18 @@ gen_aroma_config() {
     else
         installed_modules=`ls_modules_sort_by_id`
     fi
+    cat >> $ac_tmp <<EOF
+menubox(
+    "Main menu",
+    "Choose an action" +
+    "\nYou have installed $(ls_mount_path | wc -l) module(s), Total size: $(du -sh ${workPath}/ | awk '{print $1}')" +
+    getvar("core_only_mode_warning"),
+    "@welcome",
+    "operations.prop",
+
+    "Reboot", "Reboot your device", "@refresh",
+    "Exit", getvar("exit_text2"), "@back2",
+EOF
     if [ -z "$installed_modules" ]; then
         echo "    \"If you see this option\", \"You have not installed any Magisk modules...\", \"@what\"," >> $ac_tmp
     else
@@ -301,12 +313,13 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
             "Choose an action" + getvar("core_only_mode_warning"),
             "@welcome",
             "magisksu.prop",
+
             "Clear MagiskSU logs", "", "@action",
-            "Superuser rights manage", "", "@action",
+            "Root manager", "", "@action",
             "Back", "", "@back2"
         );
         prop("magisksu.prop", "selected") == "3" && back("2");
-        if getvar("sqlite_able") == "0" then
+        if getvar("sqlite3_path") == "" then
             alert(
                 "Not available",
                 "Sorry,\nThis option is not available\nbecause we cannot find available sqlite3 programs\nfrom your device.",
@@ -337,15 +350,20 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
             pleasewait("Generating list...");
             exec("/sbin/sh", "/tmp/mmr/script/control-suapps.sh");
             checkbox(
-                "Superuser rights manage",
-                "Check the box to grant superuser rights, otherwise denied.\n" +
-                "If the list below is empty, you have not given rights for any app.",
+                "Root manager",
+                "Check the box to grant superuser rights, otherwise denied.",
                 "@welcome",
                 "magisksu_apps.prop",
+
 EOF
-    for pp in `/tmp/mmr/script/control-sqlite.sh get_saved_package_name_policy | sed 's/|/=/g' | sort`; do
-        echo "                \"${pp%=*}\", \"\", 0," >> $ac_tmp
-    done
+    pps=`/tmp/mmr/script/control-sqlite.sh get_saved_package_name_policy | sed 's/|/=/g' | sort`
+    if [ -z "$pps" ]; then
+        echo "\"Seem you have not given rights for any app\",\"\", 2," >> $ac_tmp
+    else
+        for pp in $pps; do
+            echo "                \"${pp%=*}\", \"\", 0," >> $ac_tmp
+        done
+    fi
     cat >> $ac_tmp <<EOF
                 "", "", 3
             );
@@ -428,6 +446,7 @@ EOF
                 "Exit"
             );
         endif;
+        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
         exit("");
     endif;
     if prop("advanced.prop", "selected") == "7" then

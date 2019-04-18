@@ -43,7 +43,7 @@ setvar(
     "Device Name\t\t: "    + "<b><#selectbg_g>" + sysprop("ro.product.device")          + "</#></b>\n"   +
     "Board Name\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.board")           + "</#></b>\n"   +
     "Manufacturer\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.manufacturer")    + "</#></b>\n"   +
-    "\n" +
+    "\n<@center><b>Other info:</b></@>\n\n" +
     "Magisk Version\t: " + "<b><#selectbg_g>" + getvar("MAGISK_VER") + "</#></b>\n" +
     "Version Code\t\t: " + "<b><#selectbg_g>" + getvar("MAGISK_VER_CODE") + "</#></b>\n\n"
 );
@@ -60,16 +60,14 @@ else
     setvar("shrink_text2", "Shrinking magisk.img capacity.\nRecommended to use after removing large modules.");
     setvar("shrink_icon", "@action");
     setvar("module_remove_text", "Remove");
-    appendvar("sysinfo",
-        "magisk.img Size\t: " + "<b><#selectbg_g>" + getdisksize("/magisk", "m") + " MB" + "</#></b>\n" +
-        "\tUsed\t\t\t: " + "<b><#selectbg_g>" + cal(getdisksize("/magisk", "m"), "-", getdiskfree("/magisk", "m")) +" MB" +
-        " (" + getdiskusedpercent("/magisk") + "%)" + "</#></b>\n"
-    );
     ini_set("text_quit", "Quit without unmount /magisk");
     ini_set("text_quit_msg", "You can operate the module by operating the /magisk directory later. Only for advanced users. Do NOT forget to unmount /magisk.");
 endif;
 
-setvar("sqlite_able", iif(exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh") == "2", "0", "1"));
+setvar("sqlite3_path", iif(exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_sqlite3_path") == "2", "", getvar("exec_buffer")));
+appendvar("sysinfo",
+    "sqlite3 Path\t\t: <b><#selectbg_g>" + iif(getvar("sqlite3_path") == "", "cannot find available sqlite3", getvar("sqlite3_path")) + "</#></b>\n"
+);
 
 setvar("sort_text2_s1", "by module ID");
 setvar("sort_text2_s2", "by module name");
@@ -82,8 +80,9 @@ setvar("geek_text2", iif(getvar("geek_mode") == "0", "Disable a lot of unnecessa
 
 viewbox(
     "<~welcome.title>",
-    "<~welcome.text1> <b>" + ini_get("rom_name") + "</b>.\n\n" + "<~welcome.text2>\n\n\n\n" +
-
+    "<~welcome.text1> <b>" + ini_get("rom_name") + "</b>.\n\n" + 
+    "You can manage almost everything in Magisk with this tool. " +
+    "You can manage installed modules, enable/disable core only mode, and even manage Root rights.\n\n\n" +
     "  <~welcome.version>\t\t\t: " + "<b><#selectbg_g>" + ini_get("rom_version") + "</#></b>\n" +
     "  <~welcome.updated>\t\t: " + "<b><#selectbg_g>" + ini_get("rom_date") + "</#></b>\n\n\n" +
 
@@ -104,16 +103,7 @@ if getvar("core_only_mode_code") == "0" then
     setvar("core_only_mode_switch_text", "Enable Magisk core only mode");
     setvar("core_only_mode_switch_text2", "MagiskSU and MagiskHide will still be enabled,\nbut no modules will be load.");
 else
-    setvar("core_only_mode_warning", "\n<#f00>Magisk core only mode is enabled</#>");
+    setvar("core_only_mode_warning", "\n<#f00>Warning: Magisk core only mode is enabled</#>");
     setvar("core_only_mode_switch_text", "Disable Magisk core only mode");
     setvar("core_only_mode_switch_text2", "");
 endif;
-
-menubox(
-    "Main menu",
-    "Choose an action" + getvar("core_only_mode_warning"),
-    "@welcome",
-    "operations.prop",
-
-    "Reboot", "Reboot your device", "@refresh",
-    "Exit", getvar("exit_text2"), "@back2",
