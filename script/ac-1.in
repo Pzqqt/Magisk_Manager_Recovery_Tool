@@ -43,7 +43,7 @@ setvar(
     "设备代号\t\t\t: " + "<b><#selectbg_g>" + sysprop("ro.product.device")       + "</#></b>\n" +
     "Cpu 型号\t\t\t: " + "<b><#selectbg_g>" + sysprop("ro.product.board")        + "</#></b>\n" +
     "设备厂商\t\t\t: " + "<b><#selectbg_g>" + sysprop("ro.product.manufacturer") + "</#></b>\n" +
-    "\n" +
+    "\n<@center><b>其他信息 :</b></@>\n\n" +
     "Magisk 版本\t\t: " + "<b><#selectbg_g>" + getvar("MAGISK_VER") + "</#></b>\n" +
     "\t版本号\t\t: " + "<b><#selectbg_g>" + getvar("MAGISK_VER_CODE") + "</#></b>\n\n"
 );
@@ -60,16 +60,14 @@ else
     setvar("shrink_text2", "压缩 magisk.img 容量以减少其存储空间占用.\n建议在移除大型模块后使用.");
     setvar("shrink_icon", "@action");
     setvar("module_remove_text", "立即移除");
-    appendvar("sysinfo",
-        "magisk.img 空间\t: " + "<b><#selectbg_g>" + getdisksize("/magisk", "m") + " MB" + "</#></b>\n" +
-        "\t已用\t\t\t: " + "<b><#selectbg_g>" + cal(getdisksize("/magisk", "m"), "-", getdiskfree("/magisk", "m")) +" MB" +
-        " (" + getdiskusedpercent("/magisk") + "%)" + "</#></b>\n"
-    );
     ini_set("text_quit", "保持 /magisk 挂载状态并退出");
     ini_set("text_quit_msg", "稍候你可以自行操作 /magisk 目录来操作模块. 此功能仅面向高级用户. 别忘了在重启前取消挂载.");
 endif;
 
-setvar("sqlite_able", iif(exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh") == "2", "0", "1"));
+setvar("sqlite3_path", iif(exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_sqlite3_path") == "2", "", getvar("exec_buffer")));
+appendvar("sysinfo",
+    "sqlite3 路径\t\t: <b><#selectbg_g>" + iif(getvar("sqlite3_path") == "", "未找到可用的 sqlite3", getvar("sqlite3_path")) + "</#></b>\n"
+);
 
 setvar("sort_text2_s1", "按模块 ID 排序");
 setvar("sort_text2_s2", "按模块名称排序");
@@ -82,10 +80,12 @@ setvar("geek_text2", iif(getvar("geek_mode") == "0", "不显示所有不必要�
 
 viewbox(
     "<~welcome.title>",
-    "<~welcome.text1> <b>" + ini_get("rom_name") + "</b>.\n\n" + "<~welcome.text2>\n\n\n\n\n" +
-
-    "  <~welcome.version>\t\t\t: " + "<b><#selectbg_g>" + ini_get("rom_version") + "</#></b>\n" +
-    "  <~welcome.updated>\t\t: " + "<b><#selectbg_g>" + ini_get("rom_date") + "</#></b>\n\n\n" +
+    "<~welcome.text1> <b>" + ini_get("rom_name") + "</b>.\n\n" + 
+    "你可以在本工具中管理几乎 Magisk 的一切,\n" +
+    "你可以管理已安装的模块, 启用/禁用核心功能模式,\n甚至是管理 Root 授权.\n\n\n" +
+    # 如果能在 Recovery 模式下联网下载/刷入 Magisk 安装包或模块就很赞了#(滑稽)
+    "<~welcome.version>\t\t\t\t: " + "<b><#selectbg_g>" + ini_get("rom_version") + "</#></b>\n" +
+    "<~welcome.updated>\t\t\t: " + "<b><#selectbg_g>" + ini_get("rom_date") + "</#></b>\n\n\n" +
 
     getvar("sysinfo"),
 
@@ -104,16 +104,7 @@ if getvar("core_only_mode_code") == "0" then
     setvar("core_only_mode_switch_text", "启用 Magisk 核心功能模式");
     setvar("core_only_mode_switch_text2", "仅启用核心功能, 所有模块均不会被载入.\n但 MagiskSU 和 MagiskHide 仍然会继续工作.");
 else
-    setvar("core_only_mode_warning", "\n<#f00>Magisk 核心功能模式已启用</#>");
+    setvar("core_only_mode_warning", "\n<#f00>注意: Magisk 核心功能模式已启用</#>");
     setvar("core_only_mode_switch_text", "禁用 Magisk 核心功能模式");
     setvar("core_only_mode_switch_text2", "");
 endif;
-
-menubox(
-    "主菜单",
-    "请选择操作" + getvar("core_only_mode_warning"),
-    "@welcome",
-    "operations.prop",
-
-    "重启", "重启您的设备", "@refresh",
-    "退出", getvar("exit_text2"), "@back2",

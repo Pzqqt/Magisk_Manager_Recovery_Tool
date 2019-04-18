@@ -29,6 +29,9 @@ find_sqlite3() {
 
 find_sqlite3
 case $operate in
+    "get_sqlite3_path") {
+        [ -L $sqlite3_exec ] && echo $(readlink $sqlite3_exec) || echo $sqlite3_exec
+    };;
     "clear_su_log") {
         $sqlite3_exec $sqlite_path "DELETE FROM logs" <<EOF
 .quit
@@ -55,6 +58,7 @@ EOF
 Usage: $0 <operate>
 
 operate:
+    get_sqlite3_path              : Get available sqlite3 path
     clear_su_log                  : Clear MagiskSU logs
     get_saved_package_name_policy : List saved package name & policy status
     get_saved_package_name_uid    : List saved package name & uid

@@ -39,7 +39,6 @@ text_quit_msg=您确定要退出 Magisk Manager Recovery 工具吗？
 
 welcome.title=欢迎
 welcome.text1=欢迎使用
-welcome.text2=该工具可以对已安装的 Magisk 模块进行操作.
 welcome.version=版本
 welcome.updated=更新日期
 

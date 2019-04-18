@@ -24,6 +24,18 @@ gen_aroma_config() {
     else
         installed_modules=`ls_modules_sort_by_id`
     fi
+    cat >> $ac_tmp <<EOF
+menubox(
+    "主菜单",
+    "请选择操作" +
+    "\n你已安装 $(ls_mount_path | wc -l) 个模块, 总占用空间: $(du -sh ${workPath}/ | awk '{print $1}')" +
+    getvar("core_only_mode_warning"),
+    "@welcome",
+    "operations.prop",
+
+    "重启", "重启您的设备", "@refresh",
+    "退出", getvar("exit_text2"), "@back2",
+EOF
     if [ -z "$installed_modules" ]; then
         echo "    \"如果你看到了此选项\", \"说明你尚未安装任何 Magisk 模块...\", \"@what\"," >> $ac_tmp
     else
@@ -301,12 +313,13 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
             "请选择操作" + getvar("core_only_mode_warning"),
             "@welcome",
             "magisksu.prop",
+
             "清除 MagiskSU 日志", "", "@action",
             "授权管理", "", "@action",
             "返回", "", "@back2"
         );
         prop("magisksu.prop", "selected") == "3" && back("2");
-        if getvar("sqlite_able") == "0" then
+        if getvar("sqlite3_path") == "" then
             alert(
                 "不可用的选项",
                 "很抱歉,\n由于本工具无法从设备中找到可用的 sqlite3 程序,\n故该选项不可用.",
@@ -338,14 +351,19 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
             exec("/sbin/sh", "/tmp/mmr/script/control-suapps.sh");
             checkbox(
                 "授权管理",
-                "勾选即为授予超级用户权限, 反之为拒绝.\n" +
-                "如果下方列表为空, 则说明你尚未授权任何应用.",
+                "勾选即为授予超级用户权限, 反之为拒绝.",
                 "@welcome",
                 "magisksu_apps.prop",
+
 EOF
-    for pp in `/tmp/mmr/script/control-sqlite.sh get_saved_package_name_policy | sed 's/|/=/g' | sort`; do
-        echo "                \"${pp%=*}\", \"\", 0," >> $ac_tmp
-    done
+    pps=`/tmp/mmr/script/control-sqlite.sh get_saved_package_name_policy | sed 's/|/=/g' | sort`
+    if [ -z "$pps" ]; then
+        echo "\"看起来你尚未授权任何应用 ...\",\"\", 2," >> $ac_tmp
+    else
+        for pp in $pps; do
+            echo "                \"${pp%=*}\", \"\", 0," >> $ac_tmp
+        done
+    fi
     cat >> $ac_tmp <<EOF
                 "", "", 3
             );
@@ -428,6 +446,7 @@ EOF
                 "退出"
             );
         endif;
+        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
         exit("");
     endif;
     if prop("advanced.prop", "selected") == "7" then
