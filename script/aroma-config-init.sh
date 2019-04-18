@@ -302,42 +302,73 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
             "@welcome",
             "magisksu.prop",
             "清除 MagiskSU 日志", "", "@action",
-            "移除所有 MagiskSU 授权", "移除所有已保存的应用 MagiskSU 授权", "@action",
-            "拒绝所有 MagiskSU 授权", "拒绝所有已保存的应用 MagiskSU 授权", "@action",
-            "允许所有 MagiskSU 授权", "允许所有已保存的应用 MagiskSU 授权", "@action",
+            "授权管理", "", "@action",
             "返回", "", "@back2"
         );
-        prop("magisksu.prop", "selected") == "1" && setvar("sqlite_operate", "clear_su_log");
-        prop("magisksu.prop", "selected") == "2" && setvar("sqlite_operate", "clear_su_policies");
-        prop("magisksu.prop", "selected") == "3" && setvar("sqlite_operate", "reject_all_su");
-        prop("magisksu.prop", "selected") == "4" && setvar("sqlite_operate", "allow_all_su");
-        prop("magisksu.prop", "selected") == "5" && back("2");
-        if prop("magisksu.prop", "selected") == "2" then
-            if confirm(
-                "警告",
-                "您确定要移除所有 MagiskSU 授权吗?\n此操作不可恢复!",
-                "@warning") == "no"
-            then
-                back("1");
-            endif;
-        endif;
-        pleasewait("正在执行脚本 ...");
-        if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", getvar("sqlite_operate")) == "0" then
+        prop("magisksu.prop", "selected") == "3" && back("2");
+        if getvar("sqlite_able") == "0" then
             alert(
-                "成功",
-                "操作完成, 执行过程中没有发生错误.",
-                "@done",
-                "确定"
-            );
-        else
-            alert(
-                "失败",
-                "执行过程中有错误发生, 请确认.\n\n" + getvar("exec_buffer"),
+                "不可用的选项",
+                "很抱歉,\n由于本工具无法从设备中找到可用的 sqlite3 程序,\n故该选项不可用.",
                 "@crash",
                 "确定"
             );
         endif;
-        back("1");
+        if prop("magisksu.prop", "selected") == "1" then
+            pleasewait("正在执行脚本 ...");
+            if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "clear_su_log") == "0" then
+                alert(
+                    "成功",
+                    "操作完成, 执行过程中没有发生错误.",
+                    "@done",
+                    "确定"
+                );
+            else
+                alert(
+                    "失败",
+                    "执行过程中有错误发生, 请确认.\n\n" + getvar("exec_buffer"),
+                    "@crash",
+                    "确定"
+                );
+            endif;
+            back("1");
+        endif;
+        if prop("magisksu.prop", "selected") == "2" then
+            pleasewait("正在生成列表 ...");
+            exec("/sbin/sh", "/tmp/mmr/script/control-suapps.sh");
+            checkbox(
+                "授权管理",
+                "勾选即为授予超级用户权限, 反之为拒绝.\n" +
+                "如果下方列表为空, 则说明你尚未授权任何应用.",
+                "@welcome",
+                "magisksu_apps.prop",
+EOF
+    for pp in `/tmp/mmr/script/control-sqlite.sh get_saved_package_name_policy | sed 's/|/=/g' | sort`; do
+        echo "                \"${pp%=*}\", \"\", 0," >> $ac_tmp
+    done
+    cat >> $ac_tmp <<EOF
+                "", "", 3
+            );
+            pleasewait("正在执行脚本 ...");
+            if exec("/sbin/sh", "/tmp/mmr/script/control-suapps.sh", "apply_change") == "0" then
+                if getvar("exec_buffer") != "" then
+                    alert(
+                        "成功",
+                        "您的更改已经生效:\n\n" + getvar("exec_buffer"),
+                        "@done",
+                        "确定"
+                    );
+                endif;
+            else
+                alert(
+                    "失败",
+                    "命令执行失败, 请确认.\n\n" + getvar("exec_buffer"),
+                    "@crash",
+                    "确定"
+                );
+            endif;
+            back("2");
+        endif;
     endif;
     if prop("advanced.prop", "selected") == "5" then
         if confirm(

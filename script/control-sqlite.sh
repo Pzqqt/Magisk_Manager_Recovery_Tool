@@ -1,8 +1,9 @@
 #!/sbin/sh
 
 operate=$1
+arg_2=$2
+arg_3=$3
 
-magiskbin_path=/data/adb/magisk/magisk
 sqlite_path=/data/adb/magisk.db
 sqlite3_exec=""
 
@@ -11,7 +12,7 @@ is_mounted() { mountpoint -q $1; }
 # find available sqlite3
 find_sqlite3() {
     is_mounted /system || mount -o ro /system
-    which sqlite3 && sqlite3_exec=`which sqlite3` || {
+    which sqlite3 &>/dev/null && sqlite3_exec=`which sqlite3` || {
         for find_path in /system/bin /system/xbin; do
             if [ -f ${find_path}/sqlite3 ]; then
                 ln -s ${find_path}/sqlite3 /sbin/
@@ -20,15 +21,9 @@ find_sqlite3() {
             fi
         done
     }
-    [ -n "$sqlite3_exec" ] && $sqlite3_exec --version || {
-        ps | grep "magiskd" | grep -qv "grep" || {
-            $magiskbin_path --daemon || {
-                echo -e "\nCannot found available sqlite3!"
-                exit 1
-            }
-        }
-        sqlite3_exec="$magiskbin_path --sqlite"
-        sqlite_path=""
+    [ -n "$sqlite3_exec" ] && $sqlite3_exec --version &>/dev/null || {
+        echo -e "\nCannot found available sqlite3!"
+        exit 2
     }
 }
 
@@ -39,18 +34,19 @@ case $operate in
 .quit
 EOF
     } ;;
-    "clear_su_policies") {
-        $sqlite3_exec $sqlite_path "DELETE FROM policies" <<EOF
+    "get_saved_package_name_policy") {
+        $sqlite3_exec $sqlite_path "SELECT package_name, policy FROM policies" <<EOF
 .quit
 EOF
     } ;;
-    "reject_all_su") {
-        $sqlite3_exec $sqlite_path "UPDATE policies set policy=1" <<EOF
+    "get_saved_package_name_uid") {
+        $sqlite3_exec $sqlite_path "SELECT package_name, uid FROM policies" <<EOF
 .quit
 EOF
     } ;;
-    "allow_all_su") {
-        $sqlite3_exec $sqlite_path "UPDATE policies set policy=2" <<EOF
+    "set_policy") {
+        [ -n "$arg_2" -a -n "$arg_3" ] || { echo "Missing parameter" && exit 1; }
+        $sqlite3_exec $sqlite_path "UPDATE policies SET policy=${arg_3} WHERE uid=${arg_2}" <<EOF
 .quit
 EOF
     } ;;
@@ -59,10 +55,10 @@ EOF
 Usage: $0 <operate>
 
 operate:
-    clear_su_log        : Clear MagiskSU logs
-    clear_su_policies   : Remove all saved apps MagiskSU permissions
-    reject_all_su       : Reject all saved apps MagiskSU permissions
-    allow_all_su        : Allow all saved apps MagiskSU permissions
+    clear_su_log                  : Clear MagiskSU logs
+    get_saved_package_name_policy : List saved package name & policy status
+    get_saved_package_name_uid    : List saved package name & uid
+    set_policy <uid> <vaule>      : Change policy value
 EOF
         exit 1
     } ;;
