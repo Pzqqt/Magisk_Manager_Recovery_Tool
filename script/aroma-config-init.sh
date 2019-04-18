@@ -356,7 +356,7 @@ EOF
                         "Done",
                         "Your changes have been applied:\n\n" + getvar("exec_buffer"),
                         "@done",
-                        "确定"
+                        "OK"
                     );
                 endif;
             else
@@ -364,7 +364,7 @@ EOF
                     "Failed",
                     "Command execution failed, please check.\n\n" + getvar("exec_buffer"),
                     "@crash",
-                    "确定"
+                    "OK"
                 );
             endif;
             back("2");
