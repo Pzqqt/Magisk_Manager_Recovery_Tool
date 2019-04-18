@@ -302,42 +302,73 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
             "@welcome",
             "magisksu.prop",
             "Clear MagiskSU logs", "", "@action",
-            "Remove all MagiskSU permissions", "Remove all saved apps MagiskSU permissions", "@action",
-            "Reject all MagiskSU permissions", "Reject all saved apps MagiskSU permissions", "@action",
-            "Allow all MagiskSU permissions", "Allow all saved apps MagiskSU permissions", "@action",
+            "Superuser rights manage", "", "@action",
             "Back", "", "@back2"
         );
-        prop("magisksu.prop", "selected") == "1" && setvar("sqlite_operate", "clear_su_log");
-        prop("magisksu.prop", "selected") == "2" && setvar("sqlite_operate", "clear_su_policies");
-        prop("magisksu.prop", "selected") == "3" && setvar("sqlite_operate", "reject_all_su");
-        prop("magisksu.prop", "selected") == "4" && setvar("sqlite_operate", "allow_all_su");
-        prop("magisksu.prop", "selected") == "5" && back("2");
-        if prop("magisksu.prop", "selected") == "2" then
-            if confirm(
-                "Warning!",
-                "Are you sure want to remove all MagiskSU perm?\nThis operation cannot be undone.",
-                "@warning") == "no"
-            then
-                back("1");
-            endif;
-        endif;
-        pleasewait("Executing Shell...");
-        if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", getvar("sqlite_operate")) == "0" then
+        prop("magisksu.prop", "selected") == "3" && back("2");
+        if getvar("sqlite_able") == "0" then
             alert(
-                "Done",
-                "Operation completed, no error occurred during execution.",
-                "@done",
-                "OK"
-            );
-        else
-            alert(
-                "Failed",
-                "An error occurred during execution, please check.\n\n" + getvar("exec_buffer"),
+                "Not available",
+                "Sorry,\nThis option is not available\nbecause we cannot find available sqlite3 programs\nfrom your device.",
                 "@crash",
                 "OK"
             );
         endif;
-        back("1");
+        if prop("magisksu.prop", "selected") == "1" then
+            pleasewait("Executing Shell...");
+            if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "clear_su_log") == "0" then
+                alert(
+                    "Done",
+                    "Operation completed, no error occurred during execution.",
+                    "@done",
+                    "OK"
+                );
+            else
+                alert(
+                    "Failed",
+                    "An error occurred during execution, please check.\n\n" + getvar("exec_buffer"),
+                    "@crash",
+                    "OK"
+                );
+            endif;
+            back("1");
+        endif;
+        if prop("magisksu.prop", "selected") == "2" then
+            pleasewait("Generating list...");
+            exec("/sbin/sh", "/tmp/mmr/script/control-suapps.sh");
+            checkbox(
+                "Superuser rights manage",
+                "Check the box to grant superuser rights, otherwise denied.\n" +
+                "If the list below is empty, you have not given rights for any app.",
+                "@welcome",
+                "magisksu_apps.prop",
+EOF
+    for pp in `/tmp/mmr/script/control-sqlite.sh get_saved_package_name_policy | sed 's/|/=/g' | sort`; do
+        echo "                \"${pp%=*}\", \"\", 0," >> $ac_tmp
+    done
+    cat >> $ac_tmp <<EOF
+                "", "", 3
+            );
+            pleasewait("Executing Shell...");
+            if exec("/sbin/sh", "/tmp/mmr/script/control-suapps.sh", "apply_change") == "0" then
+                if getvar("exec_buffer") != "" then
+                    alert(
+                        "Done",
+                        "Your changes have been applied:\n\n" + getvar("exec_buffer"),
+                        "@done",
+                        "确定"
+                    );
+                endif;
+            else
+                alert(
+                    "Failed",
+                    "Command execution failed, please check.\n\n" + getvar("exec_buffer"),
+                    "@crash",
+                    "确定"
+                );
+            endif;
+            back("2");
+        endif;
     endif;
     if prop("advanced.prop", "selected") == "5" then
         if confirm(

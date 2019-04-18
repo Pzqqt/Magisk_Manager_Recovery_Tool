@@ -69,6 +69,8 @@ else
     ini_set("text_quit_msg", "You can operate the module by operating the /magisk directory later. Only for advanced users. Do NOT forget to unmount /magisk.");
 endif;
 
+setvar("sqlite_able", iif(exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh") == "2", "0", "1"));
+
 setvar("sort_text2_s1", "by module ID");
 setvar("sort_text2_s2", "by module name");
 setvar("sort_by_name", file_getprop("/sdcard/TWRP/mmrt.prop", "sort_by_name") || "0");
