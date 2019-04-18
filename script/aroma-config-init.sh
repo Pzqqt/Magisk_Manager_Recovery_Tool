@@ -24,8 +24,6 @@ gen_aroma_config() {
     else
         installed_modules=`ls_modules_sort_by_id`
     fi
-    ac_tmp=/tmp/mmr/script/aroma-config
-    mv /tmp/mmr/script/ac-1.in $ac_tmp
     if [ -z "$installed_modules" ]; then
         echo "    \"If you see this option\", \"You have not installed any Magisk modules...\", \"@what\"," >> $ac_tmp
     else
