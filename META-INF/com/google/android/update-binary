@@ -48,6 +48,7 @@ ABILONG=$(grep_prop ro.product.cpu.abi)
 # find modules path or magisk.img
 workPath=/magisk
 imagelessPath=/data/adb/modules
+imagePath=/data/adb/magisk.img
 MAGISK_VER_CODE=$(grep_prop "MAGISK_VER_CODE" /data/adb/magisk/util_functions.sh)
 [ -z "$MAGISK_VER_CODE" ] && abort "Error: Please install or upgrade Magisk."
 ui_print "Installed Magisk version: $MAGISK_VER_CODE"
@@ -55,9 +56,11 @@ if [ "$MAGISK_VER_CODE" -gt 18100 ]; then
   mkdir -p $imagelessPath
   imageless_magisk=true
 else
-  [ -d /data/adb/magisk ] && IMG=/data/adb/magisk.img || IMG=/data/magisk.img
-  [ -f "$IMG" ] || abort "Error: magisk.img not found."
-  ui_print "Found magisk.img: $IMG"
+  if ! [ -f "$imagePath" ]; then
+    ui_print "$imagePath not found."
+    ui_print "Creating one with size 64M."
+    which make_ext4fs && make_ext4fs -l "64M" $imagePath || abort "Error: magisk.img creation failed."
+  fi
   imageless_magisk=false
 fi
 
@@ -71,8 +74,8 @@ if $imageless_magisk; then
   ui_print "Symlink $imagelessPath to $workPath"
   ./script/symlink-magisk.sh $imagelessPath $workPath || abort "Error: Failed to symlink modules path!"
 else
-  ui_print "Mount $IMG to $workPath"
-  ./script/mount-magisk.sh $IMG $workPath || abort "Error: Failed to mount magisk.img!"
+  ui_print "Mount $imagePath to $workPath"
+  ./script/mount-magisk.sh $imagePath $workPath || abort "Error: Failed to mount $imagePath!"
 fi
 ui_print "Generating AROMA config"
 ./script/aroma-config-init.sh
