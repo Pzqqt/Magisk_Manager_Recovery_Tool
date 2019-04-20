@@ -12,15 +12,7 @@ is_mounted() { mountpoint -q $1; }
 # find available sqlite3
 find_sqlite3() {
     is_mounted /system || mount -o ro /system
-    which sqlite3 &>/dev/null && sqlite3_exec=`which sqlite3` || {
-        for find_path in /system/bin /system/xbin; do
-            if [ -f ${find_path}/sqlite3 ]; then
-                ln -s ${find_path}/sqlite3 /sbin/
-                sqlite3_exec="sqlite3"
-                break
-            fi
-        done
-    }
+    which sqlite3 &>/dev/null && sqlite3_exec=`which sqlite3`
     [ -n "$sqlite3_exec" ] && $sqlite3_exec --version &>/dev/null || {
         echo -e "\nCannot found available sqlite3!"
         exit 2
@@ -29,9 +21,7 @@ find_sqlite3() {
 
 find_sqlite3
 case $operate in
-    "get_sqlite3_path") {
-        [ -L $sqlite3_exec ] && echo $(readlink $sqlite3_exec) || echo $sqlite3_exec
-    };;
+    "get_sqlite3_path") echo $sqlite3_exec;;
     "clear_su_log") {
         $sqlite3_exec $sqlite_path "DELETE FROM logs" <<EOF
 .quit
