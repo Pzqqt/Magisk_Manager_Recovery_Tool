@@ -28,8 +28,6 @@ grep_prop() {
   cat $FILES 2>/dev/null | sed -n $REGEX | head -n 1
 }
 
-file_getprop() { grep "^$2=" "$1" | head -n1 | cut -d= -f2; }
-
 # mount all
 mount -o ro /system || :
 mount /cache || :
@@ -50,13 +48,15 @@ ABILONG=$(grep_prop ro.product.cpu.abi)
 # find modules path or magisk.img
 workPath=/magisk
 imagelessPath=/data/adb/modules
-MAGISK_VER_CODE=$(file_getprop /data/adb/magisk/util_functions.sh "MAGISK_VER_CODE")
-if [ "$MAGISK_VER_CODE" -gt 18100 ] && [ -d "$imagelessPath" ]; then
-  ui_print "Found magisk modules path: $imagelessPath"
+MAGISK_VER_CODE=$(grep_prop "MAGISK_VER_CODE" /data/adb/magisk/util_functions.sh)
+[ -z "$MAGISK_VER_CODE" ] && abort "Error: Please install or upgrade Magisk."
+ui_print "Installed Magisk version: $MAGISK_VER_CODE"
+if [ "$MAGISK_VER_CODE" -gt 18100 ]; then
+  mkdir -p $imagelessPath
   imageless_magisk=true
 else
   [ -d /data/adb/magisk ] && IMG=/data/adb/magisk.img || IMG=/data/magisk.img
-  [ -f "$IMG" ] || abort "Error: Please install or upgrade Magisk."
+  [ -f "$IMG" ] || abort "Error: magisk.img not found."
   ui_print "Found magisk.img: $IMG"
   imageless_magisk=false
 fi
