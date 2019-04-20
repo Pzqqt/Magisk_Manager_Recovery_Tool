@@ -101,10 +101,10 @@ if [ "\$exitcode" -eq 2 ]; then
     exit 2
 fi
 
-curSizeM=\`ls -l $IMG 2>/dev/null | awk '{print \$5}'\`
-curSizeM=\$((curSizeM / 1048576))
+which awk && awk_=\`which awk\` || awk_="/data/adb/magisk/busybox awk"
+curSize=\`du -sh $IMG 2>/dev/null | \$awk_ '{print \$1}'\`
 
-echo -e "\n- Shrinking $IMG to \${curSizeM}M\n"
+echo -e "\n- Shrinking $IMG to \${curSize}\n"
 
 EOF
     chmod 0755 $doskscript
