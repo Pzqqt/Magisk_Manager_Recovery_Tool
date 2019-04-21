@@ -10,14 +10,14 @@ file_getprop() { grep "^$2=" "$1" | head -n1 | cut -d= -f2; }
 [ -z "$operate" ] && {
     : > $prop_path
     i=1
-    for pp in `/tmp/mmr/script/control-sqlite.sh get_saved_package_name_policy | sed 's/|/=/g' | sort`; do
+    for pp in `/tmp/mmr/script/control-sqlite.sh get_saved_package_name_policy | sed 's/|/=/g'`; do
         echo "item.0.${i}=$(expr ${pp#*=} - 1)" >> $prop_path
         let i+=1
     done
     if ! [ -f $num_uid_prop ]; then
         touch $num_uid_prop
         i=1
-        for pu in `/tmp/mmr/script/control-sqlite.sh get_saved_package_name_uid | sed 's/|/=/g' | sort`; do
+        for pu in `/tmp/mmr/script/control-sqlite.sh get_saved_package_name_uid | sed 's/|/=/g'`; do
             echo "item.0.${i}=${pu#*=}" >> $num_uid_prop
             let i+=1
         done
