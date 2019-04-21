@@ -28,12 +28,12 @@ case $operate in
 EOF
     } ;;
     "get_saved_package_name_policy") {
-        $sqlite3_exec $sqlite_path "SELECT package_name, policy FROM policies" <<EOF
+        $sqlite3_exec $sqlite_path "SELECT package_name, policy FROM policies ORDER BY package_name" <<EOF
 .quit
 EOF
     } ;;
     "get_saved_package_name_uid") {
-        $sqlite3_exec $sqlite_path "SELECT package_name, uid FROM policies" <<EOF
+        $sqlite3_exec $sqlite_path "SELECT package_name, uid FROM policies ORDER BY package_name" <<EOF
 .quit
 EOF
     } ;;
