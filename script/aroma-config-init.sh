@@ -460,7 +460,7 @@ EOF
             getvar("geek_text"), getvar("geek_text2"), "@action",
             "返回", "", "@back2"
         );
-        prop("debug.prop", "selected") == "1" && exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh", "_", "true");
+        prop("debug.prop", "selected") == "1" && exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh", "--regen");
         if prop("debug.prop", "selected") == "2" then
             if getvar("geek_mode") == "0" then
                 exec("/sbin/sh", "/tmp/mmr/script/save-settings.sh", "geek_mode", "1");
