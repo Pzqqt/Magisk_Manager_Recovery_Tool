@@ -64,11 +64,6 @@ else
     ini_set("text_quit_msg", "稍候你可以自行操作 /magisk 目录来操作模块. 此功能仅面向高级用户. 别忘了在重启前取消挂载.");
 endif;
 
-setvar("sqlite3_path", iif(exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_sqlite3_path") == "2", "", getvar("exec_buffer")));
-appendvar("sysinfo",
-    "sqlite3 路径\t\t: <b><#selectbg_g>" + iif(getvar("sqlite3_path") == "", "未找到可用的 sqlite3", getvar("sqlite3_path")) + "</#></b>\n"
-);
-
 setvar("sort_text2_s1", "按模块 ID 排序");
 setvar("sort_text2_s2", "按模块名称排序");
 setvar("sort_by_name", file_getprop("/sdcard/TWRP/mmrt.prop", "sort_by_name") || "0");

@@ -42,7 +42,7 @@ EOF
         for module in $installed_modules; do
             echo "    file_getprop(\"${workPath}/${module}/module.prop\", \"name\") || \"(未提供信息)\"," >> $ac_tmp
             echo "    \"<i><b>\" + (file_getprop(\"${workPath}/${module}/module.prop\", \"version\") || \"(未提供信息)\") +" >> $ac_tmp
-            echo "    \"\n作者: \" + (file_getprop(\"${workPath}/${module}/module.prop\", \"author\") || \"(未提供信息)\") + \"</b></i>\"," >> $ac_tmp
+            echo "    \"\\\n作者: \" + (file_getprop(\"${workPath}/${module}/module.prop\", \"author\") || \"(未提供信息)\") + \"</b></i>\"," >> $ac_tmp
             echo "    prop(\"module_icon.prop\", \"module.icon.${module}\") || \"@removed\"," >> $ac_tmp
         done
     fi
@@ -186,6 +186,8 @@ then
     endif;
     if prop("modoperations.prop", "selected") == "2" then
         exec("/sbin/sh", "/tmp/mmr/script/get-module-tree.sh", getvar("modid"));
+        ini_set("text_next", "");
+        ini_set("icon_next", "@none");
         textbox(
             "预览",
             "模块目录结构:",
@@ -308,6 +310,14 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
         back("1");
     endif;
     if prop("advanced.prop", "selected") == "4" then
+        if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_sqlite3_path") == "2" then
+            alert(
+                "不可用的选项",
+                "很抱歉,\n由于本工具无法从设备中找到可用的 sqlite3 程序,\n故该选项不可用.",
+                "@crash",
+                "确定"
+            );
+        endif;
         menubox(
             "超级用户",
             "请选择操作" + getvar("core_only_mode_warning"),
@@ -319,14 +329,6 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
             "返回", "", "@back2"
         );
         prop("magisksu.prop", "selected") == "3" && back("2");
-        if getvar("sqlite3_path") == "" then
-            alert(
-                "不可用的选项",
-                "很抱歉,\n由于本工具无法从设备中找到可用的 sqlite3 程序,\n故该选项不可用.",
-                "@crash",
-                "确定"
-            );
-        endif;
         if prop("magisksu.prop", "selected") == "1" then
             pleasewait("正在执行脚本 ...");
             if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "clear_su_log") == "0" then
@@ -349,6 +351,7 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
         if prop("magisksu.prop", "selected") == "2" then
             pleasewait("正在生成列表 ...");
             exec("/sbin/sh", "/tmp/mmr/script/control-suapps.sh");
+            ini_set("text_next", "应用更改");
             checkbox(
                 "授权管理",
                 "勾选即为授予超级用户权限, 反之为拒绝.",
