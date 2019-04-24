@@ -42,7 +42,7 @@ EOF
         for module in $installed_modules; do
             echo "    file_getprop(\"${workPath}/${module}/module.prop\", \"name\") || \"(No info provided)\"," >> $ac_tmp
             echo "    \"<i><b>\" + (file_getprop(\"${workPath}/${module}/module.prop\", \"version\") || \"(No info provided)\") +" >> $ac_tmp
-            echo "    \"\nAuthor: \" + (file_getprop(\"${workPath}/${module}/module.prop\", \"author\") || \"(No info provided)\") + \"</b></i>\"," >> $ac_tmp
+            echo "    \"\\\nAuthor: \" + (file_getprop(\"${workPath}/${module}/module.prop\", \"author\") || \"(No info provided)\") + \"</b></i>\"," >> $ac_tmp
             echo "    prop(\"module_icon.prop\", \"module.icon.${module}\") || \"@removed\"," >> $ac_tmp
         done
     fi
@@ -186,6 +186,8 @@ then
     endif;
     if prop("modoperations.prop", "selected") == "2" then
         exec("/sbin/sh", "/tmp/mmr/script/get-module-tree.sh", getvar("modid"));
+        ini_set("text_next", "");
+        ini_set("icon_next", "@none");
         textbox(
             "Preview",
             "Module directory structure:",
@@ -308,6 +310,14 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
         back("1");
     endif;
     if prop("advanced.prop", "selected") == "4" then
+        if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_sqlite3_path") == "2" then
+            alert(
+                "Not available",
+                "Sorry,\nThis option is not available\nbecause we cannot find available sqlite3 programs\nfrom your device.",
+                "@crash",
+                "OK"
+            );
+        endif;
         menubox(
             "Superuser",
             "Choose an action" + getvar("core_only_mode_warning"),
@@ -319,14 +329,6 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
             "Back", "", "@back2"
         );
         prop("magisksu.prop", "selected") == "3" && back("2");
-        if getvar("sqlite3_path") == "" then
-            alert(
-                "Not available",
-                "Sorry,\nThis option is not available\nbecause we cannot find available sqlite3 programs\nfrom your device.",
-                "@crash",
-                "OK"
-            );
-        endif;
         if prop("magisksu.prop", "selected") == "1" then
             pleasewait("Executing Shell...");
             if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "clear_su_log") == "0" then
@@ -349,6 +351,7 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
         if prop("magisksu.prop", "selected") == "2" then
             pleasewait("Generating list...");
             exec("/sbin/sh", "/tmp/mmr/script/control-suapps.sh");
+            ini_set("text_next", "Apply");
             checkbox(
                 "Root manager",
                 "Check the box to grant superuser rights, otherwise denied.",

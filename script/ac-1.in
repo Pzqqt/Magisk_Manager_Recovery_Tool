@@ -64,11 +64,6 @@ else
     ini_set("text_quit_msg", "You can operate the module by operating the /magisk directory later. Only for advanced users. Do NOT forget to unmount /magisk.");
 endif;
 
-setvar("sqlite3_path", iif(exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_sqlite3_path") == "2", "", getvar("exec_buffer")));
-appendvar("sysinfo",
-    "sqlite3 Path\t\t: <b><#selectbg_g>" + iif(getvar("sqlite3_path") == "", "cannot find available sqlite3", getvar("sqlite3_path")) + "</#></b>\n"
-);
-
 setvar("sort_text2_s1", "by module ID");
 setvar("sort_text2_s2", "by module name");
 setvar("sort_by_name", file_getprop("/sdcard/TWRP/mmrt.prop", "sort_by_name") || "0");
