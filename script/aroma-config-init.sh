@@ -423,6 +423,7 @@ EOF
         then
             back("1");
         endif;
+        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
         setvar("uninstall_exitcode",
             install(
                 "卸载 Magisk",
@@ -449,7 +450,6 @@ EOF
                 "退出"
             );
         endif;
-        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
         exit("");
     endif;
     if prop("advanced.prop", "selected") == "7" then
