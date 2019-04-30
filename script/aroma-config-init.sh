@@ -7,8 +7,6 @@ file_getprop() { grep "^$2=" "$1" | head -n1 | cut -d= -f2; }
 
 ls_mount_path() { ls -1 ${workPath} | grep -v 'lost+found'; }
 
-ls_modules_sort_by_id() { ls_mount_path | sort -f; }
-
 ls_modules_sort_by_name() {
     local installed_modules_tmp=`ls_mount_path`
     [ -z "$installed_modules_tmp" ] && return
@@ -19,11 +17,7 @@ ls_modules_sort_by_name() {
 gen_aroma_config() {
     ac_tmp=/tmp/mmr/template/META-INF/com/google/android/aroma-config
     mv /tmp/mmr/script/ac-1.in $ac_tmp
-    if [ -f $settings_save_prop ] && [ $(file_getprop $settings_save_prop "sort_by_name") -eq 1 ]; then
-        installed_modules=`ls_modules_sort_by_name`
-    else
-        installed_modules=`ls_modules_sort_by_id`
-    fi
+    installed_modules=`ls_modules_sort_by_name`
     cat >> $ac_tmp <<EOF
 menubox(
     "主菜单",
@@ -241,7 +235,6 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
         "瘦身 magisk.img", getvar("shrink_text2"), getvar("shrink_icon"),
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
         "超级用户", "", "@action",
-        "选择模块列表排序方式", "当前: " + getvar("sort_text2"), "@action",
         "卸载 Magisk", "Root 权限将从设备中完全移除", "@action",
         "调试选项", "", "@action",
         "返回", "", "@back2"
@@ -376,28 +369,6 @@ EOF
     endif;
     if prop("advanced.prop", "selected") == "5" then
         if confirm(
-            "选择模块列表排序方式",
-            "请选择排序依据:",
-            "@info",
-            getvar("sort_text2_s1"),
-            getvar("sort_text2_s2")) == "yes"
-        then
-            setvar("sort_by_name", "0");
-        else
-            setvar("sort_by_name", "1");
-        endif;
-        exec("/sbin/sh", "/tmp/mmr/script/save-settings.sh", "sort_by_name", getvar("sort_by_name"));
-        alert(
-            "完成",
-            "已设置为" + iif(getvar("sort_by_name") == "0", getvar("sort_text2_s1"), getvar("sort_text2_s2")) +
-            ",\n将在下次使用本工具时生效.",
-            "@done",
-            "确定"
-        );
-        back("1");
-    endif;
-    if prop("advanced.prop", "selected") == "6" then
-        if confirm(
             "警告",
             "您确定要卸载 Magisk 吗?\n\n所有模块将停用或删除, Root 会被移除.\n未加密的设备重启时可能会被进行加密.",
             "@warning",
@@ -435,7 +406,7 @@ EOF
         endif;
         exit("");
     endif;
-    if prop("advanced.prop", "selected") == "7" then
+    if prop("advanced.prop", "selected") == "6" then
         menubox(
             "调试选项",
             "请选择操作",
