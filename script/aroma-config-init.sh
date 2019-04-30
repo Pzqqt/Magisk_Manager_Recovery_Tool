@@ -109,7 +109,7 @@ then
     endif;
 
     if getvar("stat_code") == "0" || getvar("stat_code") == "5" then
-        setvar("module_status", "Disabled");
+        setvar("module_status", "<#f00>Disabled</#>");
         setvar("module_status_switch_text",  "Enable module");
         setvar("module_status_switch_text2", "");
         setvar("module_status_switch_icon",  "@action2");
@@ -121,7 +121,7 @@ then
         setvar("module_status_switch_icon",  "@offaction");
     endif;
     if cmp(getvar("stat_code"), ">=", "4") then
-        setvar("module_status", "Ready remove");
+        setvar("module_status", "<#f00>Will be removed after reboot</#>");
         setvar("module_remove_switch_text",  "<b><i>Undo</i></b> remove at next reboot");
         setvar("module_remove_switch_text2", "");
         setvar("module_remove_switch_icon",  "@refresh");
@@ -145,7 +145,7 @@ then
     endif;
 
     if getvar("stat_code") == "3" then
-        setvar("module_status", "Ready update");
+        setvar("module_status", "<#f00>Will be updated after reboot</#>");
         setvar("module_status_switch_text",        "Enable/Disable module");
         setvar("module_status_switch_text2",       "Unallowed operation");
         setvar("module_status_switch_icon",        "@crash");
@@ -162,8 +162,8 @@ then
         "Module: " + getvar("modname"),
         "Module ID: " + getvar("modid") + "\n" +
         "Module size: " + getvar("modsize") + "\n" +
-        "Module status: " + getvar("module_status") + "\n" +
-        "Mount status: " + getvar("module_mount_status"),
+        "Mount status: " + getvar("module_mount_status") + "\n" +
+        "Module status: " + getvar("module_status"),
         "@welcome",
         "modoperations.prop",
 
@@ -219,14 +219,7 @@ then
             back("1");
         endif;
     endif;
-    if exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", getvar("module_operate"), getvar("modid")) == "0" then
-        alert(
-            "Done",
-            getvar("exec_buffer"),
-            "@done",
-            "OK"
-        );
-    else
+    if exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", getvar("module_operate"), getvar("modid")) != "0" then
         alert(
             "Failed",
             getvar("exec_buffer"),
@@ -297,12 +290,6 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
     endif;
     if prop("advanced.prop", "selected") == "3" then
         exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "switch");
-        alert(
-            "Done",
-            getvar("exec_buffer"),
-            "@done",
-            "OK"
-        );
         back("1");
     endif;
     if prop("advanced.prop", "selected") == "4" then

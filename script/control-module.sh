@@ -6,16 +6,19 @@ module=$2
 workPath=/magisk
 modulePath=${workPath}/${module}
 
-exist_flag() { [ -f ${modulePath}/${1} ]; }
+exist_flag() { test -f ${modulePath}/${1}; }
 
-rm_flag() { rm -f ${modulePath}/${1} && echo ${2} && exit 0; }
+rm_flag() { rm -f ${modulePath}/${1} && exit 0; }
 
 touch_flag() {
     touch ${modulePath}/${1} || { cd ${modulePath}? && touch ./${1}; }
-    [ $? = 0 ] && echo ${2} && exit 0
+    [ $? -eq 0 ] && exit 0
 }
 
-[ -n $operate ] && [ -n $module ] && case $operate in
+switch_flag() { exist_flag "$1" && rm_flag "$1" || touch_flag "$1"; }
+
+[ -n $operate ] && [ -n $module ] && \
+case $operate in
     "status") {
         # Enable: 1, Disable: 0, Removed: 2, UpdateFlag: 3,
         # RemoveFlag & Enable: 4, RemoveFlag & Disable: 5
@@ -37,41 +40,12 @@ touch_flag() {
         [ -d $modulePath ] || exit 2
         exist_flag "skip_mount" && exit 0 || exit 1
     } ;;
-    "switch_module") {
-        if exist_flag "disable"; then
-            rm_flag "disable" "Successfully enable module $module !"
-        else
-            touch_flag "disable" "Successfully disable module $module !"
-        fi
-    } ;;
-    "switch_auto_mount") {
-        if exist_flag "auto_mount"; then
-            rm_flag "auto_mount" "Successfully disable mount for $module !"
-        else
-            touch_flag "auto_mount" "Successfully enable mount for $module !"
-        fi
-    } ;;
-    "switch_skip_mount") {
-        if exist_flag "skip_mount"; then
-            rm_flag "skip_mount" "Successfully enable mount for $module !"
-        else
-            touch_flag "skip_mount" "Successfully disable mount for $module !"
-        fi
-    } ;;
-    "switch_remove") {
-        if exist_flag "remove"; then
-            rm_flag "remove" "Successful undo."
-        else
-            touch_flag "remove" "Module $module will be removed at next reboot."
-        fi
-    } ;;
-    "remove") {
-        rm -rf $modulePath && echo "Successfully removed module $module !" && exit 0
-    } ;;
-    *) {
-        echo -e "\nUnknown operation: $operate"
-        exit 1
-    } ;;
+    "switch_module") switch_flag "disable";;
+    "switch_auto_mount") switch_flag "auto_mount";;
+    "switch_skip_mount") switch_flag "skip_mount";;
+    "switch_remove") switch_flag "remove";;
+    "remove") rm -rf $modulePath && exit 0;;
+    *) echo -e "\nUnknown operation: $operate"; exit 1;;
 esac
 
 echo -e "\nScript execution failed!"
