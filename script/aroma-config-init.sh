@@ -7,8 +7,6 @@ file_getprop() { grep "^$2=" "$1" | head -n1 | cut -d= -f2; }
 
 ls_mount_path() { ls -1 ${workPath} | grep -v 'lost+found'; }
 
-ls_modules_sort_by_id() { ls_mount_path | sort -f; }
-
 ls_modules_sort_by_name() {
     local installed_modules_tmp=`ls_mount_path`
     [ -z "$installed_modules_tmp" ] && return
@@ -19,11 +17,7 @@ ls_modules_sort_by_name() {
 gen_aroma_config() {
     ac_tmp=/tmp/mmr/template/META-INF/com/google/android/aroma-config
     mv /tmp/mmr/script/ac-1.in $ac_tmp
-    if [ -f $settings_save_prop ] && [ $(file_getprop $settings_save_prop "sort_by_name") -eq 1 ]; then
-        installed_modules=`ls_modules_sort_by_name`
-    else
-        installed_modules=`ls_modules_sort_by_id`
-    fi
+    installed_modules=`ls_modules_sort_by_name`
     cat >> $ac_tmp <<EOF
 menubox(
     "Main menu",
@@ -241,7 +235,6 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
         "Shrinking magisk.img", getvar("shrink_text2"), getvar("shrink_icon"),
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
         "Superuser", "", "@action",
-        "Select module list sorting method", "Current: " + getvar("sort_text2"), "@action",
         "Uninstall Magisk", "Root will be fully removed from the device.", "@action",
         "Debug options", "", "@action",
         "Back", "", "@back2"
@@ -376,28 +369,6 @@ EOF
     endif;
     if prop("advanced.prop", "selected") == "5" then
         if confirm(
-            "Select module list sorting method",
-            "Please select sorting method:",
-            "@info",
-            getvar("sort_text2_s1"),
-            getvar("sort_text2_s2")) == "yes"
-        then
-            setvar("sort_by_name", "0");
-        else
-            setvar("sort_by_name", "1");
-        endif;
-        exec("/sbin/sh", "/tmp/mmr/script/save-settings.sh", "sort_by_name", getvar("sort_by_name"));
-        alert(
-            "Done",
-            "You select \"Sort " + iif(getvar("sort_by_name") == "0", getvar("sort_text2_s1"), getvar("sort_text2_s2")) + "\",\n" +
-            "Will be applied the next time you use this tool.",
-            "@done",
-            "OK"
-        );
-        back("1");
-    endif;
-    if prop("advanced.prop", "selected") == "6" then
-        if confirm(
             "Warning!",
             "Are you sure want to uninstall Magisk?\n\nAll modules will be disabled/removed.\nRoot will be removed. and your data\npotentially encrypted if not already.",
             "@warning",
@@ -435,7 +406,7 @@ EOF
         endif;
         exit("");
     endif;
-    if prop("advanced.prop", "selected") == "7" then
+    if prop("advanced.prop", "selected") == "6" then
         menubox(
             "Debug options",
             "Choose an action",
