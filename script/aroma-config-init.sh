@@ -109,7 +109,7 @@ then
     endif;
 
     if getvar("stat_code") == "0" || getvar("stat_code") == "5" then
-        setvar("module_status", "已禁用");
+        setvar("module_status", "<#f00>已禁用</#>");
         setvar("module_status_switch_text",  "启用该模块");
         setvar("module_status_switch_text2", "");
         setvar("module_status_switch_icon",  "@action2");
@@ -121,7 +121,7 @@ then
         setvar("module_status_switch_icon",  "@offaction");
     endif;
     if cmp(getvar("stat_code"), ">=", "4") then
-        setvar("module_status", "待移除");
+        setvar("module_status", "<#f00>重启后被移除</#>");
         setvar("module_remove_switch_text",  "<b><i>撤销</i></b> 重启后移除该模块");
         setvar("module_remove_switch_text2", "");
         setvar("module_remove_switch_icon",  "@refresh");
@@ -145,7 +145,7 @@ then
     endif;
 
     if getvar("stat_code") == "3" then
-        setvar("module_status", "待更新");
+        setvar("module_status", "<#f00>重启后完成更新</#>");
         setvar("module_status_switch_text",        "启用/禁用该模块");
         setvar("module_status_switch_text2",       "不允许的操作");
         setvar("module_status_switch_icon",        "@crash");
@@ -162,8 +162,8 @@ then
         "模块: " + getvar("modname"),
         "模块 ID: " + getvar("modid") + "\n" +
         "占用空间: " + getvar("modsize") + "\n" +
-        "模块状态: " + getvar("module_status") + "\n" +
-        "挂载状态: " + getvar("module_mount_status"),
+        "挂载状态: " + getvar("module_mount_status") + "\n" +
+        "模块状态: " + getvar("module_status"),
         "@welcome",
         "modoperations.prop",
 
@@ -219,14 +219,7 @@ then
             back("1");
         endif;
     endif;
-    if exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", getvar("module_operate"), getvar("modid")) == "0" then
-        alert(
-            "成功",
-            getvar("exec_buffer"),
-            "@done",
-            "确定"
-        );
-    else
+    if exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", getvar("module_operate"), getvar("modid")) != "0" then
         alert(
             "失败",
             getvar("exec_buffer"),
@@ -297,12 +290,6 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
     endif;
     if prop("advanced.prop", "selected") == "3" then
         exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "switch");
-        alert(
-            "完成",
-            getvar("exec_buffer"),
-            "@done",
-            "确定"
-        );
         back("1");
     endif;
     if prop("advanced.prop", "selected") == "4" then
