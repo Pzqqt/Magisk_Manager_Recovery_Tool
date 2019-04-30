@@ -220,14 +220,12 @@ then
         endif;
     endif;
     if exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", getvar("module_operate"), getvar("modid")) == "0" then
-        if getvar("geek_mode") == "0" then
-            alert(
-                "成功",
-                getvar("exec_buffer"),
-                "@done",
-                "确定"
-            );
-        endif;
+        alert(
+            "成功",
+            getvar("exec_buffer"),
+            "@done",
+            "确定"
+        );
     else
         alert(
             "失败",
@@ -299,14 +297,12 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
     endif;
     if prop("advanced.prop", "selected") == "3" then
         exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "switch");
-        if getvar("geek_mode") == "0" then
-            alert(
-                "完成",
-                getvar("exec_buffer"),
-                "@done",
-                "确定"
-            );
-        endif;
+        alert(
+            "完成",
+            getvar("exec_buffer"),
+            "@done",
+            "确定"
+        );
         back("1");
     endif;
     if prop("advanced.prop", "selected") == "4" then
@@ -460,20 +456,9 @@ EOF
             "debug.prop",
 
             "重建模块图标索引文件", "", "@action",
-            getvar("geek_text"), getvar("geek_text2"), "@action",
             "返回", "", "@back2"
         );
         prop("debug.prop", "selected") == "1" && exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh", "--regen");
-        if prop("debug.prop", "selected") == "2" then
-            if getvar("geek_mode") == "0" then
-                exec("/sbin/sh", "/tmp/mmr/script/save-settings.sh", "geek_mode", "1");
-                setvar("geek_mode", "1");
-            else
-                exec("/sbin/sh", "/tmp/mmr/script/save-settings.sh", "geek_mode", "0");
-                setvar("geek_mode", "0");
-            endif;
-            back("1");
-        endif;
     endif;
 endif;
 
