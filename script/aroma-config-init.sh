@@ -60,7 +60,7 @@ endif;
 if prop("operations.prop", "selected") == "2" then
     if confirm(
         "退出",
-        "您确定要退出 Magisk Manager Recovery 工具吗?",
+        "您确定要退出 Magisk Manager Recovery Tool 吗?",
         "@warning") == "yes"
     then
         exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");

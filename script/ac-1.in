@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-ini_set("rom_name",    "Magisk Manager Recovery 工具");
+ini_set("rom_name",    "Magisk Manager Recovery Tool");
 ini_set("rom_version", "@BUILD_VERSION@");
 ini_set("rom_author",  "Pzqqt");
 ini_set("rom_device",  "");
