@@ -109,7 +109,7 @@ then
         setvar("module_status_switch_icon",  "@action2");
     endif;
     if getvar("stat_code") == "1" || getvar("stat_code") == "4" then
-        setvar("module_status", "已启用");
+        setvar("module_status", "<#0f0>已启用</#>");
         setvar("module_status_switch_text",  "禁用该模块");
         setvar("module_status_switch_text2", "");
         setvar("module_status_switch_icon",  "@offaction");
