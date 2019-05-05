@@ -19,13 +19,13 @@ abort() {
 }
 
 grep_prop() {
-  REGEX="s/^$1=//p"
-  shift
-  FILES=$@
-  if [ -z "$FILES" ]; then
-    FILES='/system/build.prop /system/system/build.prop'
-  fi
-  cat $FILES 2>/dev/null | sed -n $REGEX | head -n 1
+    REGEX="s/^$1=//p"
+    shift
+    FILES=$@
+    if [ -z "$FILES" ]; then
+        FILES='/system/build.prop /system/system/build.prop'
+    fi
+    cat $FILES 2>/dev/null | sed -n $REGEX | head -n 1
 }
 
 # mount all
@@ -53,15 +53,15 @@ MAGISK_VER_CODE=$(grep_prop "MAGISK_VER_CODE" /data/adb/magisk/util_functions.sh
 [ -z "$MAGISK_VER_CODE" ] && abort "Error: Please install or upgrade Magisk."
 ui_print "Installed Magisk version: $MAGISK_VER_CODE"
 if [ "$MAGISK_VER_CODE" -gt 18100 ]; then
-  mkdir -p $imagelessPath
-  imageless_magisk=true
+    mkdir -p $imagelessPath
+    imageless_magisk=true
 else
-  if ! [ -f "$imagePath" ]; then
-    ui_print "$imagePath not found."
-    ui_print "Creating one with size 64M."
-    which make_ext4fs && make_ext4fs -l "64M" $imagePath || abort "Error: magisk.img creation failed."
-  fi
-  imageless_magisk=false
+    if ! [ -f "$imagePath" ]; then
+        ui_print "$imagePath not found."
+        ui_print "Creating one with size 64M."
+        make_ext4fs -l "64M" $imagePath || abort "Error: magisk.img creation failed."
+    fi
+    imageless_magisk=false
 fi
 
 rm -rf /tmp/mmr/
@@ -71,11 +71,11 @@ unzip "${zipfile}"
 
 chmod 0755 ./script/*
 if $imageless_magisk; then
-  ui_print "Symlink $imagelessPath to $workPath"
-  ./script/symlink-magisk.sh $imagelessPath $workPath || abort "Error: Failed to symlink modules path!"
+    ui_print "Symlink $imagelessPath to $workPath"
+    ./script/symlink-magisk.sh $imagelessPath $workPath || abort "Error: Failed to symlink modules path!"
 else
-  ui_print "Mount $imagePath to $workPath"
-  ./script/mount-magisk.sh $imagePath $workPath || abort "Error: Failed to mount $imagePath!"
+    ui_print "Mount $imagePath to $workPath"
+    ./script/mount-magisk.sh $imagePath $workPath || abort "Error: Failed to mount $imagePath!"
 fi
 ui_print "Generating AROMA config"
 ./script/aroma-config-init.sh

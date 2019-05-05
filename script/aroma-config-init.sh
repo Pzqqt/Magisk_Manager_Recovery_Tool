@@ -337,7 +337,7 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
 EOF
     pps=`/tmp/mmr/script/control-sqlite.sh get_saved_package_name_policy | sed 's/|/=/g'`
     if [ -z "$pps" ]; then
-        echo "\"看起来你尚未授权任何应用 ...\",\"\", 2," >> $ac_tmp
+        echo "                \"看起来你尚未授权任何应用 ...\",\"\", 2," >> $ac_tmp
     else
         for pp in $pps; do
             echo "                \"${pp%=*}\", \"\", 0," >> $ac_tmp
