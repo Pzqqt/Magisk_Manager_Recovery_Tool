@@ -414,9 +414,59 @@ EOF
             "debug.prop",
 
             "重建模块图标索引文件", "", "@action",
+            "添加快捷启动选项到 Recovery 高级菜单", "", "@action",
             "返回", "", "@back2"
         );
         prop("debug.prop", "selected") == "1" && exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh", "--regen");
+        if prop("debug.prop", "selected") == "2" then
+            if confirm(
+                "警告",
+                "你在使用 RedWolf, OrangeFox, PitchBlack,\n或其他的 TWRP 魔改版吗?",
+                "@warning",
+                "是的",
+                "不, 我在使用 TWRP") == "yes"
+            then
+                alert(
+                    "不允许的操作",
+                    "很抱歉, 该选项仅适用于 TWRP 官方版!",
+                    "@crash",
+                    "返回"
+                );
+                back("1");
+            endif;
+            agreebox(
+                "说明",
+                "请认真阅读以下说明信息:",
+                "@warning",
+                resread("install_twrp_theme_about.txt"),
+                "我已了解",
+                "请在认真阅读完说明信息后勾选底部的复选框..."
+            );
+            writetmpfile("install_twrp_theme_flag", "# FLAG\n");
+            setvar("uninstall_exitcode",
+                install(
+                    "安装 TWRP 主题",
+                    "正在安装修改版 TWRP 主题, 请稍候...",
+                    "@welcome",
+                    "点击下一步以继续..."
+                )
+            );
+            if getvar("uninstall_exitcode") == "0" then
+                alert(
+                    "完成",
+                    "已成功安装修改版 TWRP 主题.\n\n请在下次进入 Recovery 模式后查看效果.",
+                    "@done",
+                    "返回"
+                );
+            else
+                alert(
+                    "失败",
+                    "很抱歉, 主题安装失败!\n\n请保存日志并向作者反馈.",
+                    "@crash",
+                    "返回"
+                );
+            endif;
+        endif;
     endif;
 endif;
 

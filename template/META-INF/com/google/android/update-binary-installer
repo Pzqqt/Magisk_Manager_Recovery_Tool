@@ -8,11 +8,68 @@ interface="${1}"
 updater_fd="${2}"
 zipfile="${3}"
 
-tmp_dir=/tmp/magisk_uninstaller
-uninstaller_zip=/tmp/mmr/template/Magisk-uninstaller-20190501.zip
+temp_path=/tmp/mmr/template
+uninstaller_path=${temp_path}/magisk_uninstaller
+uninstaller_zip=${temp_path}/Magisk-uninstaller-20190501.zip
 
-mkdir -p $tmp_dir
-test -f $uninstaller_zip
-unzip $uninstaller_zip -d $tmp_dir
+install_theme_flag=/tmp/aroma/install_twrp_theme_flag
+theme_path=/sdcard/TWRP/theme
 
-exec ${tmp_dir}/META-INF/com/google/android/update-binary "${interface}" "${updater_fd}" $uninstaller_zip
+ui_print() {
+    echo "ui_print $1" > /proc/self/fd/"${updater_fd}"
+    echo "ui_print" > /proc/self/fd/"${updater_fd}"
+}
+
+uninstall_magisk() {
+    mkdir -p $uninstaller_path || :
+    test -f $uninstaller_zip
+    unzip $uninstaller_zip -d $uninstaller_path
+
+    chmod 0755 ${uninstaller_path}/META-INF/com/google/android/update-binary
+    exec ${uninstaller_path}/META-INF/com/google/android/update-binary "${interface}" "${updater_fd}" $uninstaller_zip
+}
+
+install_theme() {
+    twrp_version=$(getprop ro.twrp.version)
+    [ -z "$twrp_version" ] && {
+        ui_print "! Failed to get TWRP version! abort..."
+        exit 1
+    }
+    ui_print "- TWRP version: $twrp_version"
+
+    if [[ ${twrp_version::3} = "3.3" ]]; then
+        use_zip=$temp_path/ui_sp_v330.zip
+    elif [[ ${twrp_version::3} = "3.2" ]]; then
+        use_zip=$temp_path/ui_sp_v320.zip
+    fi
+    [ -z "$use_zip" ] && {
+        ui_print "! Not support your TWRP version!"
+        ui_print "! Please upgrade your TWRP to 3.2.0+ version!"
+        ui_print "! abort..."
+        exit 1
+    }
+
+    mkdir -p $theme_path || :
+    [ -f $theme_path/ui.zip ] && mv -f $theme_path/ui.zip $theme_path/ui.zip.bak || :
+    mv -f $use_zip $theme_path/ui.zip
+
+    zipfile_self_path=$(cat /tmp/mmr/zipfile_self)
+    test -n "$zipfile_self_path"
+    test -f "$zipfile_self_path"
+    [[ $zipfile_self_path != $theme_path/mmrt/mmrt.zip ]] && {
+        ui_print "- Copy tool itself to theme path"
+        mkdir -p $theme_path/mmrt
+        cp -f $zipfile_self_path $theme_path/mmrt/mmrt.zip
+    }
+
+    ui_print "- Done! Theme installed!"
+}
+
+if [ -f $install_theme_flag ]; then
+    install_theme
+    rm -f $install_theme_flag
+else
+    uninstall_magisk
+fi
+
+exit 0
