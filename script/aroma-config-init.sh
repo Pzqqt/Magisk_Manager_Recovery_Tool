@@ -179,6 +179,7 @@ then
         back("1");
     endif;
     if prop("modoperations.prop", "selected") == "2" then
+        pleasewait("正在获取 ...");
         exec("/sbin/sh", "/tmp/mmr/script/get-module-tree.sh", getvar("modid"));
         ini_set("text_next", "");
         ini_set("icon_next", "@none");
