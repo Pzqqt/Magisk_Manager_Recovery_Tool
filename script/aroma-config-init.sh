@@ -294,6 +294,7 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
                 "@crash",
                 "OK"
             );
+            back("1");
         endif;
         menubox(
             "Superuser",
