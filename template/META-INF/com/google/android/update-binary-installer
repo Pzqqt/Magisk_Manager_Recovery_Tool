@@ -15,4 +15,5 @@ mkdir -p $tmp_dir
 test -f $uninstaller_zip
 unzip $uninstaller_zip -d $tmp_dir
 
+chmod 0755 ${tmp_dir}/META-INF/com/google/android/update-binary
 exec ${tmp_dir}/META-INF/com/google/android/update-binary "${interface}" "${updater_fd}" $uninstaller_zip
