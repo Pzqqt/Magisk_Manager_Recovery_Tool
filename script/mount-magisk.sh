@@ -46,6 +46,11 @@ umount /system
 umount $mountPath
 losetup -d $loopDevice
 rmdir $mountPath
+
+[ -z "\$PATH_BAK" ] || {
+    export PATH=\$PATH_BAK
+    unset PATH_BAK
+}
 EOF
     chmod 0755 $donescript
 }

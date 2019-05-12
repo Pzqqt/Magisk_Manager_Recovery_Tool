@@ -28,6 +28,10 @@ gen_done_script() {
 umount /system
 rm -f $workPath
 
+[ -z "\$PATH_BAK" ] || {
+    export PATH=\$PATH_BAK
+    unset PATH_BAK
+}
 EOF
     chmod 0755 $donescript
 }

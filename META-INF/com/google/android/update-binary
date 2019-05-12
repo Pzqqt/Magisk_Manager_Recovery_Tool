@@ -28,10 +28,26 @@ grep_prop() {
     cat $FILES 2>/dev/null | sed -n $REGEX | head -n 1
 }
 
+install_bb() {
+    local magisk_bb=/data/adb/magisk/busybox
+    local tmp_bb=/tmp/bb
+    [ -f $magisk_bb ] || abort "Error: Please install or upgrade Magisk."
+    [ -d $tmp_bb ] && [ -f ${tmp_bb}/test ] || {
+        mkdir -p $tmp_bb
+        ln -s $magisk_bb ${tmp_bb}/busybox
+        $magisk_bb --install -s $tmp_bb
+    }
+    export PATH_BAK=$PATH
+    echo $PATH | grep -q "^$tmp_bb" || export PATH=${tmp_bb}:${PATH}
+}
+
 # mount all
 mount -o ro /system || :
 mount /cache || :
 mount /data || :
+
+# make sure the Magisk internal busybox path is PREPENDED to PATH
+install_bb
 
 # check arch
 ARCH=arm
