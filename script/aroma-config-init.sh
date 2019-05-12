@@ -294,6 +294,7 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
                 "@crash",
                 "确定"
             );
+            back("1");
         endif;
         menubox(
             "超级用户",
