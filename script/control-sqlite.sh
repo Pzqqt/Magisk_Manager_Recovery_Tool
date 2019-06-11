@@ -5,15 +5,11 @@ arg_2=$2
 arg_3=$3
 
 sqlite_path=/data/adb/magisk.db
-sqlite3_exec=""
+sqlite3_exec=/tmp/mmr/script/sqlite3
 
 # find available sqlite3
 find_sqlite3() {
-    mountpoint -q /system || mount -o ro /system
-    which sqlite3 &>/dev/null && sqlite3_exec=`which sqlite3` && $sqlite3_exec --version &>/dev/null && return
-
-    # try to use prebuilt sqlite3 binary
-    sqlite3_exec=/tmp/mmr/script/sqlite3
+    # force use prebuilt sqlite3 binary
     $sqlite3_exec --version &>/dev/null || {
         echo -e "\nCannot found available sqlite3!"
         exit 2
