@@ -27,11 +27,7 @@ mount_image() {
         is_mounted $2 || {
             loopDevice=/dev/block/loop$LOOP
             [ -f $loopDevice ] || mknod $loopDevice b 7 $LOOP 2>/dev/null
-            losetup $loopDevice $1 && {
-                mount -t ext4 -o loop $loopDevice $2
-                is_mounted $2 || /system/bin/toolbox mount -t ext4 -o loop $loopDevice $2
-                is_mounted $2 || /system/bin/toybox mount -t ext4 -o loop $loopDevice $2
-            }
+            losetup $loopDevice $1 && mount -t ext4 -o loop $loopDevice $2
             is_mounted $2 && break
         }
     done
@@ -42,7 +38,6 @@ gen_done_script() {
     cat > $donescript <<EOF
 #!/sbin/sh
 
-umount /system
 umount $mountPath
 losetup -d $loopDevice
 rmdir $mountPath

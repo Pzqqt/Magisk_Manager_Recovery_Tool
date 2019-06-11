@@ -18,16 +18,6 @@ abort() {
     exit 1
 }
 
-grep_prop() {
-    REGEX="s/^$1=//p"
-    shift
-    FILES=$@
-    if [ -z "$FILES" ]; then
-        FILES='/system/build.prop /system/system/build.prop'
-    fi
-    cat $FILES 2>/dev/null | sed -n $REGEX | head -n 1
-}
-
 install_bb() {
     local magisk_bb=/data/adb/magisk/busybox
     local tmp_bb=/tmp/bb
@@ -42,7 +32,6 @@ install_bb() {
 }
 
 # mount all
-mount -o ro /system || :
 mount /cache || :
 mount /data || :
 
@@ -51,21 +40,20 @@ install_bb
 
 # check arch
 ARCH=arm
-ABI=$(grep_prop ro.product.cpu.abi | cut -c-3)
-ABI2=$(grep_prop ro.product.cpu.abi2 | cut -c-3)
-API=$(grep_prop ro.build.version.sdk)
-ABILONG=$(grep_prop ro.product.cpu.abi)
-[ "$ABI" = "x86" ] && ARCH=x86
-[ "$ABI2" = "x86" ] && ARCH=x86
+ABI=$(getprop ro.product.cpu.abi)
+ABI2=$(getprop ro.product.cpu.abi2)
+[ "$ABI" = "x86" ] && ARCH="x86"
+[ "$ABI" = "x86_64" ] && ARCH="x86_64"
+[ "$ABI2" = "x86" ] && ARCH="x86"
 [ "$ARCH" = "x86" ] && abort "Error: X86 arch is not supported"
-[ "$ABILONG" = "x86_64" ] && abort "Error: X64 arch is not supported"
-[ "$ABILONG" = "arm64-v8a" ] && ARCH=arm64
+[ "$ARCH" = "x86_64" ] && abort "Error: X64 arch is not supported"
+[ "$ABI" = "arm64-v8a" ] && ARCH="arm64"
 
 # find modules path or magisk.img
 workPath=/magisk
 imagelessPath=/data/adb/modules
 imagePath=/data/adb/magisk.img
-MAGISK_VER_CODE=$(grep_prop "MAGISK_VER_CODE" /data/adb/magisk/util_functions.sh)
+MAGISK_VER_CODE=$(grep "^MAGISK_VER_CODE=" /data/adb/magisk/util_functions.sh | head -n1 | cut -d= -f2)
 [ -z "$MAGISK_VER_CODE" ] && abort "Error: Please install or upgrade Magisk."
 ui_print "Installed Magisk version: $MAGISK_VER_CODE"
 if [ "$MAGISK_VER_CODE" -gt 18100 ]; then
