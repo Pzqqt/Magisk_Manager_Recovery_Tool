@@ -25,7 +25,6 @@ gen_done_script() {
     cat > $donescript <<EOF
 #!/sbin/sh
 
-umount /system
 rm -f $workPath
 
 [ -z "\$PATH_BAK" ] || {
