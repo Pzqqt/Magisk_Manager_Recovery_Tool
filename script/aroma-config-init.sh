@@ -36,7 +36,7 @@ EOF
         for module in $installed_modules; do
             echo "    file_getprop(\"${workPath}/${module}/module.prop\", \"name\") || \"(No info provided)\"," >> $ac_tmp
             echo "    \"<i><b>\" + (file_getprop(\"${workPath}/${module}/module.prop\", \"version\") || \"(No info provided)\") +" >> $ac_tmp
-            echo '    "\\nAuthor: " +' "(file_getprop(\"${workPath}/${module}/module.prop\", \"author\") || \"(No info provided)\") + \"</b></i>\"," >> $ac_tmp
+            echo "    \"\nAuthor: \" + (file_getprop(\"${workPath}/${module}/module.prop\", \"author\") || \"(No info provided)\") + \"</b></i>\"," >> $ac_tmp
             echo "    prop(\"module_icon.prop\", \"module.icon.${module}\") || \"@removed\"," >> $ac_tmp
         done
     fi
