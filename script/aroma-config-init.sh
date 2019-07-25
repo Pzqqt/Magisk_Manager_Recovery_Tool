@@ -102,6 +102,7 @@ then
         back("1");
     endif;
 
+    setvar("module_remove_icon", "@delete");
     if getvar("stat_code") == "0" || getvar("stat_code") == "5" then
         setvar("module_status", "<#f00>已禁用</#>");
         setvar("module_status_switch_text",  "启用该模块");
@@ -166,7 +167,7 @@ then
         getvar("module_status_switch_text"), getvar("module_status_switch_text2"), getvar("module_status_switch_icon"),
         getvar("module_mount_status_switch_text"), getvar("module_mount_status_switch_text2"), getvar("module_mount_status_switch_icon"),
         getvar("module_remove_switch_text"), getvar("module_remove_switch_text2"), getvar("module_remove_switch_icon"),
-        getvar("module_remove_text"), getvar("module_remove_text2"), getvar("module_remove_icon")
+        "立即移除该模块", getvar("module_remove_text2"), getvar("module_remove_icon")
     );
 
     if prop("modoperations.prop", "selected") == "1" then
@@ -206,7 +207,7 @@ then
     if prop("modoperations.prop", "selected") == "6" then
         if confirm(
             "警告",
-            "您确定要移除该模块吗? 此操作不可恢复!",
+            getvar("module_remove_warning") + "您确定要移除该模块吗? 此操作不可恢复!",
             "@warning") == "yes"
         then
             setvar("module_operate", "remove");
