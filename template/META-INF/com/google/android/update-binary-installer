@@ -24,7 +24,7 @@ uninstall_magisk() {
     unzip $uninstaller_zip -d $uninstaller_path
 
     chmod 0755 ${uninstaller_path}/META-INF/com/google/android/update-binary
-    exec ${uninstaller_path}/META-INF/com/google/android/update-binary "${interface}" "${updater_fd}" $uninstaller_zip
+    exec ${uninstaller_path}/META-INF/com/google/android/update-binary "${interface}" "${updater_fd}" "${uninstaller_zip}"
 }
 
 install_theme() {
@@ -43,21 +43,21 @@ install_theme() {
     [ -z "$use_zip" ] && {
         ui_print "! Not support your TWRP version!"
         ui_print "! Please upgrade your TWRP to 3.2.0+ version!"
-        ui_print "! abort..."
+        ui_print "! Abort..."
         exit 1
     }
 
     mkdir -p $theme_path || :
-    [ -f $theme_path/ui.zip ] && mv -f $theme_path/ui.zip $theme_path/ui.zip.bak || :
+    [ -f ${theme_path}/ui.zip ] && mv -f ${theme_path}/ui.zip ${theme_path}/ui.zip.bak || :
     mv -f $use_zip $theme_path/ui.zip
 
-    zipfile_self_path=$(cat /tmp/mmr/zipfile_self)
+    zipfile_self_path="$(cat /tmp/mmr/zipfile_self)"
     test -n "$zipfile_self_path"
     test -f "$zipfile_self_path"
-    [[ $zipfile_self_path != $theme_path/mmrt/mmrt.zip ]] && {
+    [[ $zipfile_self_path != ${theme_path}/mmrt/mmrt.zip ]] && {
         ui_print "- Copy tool itself to theme path"
-        mkdir -p $theme_path/mmrt
-        cp -f $zipfile_self_path $theme_path/mmrt/mmrt.zip
+        mkdir -p ${theme_path}/mmrt
+        cp -f $zipfile_self_path ${theme_path}/mmrt/mmrt.zip
     }
 
     ui_print "- Done! Theme installed!"

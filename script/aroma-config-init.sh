@@ -103,6 +103,7 @@ then
     endif;
 
     setvar("module_remove_icon", "@delete");
+    setvar("module_remove_text2", "");
     if getvar("stat_code") == "0" || getvar("stat_code") == "5" then
         setvar("module_status", "<#f00>已禁用</#>");
         setvar("module_status_switch_text",  "启用该模块");
