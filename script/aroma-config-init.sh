@@ -339,12 +339,12 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
                 "magisksu_apps.prop",
 
 EOF
-    pps=`/tmp/mmr/script/control-sqlite.sh get_saved_package_name_policy | sed 's/|/=/g'`
+    pps=`/tmp/mmr/script/control-sqlite.sh get_saved_package_name_uid | sed 's/|/=/g'`
     if [ -z "$pps" ]; then
         echo "                \"看起来你尚未授权任何应用 ...\",\"\", 2," >> $ac_tmp
     else
         for pp in $pps; do
-            echo "                \"${pp%=*}\", \"\", 0," >> $ac_tmp
+            echo "                \"${pp%=*}\", \"uid: ${pp#*=}\", 0," >> $ac_tmp
         done
     fi
     cat >> $ac_tmp <<EOF
