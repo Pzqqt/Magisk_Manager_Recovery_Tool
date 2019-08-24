@@ -54,5 +54,3 @@ EOF
         exit 1
     } ;;
 esac
-
-[ $? = 0 ] || exit 1
