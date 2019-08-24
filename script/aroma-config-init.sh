@@ -1,7 +1,6 @@
 #!/sbin/sh
 
 workPath=/magisk
-settings_save_prop=/sdcard/TWRP/mmrt.prop
 
 file_getprop() { grep "^$2=" "$1" | head -n1 | cut -d= -f2; }
 
@@ -255,34 +254,33 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
     if prop("advanced.prop", "selected") == "2" then
         if cmp(getvar("MAGISK_VER_CODE"), ">", "18100") then
             back("1");
-        else
-            pleasewait("Executing Shell...");
-            if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
-                alert(
-                    "Done",
-                    getvar("exec_buffer"),
-                    "@done",
-                    "OK"
-                );
-                if confirm(
-                    "Note",
-                    "The magisk image has been unmounted.\n\nThis tool will exit.\nIf you still need to use, please reflash this tool.\n\n",
-                    "@warning",
-                    "Exit to Recovery",
-                    "Reboot") == "no"
-                then
-                    reboot("now");
-                endif;
-            else
-                alert(
-                    "Failed",
-                    getvar("exec_buffer"),
-                    "@crash",
-                    "Exit"
-                );
-            endif;
-            exit("");
         endif;
+		pleasewait("Executing Shell...");
+		if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
+		    alert(
+		        "Done",
+		        getvar("exec_buffer"),
+		        "@done",
+		        "OK"
+		    );
+		    if confirm(
+		        "Note",
+		        "The magisk image has been unmounted.\n\nThis tool will exit.\nIf you still need to use, please reflash this tool.\n\n",
+		        "@warning",
+		        "Exit to Recovery",
+		        "Reboot") == "no"
+		    then
+		        reboot("now");
+		    endif;
+		else
+		    alert(
+		        "Failed",
+		        getvar("exec_buffer"),
+		        "@crash",
+		        "Exit"
+		    );
+        endif;
+        exit("");
     endif;
     if prop("advanced.prop", "selected") == "3" then
         exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "switch");
