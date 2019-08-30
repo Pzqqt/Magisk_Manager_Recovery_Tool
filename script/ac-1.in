@@ -24,6 +24,8 @@ ini_set("rom_date",    "@BUILD_DATE@");
 # Chinese By Pzqqt
 
 ini_set("force_colorspace", "rgba");
+ini_set("transition_frame", "10");
+
 loadlang("langs/cn.lang");
 
 theme("default");
