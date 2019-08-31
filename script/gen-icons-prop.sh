@@ -1,11 +1,10 @@
 #!/sbin/sh
 
+. /tmp/mmr/script/common.sh
+
 update_icon_module=$1
 
-workPath=/magisk
 dst_prop_file=/tmp/aroma/module_icon.prop
-
-ls_mount_path() { ls -1 ${workPath} | grep -v 'lost+found'; }
 
 get_useicon() {
     /tmp/mmr/script/control-module.sh status $1

@@ -1,10 +1,6 @@
 #!/sbin/sh
 
-workPath=/magisk
-
-file_getprop() { grep "^$2=" "$1" | head -n1 | cut -d= -f2; }
-
-ls_mount_path() { ls -1 ${workPath} | grep -v 'lost+found'; }
+. /tmp/mmr/script/common.sh
 
 ls_modules_sort_by_name() {
     local installed_modules_tmp=`ls_mount_path`

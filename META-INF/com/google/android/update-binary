@@ -50,7 +50,6 @@ ABI2=$(getprop ro.product.cpu.abi2)
 [ "$ABI" = "arm64-v8a" ] && ARCH="arm64"
 
 # find modules path or magisk.img
-workPath=/magisk
 imagelessPath=/data/adb/modules
 imagePath=/data/adb/magisk.img
 MAGISK_VER_CODE=$(grep "^MAGISK_VER_CODE=" /data/adb/magisk/util_functions.sh | head -n1 | cut -d= -f2)
@@ -74,6 +73,7 @@ cd /tmp/mmr/
 unzip "${zipfile}"
 
 chmod 0755 ./script/*
+. /tmp/mmr/script/common.sh
 if $imageless_magisk; then
     ui_print "Symlink $imagelessPath to $workPath"
     ./script/symlink-magisk.sh $imagelessPath $workPath || abort "Error: Failed to symlink modules path!"
