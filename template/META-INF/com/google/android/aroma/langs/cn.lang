@@ -31,7 +31,7 @@ text_no=否
 text_about=关于
 text_calibrating=屏幕校准
 text_quit=退出 Magisk Manager Recovery Tool
-text_quit_msg=您确定要退出 Magisk Manager Recovery Tool 吗？
+text_quit_msg=您确定要退出 Magisk Manager Recovery Tool 吗?
 
 #
 #-- CUSTOM STRING RESOURCE
