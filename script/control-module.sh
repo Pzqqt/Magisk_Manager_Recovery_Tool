@@ -1,9 +1,10 @@
 #!/sbin/sh
 
+. /tmp/mmr/script/common.sh
+
 operate=$1
 module=$2
 
-workPath=/magisk
 modulePath=${workPath}/${module}
 
 exist_flag() { test -f ${modulePath}/${1}; }

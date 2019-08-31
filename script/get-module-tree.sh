@@ -1,7 +1,7 @@
 #!/sbin/sh
 
-module=$1
+. /tmp/mmr/script/common.sh
 
-workPath=/magisk
+module=$1
 
 /tmp/mmr/script/tree ${workPath}/${module}

@@ -1,11 +1,11 @@
 #!/sbin/sh
 
+. /tmp/mmr/script/common.sh
+
 operate=$1
 
 prop_path=/tmp/aroma/magisksu_apps.prop
 num_uid_prop=/tmp/mmr/num_uid.prop
-
-file_getprop() { grep "^$2=" "$1" | head -n1 | cut -d= -f2; }
 
 [ -z "$operate" ] && {
     : > $prop_path
