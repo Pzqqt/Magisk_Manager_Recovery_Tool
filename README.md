@@ -8,7 +8,7 @@
 - 1.启用/禁用模块
 - 2.启用/禁用模块挂载
 - 3.(撤销)重启后移除模块
-- 4.直接移除模块(适用于 Magisk v18.1 及之前的版本)
+- 4.直接移除模块
 - 5.启用/禁用 Magisk 核心模式
 - 6.查看模块描述 版本 作者等信息
 - 7.预览模块目录文件结构
@@ -28,7 +28,7 @@
 
 ## 引用
 - <a href="https://github.com/chenxiaolong/DualBootPatcher/tree/master/utilities">DualBootUtilities</a>(主体代码)<br>
-- <a href="https://forum.xda-developers.com/apps/magisk/module-tool-magisk-manager-recovery-mode-t3693165">Magisk Manager for Recovery Mode (mm)</a>(magisk.img 镜像挂载方法)<br>
+- <a href="https://forum.xda-developers.com/apps/magisk/module-tool-magisk-manager-recovery-mode-t3693165">Magisk Manager for Recovery Mode (mm)</a>(magisk.img 镜像挂载代码)<br>
 - <a href="https://elementalx.org/devices/">ElementalX Kernel</a>(Aroma Installer 主题)<br>
 - <a href="https://sourceforge.net/projects/p7zip/files/p7zip/16.02/">p7zip</a>(7za 二进制文件)<br>
 - <a href="http://mama.indstate.edu/users/ice/tree/">tree</a>(tree 二进制文件)<br>
