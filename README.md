@@ -8,7 +8,7 @@ It's based on <a href="https://github.com/amarullz/AROMA-Installer">Aroma Instal
 - 1.Enable/Disable modules
 - 2.Enable/Disable modules mount
 - 3.Remove modules at next reboot(support undo)
-- 4.Remove modules directly(useable for Magisk v18.1 and earlier)
+- 4.Remove modules directly
 - 5.Enable/Disable Magisk core only mode
 - 6.View module descriptions, versions, authors, etc.
 - 7.View module content(directory structure)
@@ -23,7 +23,7 @@ It's based on <a href="https://github.com/amarullz/AROMA-Installer">Aroma Instal
 
 ## Note
 - 1.Only supported arm & arm64 architecture. Not supported x86 & x64 architecture.<br>
-- 2.Will get stuck at Recovery for some device(such as Xiaomi 8). This is a bug in Aroma Installer binary file and I can not fix it(about: <a href="https://github.com/amarullz/AROMA-Installer/issues/38">issue</a>).<br>
+- 2.Will get stuck at Recovery for some device. This is a bug in Aroma Installer binary file and I can not fix it(about: <a href="https://github.com/amarullz/AROMA-Installer/issues/38">issue</a>).<br>
 - 3.Known unsupported devices: Xiaomi 8, Xiaomi 8SE, Xiaomi 9, Xiaomi Mix2S, Xiaomi Mix3, Oneplus 6
 
 ## Reference
