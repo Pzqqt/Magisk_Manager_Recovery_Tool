@@ -14,10 +14,12 @@ gen_aroma_config() {
     mv /tmp/mmr/script/ac-1.in $ac_tmp
     installed_modules=`ls_modules_sort_by_name`
     cat >> $ac_tmp <<EOF
+exec("/sbin/sh", "/tmp/mmr/script/count-modules.sh");
+
 menubox(
     "Main menu",
     "Choose an action" +
-    "\nYou have installed $(ls_mount_path | wc -l) module(s), Total size: $(du -sh ${workPath}/ | awk '{print $1}')" +
+    getvar("exec_buffer") +
     getvar("core_only_mode_warning"),
     "@welcome",
     "operations.prop",
