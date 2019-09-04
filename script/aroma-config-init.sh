@@ -250,33 +250,31 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
         back("1");
     endif;
     if prop("advanced.prop", "selected") == "2" then
-        if cmp(getvar("MAGISK_VER_CODE"), ">", "18100") then
-            back("1");
-        endif;
-		pleasewait("Executing Shell...");
-		if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
-		    alert(
-		        "Done",
-		        getvar("exec_buffer"),
-		        "@done",
-		        "OK"
-		    );
-		    if confirm(
-		        "Note",
-		        "The magisk image has been unmounted.\n\nThis tool will exit.\nIf you still need to use, please reflash this tool.\n\n",
-		        "@warning",
-		        "Exit to Recovery",
-		        "Reboot") == "no"
-		    then
-		        reboot("now");
-		    endif;
-		else
-		    alert(
-		        "Failed",
-		        getvar("exec_buffer"),
-		        "@crash",
-		        "Exit"
-		    );
+        cmp(getvar("MAGISK_VER_CODE"), ">", "18100") && back("1");
+        pleasewait("Executing Shell...");
+        if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
+            alert(
+                "Done",
+                getvar("exec_buffer"),
+                "@done",
+                "OK"
+            );
+            if confirm(
+                "Note",
+                "The magisk image has been unmounted.\n\nThis tool will exit.\nIf you still need to use, please reflash this tool.\n\n",
+                "@warning",
+                "Exit to Recovery",
+                "Reboot") == "no"
+            then
+                reboot("now");
+            endif;
+        else
+            alert(
+                "Failed",
+                getvar("exec_buffer"),
+                "@crash",
+                "Exit"
+            );
         endif;
         exit("");
     endif;

@@ -6,6 +6,8 @@ interface="${1}"
 updater_fd="${2}"
 zipfile="${3}"
 
+mmr_dir=/tmp/mmr
+
 ui_print() {
     echo -en "ui_print ${1}\n" > /proc/self/fd/"${updater_fd}"
     echo -en "ui_print\n" > /proc/self/fd/"${updater_fd}"
@@ -23,6 +25,7 @@ install_bb() {
     local tmp_bb=/tmp/bb
     [ -f $magisk_bb ] || abort "Error: Please install or upgrade Magisk."
     [ -d $tmp_bb ] && [ -f ${tmp_bb}/test ] || {
+        rm -rf $tmp_bb
         mkdir -p $tmp_bb
         ln -s $magisk_bb ${tmp_bb}/busybox
         $magisk_bb --install -s $tmp_bb
@@ -67,13 +70,13 @@ else
     imageless_magisk=false
 fi
 
-rm -rf /tmp/mmr/
-mkdir -p /tmp/mmr/
-cd /tmp/mmr/
+rm -rf $mmr_dir
+mkdir -p $mmr_dir
+cd $mmr_dir
 unzip "${zipfile}"
 
 chmod 0755 ./script/*
-. /tmp/mmr/script/common.sh
+. ${mmr_dir}/script/common.sh
 if $imageless_magisk; then
     ui_print "Symlink $imagelessPath to $workPath"
     ./script/symlink-magisk.sh $imagelessPath $workPath || abort "Error: Failed to symlink modules path!"
@@ -84,12 +87,11 @@ fi
 ui_print "Generating AROMA config"
 ./script/aroma-config-init.sh
 
-cd /tmp/mmr/template
-/tmp/mmr/script/7za a -tzip -mx=0 /tmp/mmr/aroma.zip ./META-INF || :
-[ -f /tmp/mmr/aroma.zip ] || abort "Error: Cannot generate aroma.zip!"
-
+cd ${mmr_dir}/template
+${mmr_dir}/script/7za a -tzip -mx=0 ${mmr_dir}/aroma.zip ./META-INF || :
+[ -f ${mmr_dir}/aroma.zip ] || abort "Error: Cannot generate aroma.zip!"
 
 ui_print "OK. Now starting AROMA"
 cd /
-chmod 0755 /tmp/mmr/template/META-INF/com/google/android/update-binary
-exec /tmp/mmr/template/META-INF/com/google/android/update-binary "${interface}" "${updater_fd}" /tmp/mmr/aroma.zip
+chmod 0755 ${mmr_dir}/template/META-INF/com/google/android/update-binary
+exec ${mmr_dir}/template/META-INF/com/google/android/update-binary "${interface}" "${updater_fd}" ${mmr_dir}/aroma.zip
