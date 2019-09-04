@@ -250,9 +250,7 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
         back("1");
     endif;
     if prop("advanced.prop", "selected") == "2" then
-        if cmp(getvar("MAGISK_VER_CODE"), ">", "18100") then
-            back("1");
-        endif;
+        cmp(getvar("MAGISK_VER_CODE"), ">", "18100") && back("1");
         pleasewait("正在执行脚本 ...");
         if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
             alert(
