@@ -20,25 +20,17 @@ find_sqlite3
 case $operate in
     "get_sqlite3_path") echo $sqlite3_exec;;
     "clear_su_log") {
-        $sqlite3_exec $sqlite_path "DELETE FROM logs" <<EOF
-.quit
-EOF
+        $sqlite3_exec $sqlite_path "DELETE FROM logs"
     } ;;
     "get_saved_package_name_policy") {
-        $sqlite3_exec $sqlite_path "SELECT package_name, policy FROM policies ORDER BY package_name" <<EOF
-.quit
-EOF
+        $sqlite3_exec $sqlite_path "SELECT package_name, policy FROM policies ORDER BY package_name"
     } ;;
     "get_saved_package_name_uid") {
-        $sqlite3_exec $sqlite_path "SELECT package_name, uid FROM policies ORDER BY package_name" <<EOF
-.quit
-EOF
+        $sqlite3_exec $sqlite_path "SELECT package_name, uid FROM policies ORDER BY package_name"
     } ;;
     "set_policy") {
         [ -n "$arg_2" -a -n "$arg_3" ] || { echo "Missing parameter" && exit 1; }
-        $sqlite3_exec $sqlite_path "UPDATE policies SET policy=${arg_3} WHERE uid=${arg_2}" <<EOF
-.quit
-EOF
+        $sqlite3_exec $sqlite_path "UPDATE policies SET policy=${arg_3} WHERE uid=${arg_2}"
     } ;;
     *) {
         cat <<EOF
