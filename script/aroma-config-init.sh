@@ -292,6 +292,15 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
             );
             back("1");
         endif;
+        setvar("magiskhide_status", exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_magiskhide_status"));
+        if getvar("magiskhide_status") == "0" then
+            setvar("magiskhide_switch_text", "Magisk Hide 已关闭");
+            setvar("magiskhide_switch_text_2", "你为何要关闭 Magisk Hide 呢?:/");
+        endif;
+        if getvar("magiskhide_status") == "1" then
+            setvar("magiskhide_switch_text", "Magisk Hide 已开启");
+            setvar("magiskhide_switch_text_2", "隐藏 Magisk 使其不被各种方法检测到");
+        endif;
         menubox(
             "超级用户",
             "请选择操作" + getvar("core_only_mode_warning"),
@@ -300,9 +309,10 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
 
             "清除 MagiskSU 日志", "", "@action",
             "授权管理", "", "@action",
+            getvar("magiskhide_switch_text"), getvar("magiskhide_switch_text_2"), "@action",
             "返回", "", "@back2"
         );
-        prop("magisksu.prop", "selected") == "3" && back("2");
+        prop("magisksu.prop", "selected") == "4" && back("2");
         if prop("magisksu.prop", "selected") == "1" then
             pleasewait("正在执行脚本 ...");
             if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "clear_su_log") == "0" then
@@ -367,6 +377,19 @@ EOF
                 );
             endif;
             back("2");
+        endif;
+        if prop("magisksu.prop", "selected") == "3" then
+            getvar("magiskhide_status") == "0" && setvar("magiskhide_status_set", "1");
+            getvar("magiskhide_status") == "1" && setvar("magiskhide_status_set", "0");
+            if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "set_magiskhide_status", getvar("magiskhide_status_set")) != "0" then
+                alert(
+                    "失败",
+                    "执行过程中有错误发生, 请确认.\n\n" + getvar("exec_buffer"),
+                    "@crash",
+                    "确定"
+                );
+            endif;
+            back("1");
         endif;
     endif;
     if prop("advanced.prop", "selected") == "5" then
