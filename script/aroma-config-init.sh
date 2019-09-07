@@ -338,7 +338,11 @@ EOF
         echo "                \"看起来你尚未授权任何应用 ...\",\"\", 2," >> $ac_tmp
     else
         for pp in $pps; do
-            echo "                \"${pp%=*}\", \"uid: ${pp#*=}\", 0," >> $ac_tmp
+            package_name=${pp%=*}
+            uid_=${pp#*=}
+            app_name=`/tmp/mmr/script/control-sqlite.sh get_app_name ${uid_}`
+            [ -z "$app_name" ] || app_name=" (${app_name})"
+            echo "                \"${package_name}${app_name}\", \"uid: ${uid_}\", 0," >> $ac_tmp
         done
     fi
     cat >> $ac_tmp <<EOF

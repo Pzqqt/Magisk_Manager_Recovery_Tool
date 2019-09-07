@@ -22,6 +22,10 @@ case $operate in
     "clear_su_log") {
         $sqlite3_exec $sqlite_path "DELETE FROM logs"
     } ;;
+    "get_app_name") {
+        [ -n "$arg_2" ] || { echo "Missing parameter" && exit 1; }
+        $sqlite3_exec $sqlite_path "SELECT app_name FROM logs WHERE from_uid=${arg_2} LIMIT 1"
+    } ;;
     "get_saved_package_name_policy") {
         $sqlite3_exec $sqlite_path "SELECT package_name, policy FROM policies ORDER BY package_name"
     } ;;
@@ -38,6 +42,7 @@ Usage: $0 <operate>
 
 operate:
     get_sqlite3_path              : Get available sqlite3 path
+    get_app_name <uid>            : Try to get app name
     clear_su_log                  : Clear MagiskSU logs
     get_saved_package_name_policy : List saved package name & policy status
     get_saved_package_name_uid    : List saved package name & uid
