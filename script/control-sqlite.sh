@@ -36,6 +36,13 @@ case $operate in
         [ -n "$arg_2" -a -n "$arg_3" ] || { echo "Missing parameter" && exit 1; }
         $sqlite3_exec $sqlite_path "UPDATE policies SET policy=${arg_3} WHERE uid=${arg_2}"
     } ;;
+    "get_magiskhide_status") {
+        exit `$sqlite3_exec $sqlite_path "SELECT value FROM settings WHERE key='magiskhide'"`
+    } ;;
+    "set_magiskhide_status") {
+        [ -n "$arg_2" ] || { echo "Missing parameter" && exit 1; }
+        $sqlite3_exec $sqlite_path "UPDATE settings SET value=${arg_2} WHERE key='magiskhide'"
+    } ;;
     *) {
         cat <<EOF
 Usage: $0 <operate>
@@ -47,6 +54,8 @@ operate:
     get_saved_package_name_policy : List saved package name & policy status
     get_saved_package_name_uid    : List saved package name & uid
     set_policy <uid> <vaule>      : Change policy value
+    get_magiskhide_status         : Get Magisk Hide status
+    set_magiskhide_status <value> : Set Magisk Hide status (0: disable, 1: enable)
 EOF
         exit 1
     } ;;

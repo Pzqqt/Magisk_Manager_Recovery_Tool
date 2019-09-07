@@ -292,6 +292,15 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
             );
             back("1");
         endif;
+        setvar("magiskhide_status", exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_magiskhide_status"));
+        if getvar("magiskhide_status") == "0" then
+            setvar("magiskhide_switch_text", "Magisk Hide is disabled");
+            setvar("magiskhide_switch_text_2", "Why would you disable Magisk Hide?:/");
+        endif;
+        if getvar("magiskhide_status") == "1" then
+            setvar("magiskhide_switch_text", "Magisk Hide is enabled");
+            setvar("magiskhide_switch_text_2", "Hide Magisk from various forms of detection.");
+        endif;
         menubox(
             "Superuser",
             "Choose an action" + getvar("core_only_mode_warning"),
@@ -300,9 +309,10 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
 
             "Clear MagiskSU logs", "", "@action",
             "Root manager", "", "@action",
+            getvar("magiskhide_switch_text"), getvar("magiskhide_switch_text_2"), "@action",
             "Back", "", "@back2"
         );
-        prop("magisksu.prop", "selected") == "3" && back("2");
+        prop("magisksu.prop", "selected") == "4" && back("2");
         if prop("magisksu.prop", "selected") == "1" then
             pleasewait("Executing Shell...");
             if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "clear_su_log") == "0" then
@@ -367,6 +377,19 @@ EOF
                 );
             endif;
             back("2");
+        endif;
+        if prop("magisksu.prop", "selected") == "3" then
+            getvar("magiskhide_status") == "0" && setvar("magiskhide_status_set", "1");
+            getvar("magiskhide_status") == "1" && setvar("magiskhide_status_set", "0");
+            if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "set_magiskhide_status", getvar("magiskhide_status_set")) != "0" then
+                alert(
+                    "Failed",
+                    "An error occurred during execution, please check.\n\n" + getvar("exec_buffer"),
+                    "@crash",
+                    "OK"
+                );
+            endif;
+            back("1");
         endif;
     endif;
     if prop("advanced.prop", "selected") == "5" then
