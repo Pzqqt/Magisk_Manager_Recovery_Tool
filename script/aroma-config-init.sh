@@ -235,7 +235,7 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
         "瘦身 magisk.img", getvar("shrink_text2"), getvar("shrink_icon"),
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
         "超级用户", "", "@action",
-        "卸载 Magisk", "Root 权限将从设备中完全移除", "@action",
+        "卸载 Magisk", "Root 权限将从设备中完全移除", "@delete",
         "调试选项", "", "@action",
         "返回", "", "@back2"
     );
@@ -296,10 +296,12 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
         if getvar("magiskhide_status") == "0" then
             setvar("magiskhide_switch_text", "Magisk Hide 已关闭");
             setvar("magiskhide_switch_text_2", "你为何要关闭 Magisk Hide 呢?:/");
+            setvar("magiskhide_switch_icon", "@offaction");
         endif;
         if getvar("magiskhide_status") == "1" then
             setvar("magiskhide_switch_text", "Magisk Hide 已开启");
             setvar("magiskhide_switch_text_2", "隐藏 Magisk 使其不被各种方法检测到");
+            setvar("magiskhide_switch_icon", "@action2");
         endif;
         menubox(
             "超级用户",
@@ -309,7 +311,7 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
 
             "清除 MagiskSU 日志", "", "@action",
             "授权管理", "", "@action",
-            getvar("magiskhide_switch_text"), getvar("magiskhide_switch_text_2"), "@action",
+            getvar("magiskhide_switch_text"), getvar("magiskhide_switch_text_2"), getvar("magiskhide_switch_icon"),
             "返回", "", "@back2"
         );
         prop("magisksu.prop", "selected") == "4" && back("2");
