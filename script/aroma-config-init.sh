@@ -235,7 +235,7 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
         "Shrinking magisk.img", getvar("shrink_text2"), getvar("shrink_icon"),
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
         "Superuser", "", "@action",
-        "Uninstall Magisk", "Root will be fully removed from the device.", "@action",
+        "Uninstall Magisk", "Root will be fully removed from the device.", "@delete",
         "Debug options", "", "@action",
         "Back", "", "@back2"
     );
@@ -296,10 +296,12 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
         if getvar("magiskhide_status") == "0" then
             setvar("magiskhide_switch_text", "Magisk Hide is disabled");
             setvar("magiskhide_switch_text_2", "Why would you disable Magisk Hide?:/");
+            setvar("magiskhide_switch_icon", "@offaction");
         endif;
         if getvar("magiskhide_status") == "1" then
             setvar("magiskhide_switch_text", "Magisk Hide is enabled");
             setvar("magiskhide_switch_text_2", "Hide Magisk from various forms of detection.");
+            setvar("magiskhide_switch_icon", "@action2");
         endif;
         menubox(
             "Superuser",
@@ -309,7 +311,7 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
 
             "Clear MagiskSU logs", "", "@action",
             "Root manager", "", "@action",
-            getvar("magiskhide_switch_text"), getvar("magiskhide_switch_text_2"), "@action",
+            getvar("magiskhide_switch_text"), getvar("magiskhide_switch_text_2"), getvar("magiskhide_switch_icon"),
             "Back", "", "@back2"
         );
         prop("magisksu.prop", "selected") == "4" && back("2");
