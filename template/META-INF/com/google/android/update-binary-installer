@@ -49,7 +49,7 @@ install_theme() {
 
     mkdir -p $theme_path || :
     [ -f ${theme_path}/ui.zip ] && mv -f ${theme_path}/ui.zip ${theme_path}/ui.zip.bak || :
-    mv -f $use_zip $theme_path/ui.zip
+    cp -f $use_zip $theme_path/ui.zip
 
     zipfile_self_path="$(cat /tmp/mmr/zipfile_self)"
     test -n "$zipfile_self_path"
