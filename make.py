@@ -61,6 +61,8 @@ def main():
             build_version += "-Test"
         elif sys.argv[1].upper().startswith("A"):
             build_version += "-Alpha"
+        elif sys.argv[1].upper().startswith("R"):
+            pass
         else:
             build_version += "-Beta"
     else:
