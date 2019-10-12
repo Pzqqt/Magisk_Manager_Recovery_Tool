@@ -8,7 +8,7 @@ zipfile="${3}"
 
 temp_path=/tmp/mmr/template
 uninstaller_path=${temp_path}/magisk_uninstaller
-uninstaller_zip=${temp_path}/Magisk-uninstaller-20190919.zip
+uninstaller_zip=${temp_path}/Magisk-uninstaller-20191011.zip
 
 install_theme_flag=/tmp/aroma/install_twrp_theme_flag
 theme_path=/sdcard/TWRP/theme
