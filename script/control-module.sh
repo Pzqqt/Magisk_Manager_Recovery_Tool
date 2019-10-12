@@ -9,14 +9,14 @@ modulePath=${workPath}/${module}
 
 exist_flag() { test -f ${modulePath}/${1}; }
 
-rm_flag() { rm -f ${modulePath}/${1} && exit 0; }
+rm_flag() { rm -f ${modulePath}/${1}; }
 
-touch_flag() {
-    touch ${modulePath}/${1} || { cd ${modulePath}? && touch ./${1}; }
-    [ $? -eq 0 ] && exit 0
+touch_flag() { touch ${modulePath}/${1} || { cd ${modulePath}? && touch ./${1}; }; }
+
+switch_flag() {
+    exist_flag "$1" && rm_flag "$1" || touch_flag "$1"
+    [ $? -eq 0 ] && { sync; exit 0; }
 }
-
-switch_flag() { exist_flag "$1" && rm_flag "$1" || touch_flag "$1"; }
 
 [ -n $operate ] && [ -n $module ] && \
 case $operate in
@@ -45,8 +45,14 @@ case $operate in
     "switch_auto_mount") switch_flag "auto_mount";;
     "switch_skip_mount") switch_flag "skip_mount";;
     "switch_remove") switch_flag "remove";;
-    "remove") rm -rf $modulePath && exit 0;;
-    *) echo -e "\nUnknown operation: $operate"; exit 1;;
+    "remove") {
+        rm -rf $modulePath
+        [ $? -eq 0 ] && { sync; exit 0; }
+    };;
+    *) {
+        echo -e "\nUnknown operation: $operate";
+        exit 1
+    };;
 esac
 
 echo -e "\nScript execution failed!"
