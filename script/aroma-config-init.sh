@@ -237,6 +237,7 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
         "超级用户", "", "@action",
         "卸载 Magisk", "Root 权限将从设备中完全移除", "@delete",
         "调试选项", "", "@action",
+        "关于", "", "@info",
         "返回", "", "@back2"
     );
     if prop("advanced.prop", "selected") == "1" then
@@ -494,6 +495,52 @@ EOF
                 );
             endif;
         endif;
+    endif;
+    if prop("advanced.prop", "selected") == "7" then
+        menubox(
+            "关于",
+            "关于 " + ini_get("rom_name"),
+            "@info",
+            "about.prop",
+
+            "作者", ini_get("rom_author"), "@me",
+            "MMRT 版本", ini_get("rom_version"), "@info",
+            "内置 Magisk 卸载包版本", "Magisk-uninstaller-20191011.zip", "@info",
+            "License", "GPL-3.0", "@info",
+            "Github", "https://github.com/Pzqqt/Magisk_Manager_Recovery_Tool", "@info",
+            "XDA", "https://forum.xda-developers.com/showthread.php?t=3866502", "@info",
+            "返回", "", "@back2"
+        );
+        prop("about.prop", "selected") == "7" && back("2");
+        if prop("about.prop", "selected") == "1" then
+            if readtmpfile("egg") == "4" then
+                writetmpfile("egg", "0");
+                anisplash(
+                    1,
+                    "sp_1", 500,
+                    "sp_2", 500,
+                    "sp_3", 500,
+                    "sp_4", 500,
+                    "sp_5", 500
+                );
+                back("1");
+            else
+                writetmpfile("egg", cal(readtmpfile("egg") || "0", "+", "1"));
+            endif;
+        endif;
+        if prop("about.prop", "selected") == "4" then
+            pleasewait("Loading...");
+            ini_set("text_next", "");
+            ini_set("icon_next", "@none");
+            textbox(
+                "License",
+                "GPL-3.0",
+                "@info",
+                read("/tmp/mmr/LICENSE")
+            );
+            back("2");
+        endif;
+        back("1");
     endif;
 endif;
 
