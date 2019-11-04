@@ -8,7 +8,7 @@ zipfile="${3}"
 
 temp_path=/tmp/mmr/template
 uninstaller_path=${temp_path}/magisk_uninstaller
-uninstaller_zip=${temp_path}/Magisk-uninstaller-20191011.zip
+uninstaller_zip=${temp_path}/Magisk-uninstaller-20191102.zip
 
 uninstall_magisk() {
     mkdir -p $uninstaller_path || :

@@ -455,7 +455,7 @@ EOF
 
             "Author", ini_get("rom_author"), "@me",
             "MMRT version", ini_get("rom_version"), "@info",
-            "Include Magisk uninstaller version", "Magisk-uninstaller-20191011.zip", "@info",
+            "Include Magisk uninstaller version", "Magisk-uninstaller-20191102.zip", "@info",
             "License", "GPL-3.0", "@info",
             "Github", "https://github.com/Pzqqt/Magisk_Manager_Recovery_Tool", "@info",
             "XDA", "https://forum.xda-developers.com/showthread.php?t=3866502", "@info",
