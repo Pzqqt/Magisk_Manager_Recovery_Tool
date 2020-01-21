@@ -4,44 +4,52 @@ operate=$1
 arg_2=$2
 arg_3=$3
 
-sqlite_path=/data/adb/magisk.db
+magisk_db=/data/adb/magisk.db
 sqlite3_exec=/tmp/mmr/script/sqlite3
 
-# find available sqlite3
-find_sqlite3() {
-    # force use prebuilt sqlite3 binary
-    $sqlite3_exec --version &>/dev/null || {
-        echo -e "\nCannot found available sqlite3!"
-        exit 2
-    }
+MAGISK_VER_CODE=$(grep "^MAGISK_VER_CODE=" /data/adb/magisk/util_functions.sh | head -n1 | cut -d= -f2)
+if [ "$MAGISK_VER_CODE" -lt 20200 ]; then
+    sulogs_sq=$magisk_db
+    label_appname='app_name'
+    label_fromuid='from_uid'
+else
+    sulogs_sq=/data/user_de/0/com.topjohnwu.magisk/databases/sulogs.db
+    [ -f $sulogs_sq ] || sulogs_sq=`find /data/user_de/0/ | grep "sulogs.db$" | head -n1`
+    label_appname='appName'
+    label_fromuid='fromUid'
+fi
+
+# force use prebuilt sqlite3 binary
+$sqlite3_exec --version &>/dev/null || {
+    echo -e "\nCannot found available sqlite3!"
+    exit 2
 }
 
-find_sqlite3
 case $operate in
     "get_sqlite3_path") echo $sqlite3_exec;;
     "clear_su_log") {
-        $sqlite3_exec $sqlite_path "DELETE FROM logs"
+        $sqlite3_exec $sulogs_sq "DELETE FROM logs"
     } ;;
     "get_app_name") {
-        [ -n "$arg_2" ] || { echo "Missing parameter" && exit 1; }
-        $sqlite3_exec $sqlite_path "SELECT app_name FROM logs WHERE from_uid=${arg_2} LIMIT 1"
+        [ -n "$arg_2" ] || { echo "Missing parameter"; exit 1; }
+        $sqlite3_exec $sulogs_sq "SELECT ${label_appname} FROM logs WHERE ${label_fromuid}=${arg_2} LIMIT 1"
     } ;;
     "get_saved_package_name_policy") {
-        $sqlite3_exec $sqlite_path "SELECT package_name, policy FROM policies ORDER BY package_name"
+        $sqlite3_exec $magisk_db "SELECT package_name, policy FROM policies ORDER BY package_name"
     } ;;
     "get_saved_package_name_uid") {
-        $sqlite3_exec $sqlite_path "SELECT package_name, uid FROM policies ORDER BY package_name"
+        $sqlite3_exec $magisk_db "SELECT package_name, uid FROM policies ORDER BY package_name"
     } ;;
     "set_policy") {
-        [ -n "$arg_2" -a -n "$arg_3" ] || { echo "Missing parameter" && exit 1; }
-        $sqlite3_exec $sqlite_path "UPDATE policies SET policy=${arg_3} WHERE uid=${arg_2}"
+        [ -n "$arg_2" -a -n "$arg_3" ] || { echo "Missing parameter"; exit 1; }
+        $sqlite3_exec $magisk_db "UPDATE policies SET policy=${arg_3} WHERE uid=${arg_2}"
     } ;;
     "get_magiskhide_status") {
-        exit `$sqlite3_exec $sqlite_path "SELECT value FROM settings WHERE key='magiskhide'"`
+        exit `$sqlite3_exec $magisk_db "SELECT value FROM settings WHERE key='magiskhide'"`
     } ;;
     "set_magiskhide_status") {
         [ -n "$arg_2" ] || { echo "Missing parameter" && exit 1; }
-        $sqlite3_exec $sqlite_path "UPDATE settings SET value=${arg_2} WHERE key='magiskhide'"
+        $sqlite3_exec $magisk_db "UPDATE settings SET value=${arg_2} WHERE key='magiskhide'"
     } ;;
     *) {
         cat <<EOF
