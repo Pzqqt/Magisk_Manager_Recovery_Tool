@@ -343,7 +343,7 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
         setvar("magiskhide_status", exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_magiskhide_status"));
         if getvar("magiskhide_status") == "0" then
             setvar("magiskhide_switch_text", "Magisk Hide 已关闭");
-            setvar("magiskhide_switch_text_2", "你为何要关闭 Magisk Hide 呢?:/");
+            setvar("magiskhide_switch_text_2", "你为何要关闭 Magisk Hide 呢:/");
             setvar("magiskhide_switch_icon", "@offaction");
         endif;
         if getvar("magiskhide_status") == "1" then
@@ -454,7 +454,7 @@ EOF
         endif;
         menubox(
             "恢复已备份的模块",
-            "请选择操作\n模块备份目录:\n${module_backup_path}",
+            "模块备份目录:\n${module_backup_path}",
             "@welcome",
             "module_backup_list.prop",
 
@@ -508,7 +508,7 @@ cat >> $ac_tmp <<EOF
             "占用空间: " + getvar("bm_size"),
             "@welcome",
             "module_backup_operations.prop",
-            "恢复该模块", "", "@install",
+            "恢复该模块", "", "@action",
             "删除该备份", "", "@delete",
             "返回", "", "@back2"
         );
@@ -516,6 +516,7 @@ cat >> $ac_tmp <<EOF
         if prop("module_backup_operations.prop", "selected") == "1" then
             if confirm(
                 "警告",
+                "跨 Rom 或跨设备恢复模块\n可能会导致不可预估的后果, 请慎重操作!\n\n" +
                 "你确定要恢复该模块吗?",
                 "@warning") == "yes"
             then
