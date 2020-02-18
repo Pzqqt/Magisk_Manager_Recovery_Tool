@@ -4,20 +4,9 @@ operate=$1
 arg_2=$2
 arg_3=$3
 
-magisk_db=/data/adb/magisk.db
-sqlite3_exec=/tmp/mmr/script/sqlite3
+. /tmp/mmr/script/common.sh
 
-MAGISK_VER_CODE=$(grep "^MAGISK_VER_CODE=" /data/adb/magisk/util_functions.sh | head -n1 | cut -d= -f2)
-if [ "$MAGISK_VER_CODE" -lt 20200 ]; then
-    sulogs_sq=$magisk_db
-    label_appname='app_name'
-    label_fromuid='from_uid'
-else
-    sulogs_sq=/data/user_de/0/com.topjohnwu.magisk/databases/sulogs.db
-    [ -f $sulogs_sq ] || sulogs_sq=`find /data/user_de/0/ | grep "sulogs.db$" | head -n1`
-    label_appname='appName'
-    label_fromuid='fromUid'
-fi
+sqlite3_exec=/tmp/mmr/script/sqlite3
 
 # force use prebuilt sqlite3 binary
 $sqlite3_exec --version &>/dev/null || {

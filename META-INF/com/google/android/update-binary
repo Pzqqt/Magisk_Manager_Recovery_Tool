@@ -84,6 +84,19 @@ else
     ui_print "Mount $imagePath to $workPath"
     ./script/mount-magisk.sh $imagePath $workPath || abort "Error: Failed to mount $imagePath!"
 fi
+
+if [ "$MAGISK_VER_CODE" -lt 20200 ]; then
+    echo "sulogs_sq=/data/adb/magisk.db" >> ./script/common.sh
+    echo "label_appname='app_name'" >> ./script/common.sh
+    echo "label_fromuid='from_uid'" >> ./script/common.sh
+else
+    sulogs_sq=/data/user_de/0/com.topjohnwu.magisk/databases/sulogs.db
+    [ -f $sulogs_sq ] || sulogs_sq=`find /data/user_de/0/ | grep "sulogs.db$" | head -n1`
+    echo "sulogs_sq=${sulogs_sq}" >> ./script/common.sh
+    echo "label_appname='appName'" >> ./script/common.sh
+    echo "label_fromuid='fromUid'" >> ./script/common.sh
+fi
+
 ui_print "Generating AROMA config"
 ./script/aroma-config-init.sh
 
