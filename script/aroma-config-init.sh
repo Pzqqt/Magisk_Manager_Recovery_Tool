@@ -41,6 +41,8 @@ EOF
     "高级选项", "", "@action"
 );
 
+setvar("modid", "");
+
 # Reboot
 if prop("operations.prop", "selected") == "1" then
     if confirm(
@@ -165,6 +167,7 @@ then
         getvar("module_status_switch_text"), getvar("module_status_switch_text2"), getvar("module_status_switch_icon"),
         getvar("module_mount_status_switch_text"), getvar("module_mount_status_switch_text2"), getvar("module_mount_status_switch_icon"),
         getvar("module_remove_switch_text"), getvar("module_remove_switch_text2"), getvar("module_remove_switch_icon"),
+        "备份该模块", "实验性功能", "@install",
         "立即移除该模块", getvar("module_remove_text2"), getvar("module_remove_icon")
     );
 
@@ -203,6 +206,49 @@ then
     prop("modoperations.prop", "selected") == "4" && setvar("module_operate", "switch_" + getvar("mount_switch_flag") + "_mount");
     prop("modoperations.prop", "selected") == "5" && setvar("module_operate", "switch_remove");
     if prop("modoperations.prop", "selected") == "6" then
+        if cmp(getvar("MAGISK_VER_CODE"), "<=", "18100") then
+            alert(
+                "不可用的选项",
+                "很抱歉,\n该功能仅适用于 Magisk 18100 以上的版本.",
+                "@crash",
+                "确定"
+            );
+            back("1");
+        endif;
+        if confirm(
+            "警告",
+            "该功能为实验性功能, 不能保证可靠性.\n你确定要继续操作吗?",
+            "@warning") == "yes"
+        then
+            if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "exist_backup", getvar("modid")) != "0" then
+                if confirm(
+                    "警告",
+                    "已存在同名的模块备份.\n你要覆盖原有的备份吗?",
+                    "@warning") == "no"
+                then
+                    back("1");
+                endif;
+            endif;
+            pleasewait("正在备份, 请稍候 ...");
+            if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "backup", getvar("modid")) == "0" then
+                alert(
+                    "成功",
+                    "操作完成, 执行过程中没有发生错误.\n\n请注意:\n已备份模块列表需要重新打开本工具才能刷新.",
+                    "@done",
+                    "确定"
+                );
+            else
+                alert(
+                    "失败",
+                    "执行过程中有错误发生, 请确认.\n\n" + getvar("exec_buffer"),
+                    "@crash",
+                    "确定"
+                );
+            endif;
+        endif;
+        back("1");
+    endif;
+    if prop("modoperations.prop", "selected") == "7" then
         if confirm(
             "警告",
             getvar("module_remove_warning") + "您确定要移除该模块吗? 此操作不可恢复!",
@@ -221,7 +267,7 @@ then
             "确定"
         );
     endif;
-    prop("modoperations.prop", "selected") != "6" && back("1");
+    prop("modoperations.prop", "selected") != "7" && back("1");
 endif;
 
 if prop("operations.prop", "selected") == "$(expr $i + 1)" then
@@ -235,6 +281,7 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
         "瘦身 magisk.img", getvar("shrink_text2"), getvar("shrink_icon"),
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
         "超级用户", "", "@action",
+        "恢复已备份的模块", "", "@install",
         "卸载 Magisk", "Root 权限将从设备中完全移除", "@delete",
         "调试选项", "", "@action",
         "关于", "", "@info",
@@ -396,6 +443,140 @@ EOF
         endif;
     endif;
     if prop("advanced.prop", "selected") == "5" then
+        if cmp(getvar("MAGISK_VER_CODE"), "<=", "18100") then
+            alert(
+                "不可用的选项",
+                "很抱歉,\n该功能仅适用于 Magisk 18100 以上的版本.",
+                "@crash",
+                "确定"
+            );
+            back("1");
+        endif;
+        menubox(
+            "恢复已备份的模块",
+            "请选择操作\n模块备份目录:\n${module_backup_path}",
+            "@welcome",
+            "module_backup_list.prop",
+
+            "返回", "", "@back2",
+EOF
+    backedup_modules=`ls_module_backup_path | sort `
+    if [ -z "$backedup_modules" ]; then
+        echo "            \"如果你看到了此选项\", \"说明你尚未备份任何 Magisk 模块...\", \"@what\"," >> $ac_tmp
+    else
+        for backedup_file in $backedup_modules; do
+            module_id=`echo $backedup_file | cut -d. -f1`
+            echo "            \"${module_id}\", \"\", \"@default\"," >> $ac_tmp
+        done
+    fi
+    cat >> $ac_tmp <<EOF
+        "", "", ""
+        );
+        setvar("bm_id", "");
+        prop("module_backup_list.prop", "selected") == "1" && back("2");
+EOF
+    if [ -z "$backedup_modules" ]; then
+        j=2
+    else
+        j=1
+        for backedup_file in $backedup_modules; do
+            let j+=1
+            module_id=`echo $backedup_file | cut -d. -f1`
+            echo "        if prop(\"module_backup_list.prop\", \"selected\") == \"$j\" then" >> $ac_tmp
+            echo "            setvar(\"bm_id\", \"${module_id}\");" >> $ac_tmp
+            echo "            setvar(\"bm_size\", \"$(du -h ${module_backup_path}/${backedup_file} | awk '{print $1}')\");" >> $ac_tmp
+            echo "        endif;" >> $ac_tmp
+            echo "" >> $ac_tmp
+        done
+    fi
+cat >> $ac_tmp <<EOF
+        if getvar("bm_id") == "" then
+            back("1");
+        endif;
+        setvar("bm_is_deleted", exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "exist_backup", getvar("bm_id")));
+        if getvar("bm_is_deleted") == "0" then
+            alert(
+                "注意",
+                "这个备份已经被删除了.\n",
+                "@warning",
+                "确定"
+            );
+            back("1");
+        endif;
+        menubox(
+            "模块 ID: " + getvar("bm_id"),
+            "占用空间: " + getvar("bm_size"),
+            "@welcome",
+            "module_backup_operations.prop",
+            "恢复该模块", "", "@install",
+            "删除该备份", "", "@delete",
+            "返回", "", "@back2"
+        );
+        prop("module_backup_operations.prop", "selected") == "3" && back("2");
+        if prop("module_backup_operations.prop", "selected") == "1" then
+            if confirm(
+                "警告",
+                "你确定要恢复该模块吗?",
+                "@warning") == "yes"
+            then
+                setvar("bm_stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("bm_id")));
+                if getvar("bm_stat_code") != "2" then
+                    if confirm(
+                        "警告",
+                        "你的设备已经安装了该模块.\n确定要覆盖吗?",
+                        "@warning") == "no"
+                    then
+                        back("1");
+                    endif
+                endif;
+                pleasewait("正在恢复, 请稍候 ...");
+                if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "restore", getvar("bm_id")) == "0" then
+                    setvar("bm_stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("bm_id")));
+                    if confirm(
+                        "成功",
+                        "操作完成, 执行过程中没有发生错误.\n\n请注意:\n" +
+                        "已安装的模块列表需要重新打开本工具才能刷新.\n\n你需要立即启用该模块吗?",
+                        "@done",
+                        "启用",
+                        "禁用") == "yes"
+                    then
+                        getvar("bm_stat_code") == "0" && setvar("bm_doswitch", "1");
+                    else
+                        getvar("bm_stat_code") == "1" && setvar("bm_doswitch", "1");
+                    endif;
+                    getvar("bm_doswitch") == "1" && exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "switch_module", getvar("bm_id"));
+                else
+                    alert(
+                        "失败",
+                        "执行过程中有错误发生, 请确认.\n\n" + getvar("exec_buffer"),
+                        "@crash",
+                        "确定"
+                    );
+                endif;
+            endif;
+            back("1");
+        endif;
+        if prop("module_backup_operations.prop", "selected") == "2" then
+            if confirm(
+                "警告",
+                "您确定要移除该备份吗? 此操作不可恢复!",
+                "@warning") == "yes"
+            then
+                if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "remove_backup", getvar("bm_id")) != "0" then
+                    alert(
+                        "失败",
+                        "执行过程中有错误发生, 请确认.\n\n" + getvar("exec_buffer"),
+                        "@crash",
+                        "确定"
+                    );
+                endif;
+                back("2");
+            else
+                back("1");
+            endif;
+        endif;
+    endif;
+    if prop("advanced.prop", "selected") == "6" then
         if confirm(
             "警告",
             "您确定要卸载 Magisk 吗?\n\n所有模块将停用或删除, Root 会被移除.\n未加密的设备重启时可能会被进行加密.",
@@ -434,7 +615,7 @@ EOF
         endif;
         exit("");
     endif;
-    if prop("advanced.prop", "selected") == "6" then
+    if prop("advanced.prop", "selected") == "7" then
         menubox(
             "调试选项",
             "请选择操作",
@@ -496,7 +677,7 @@ EOF
             endif;
         endif;
     endif;
-    if prop("advanced.prop", "selected") == "7" then
+    if prop("advanced.prop", "selected") == "8" then
         menubox(
             "关于",
             "关于 " + ini_get("rom_name"),
