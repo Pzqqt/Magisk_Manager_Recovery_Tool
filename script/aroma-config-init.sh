@@ -343,7 +343,7 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
         setvar("magiskhide_status", exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_magiskhide_status"));
         if getvar("magiskhide_status") == "0" then
             setvar("magiskhide_switch_text", "Magisk Hide is disabled");
-            setvar("magiskhide_switch_text_2", "Why would you disable Magisk Hide?:/");
+            setvar("magiskhide_switch_text_2", "Why would you disable Magisk Hide:/");
             setvar("magiskhide_switch_icon", "@offaction");
         endif;
         if getvar("magiskhide_status") == "1" then
