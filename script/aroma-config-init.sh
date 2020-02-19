@@ -41,6 +41,8 @@ EOF
     "Advanced options", "", "@action"
 );
 
+setvar("modid", "");
+
 # Reboot
 if prop("operations.prop", "selected") == "1" then
     if confirm(
@@ -165,6 +167,7 @@ then
         getvar("module_status_switch_text"), getvar("module_status_switch_text2"), getvar("module_status_switch_icon"),
         getvar("module_mount_status_switch_text"), getvar("module_mount_status_switch_text2"), getvar("module_mount_status_switch_icon"),
         getvar("module_remove_switch_text"), getvar("module_remove_switch_text2"), getvar("module_remove_switch_icon"),
+        "Backup module", "Experimental", "@install",
         "Remove directly", getvar("module_remove_text2"), getvar("module_remove_icon")
     );
 
@@ -203,6 +206,49 @@ then
     prop("modoperations.prop", "selected") == "4" && setvar("module_operate", "switch_" + getvar("mount_switch_flag") + "_mount");
     prop("modoperations.prop", "selected") == "5" && setvar("module_operate", "switch_remove");
     if prop("modoperations.prop", "selected") == "6" then
+        if cmp(getvar("MAGISK_VER_CODE"), "<=", "18100") then
+            alert(
+                "Not available",
+                "Sorry,\nThis feature is only available for Magisk 18100+.",
+                "@crash",
+                "OK"
+            );
+            back("1");
+        endif;
+        if confirm(
+            "Warning!",
+            "This function is experimental\nand cannot guarantee reliability.\n\nContinue?",
+            "@warning") == "yes"
+        then
+            if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "exist_backup", getvar("modid")) != "0" then
+                if confirm(
+                    "Warning!",
+                    "A backup of the module already exists.\nDo you want to overwrite?",
+                    "@warning") == "no"
+                then
+                    back("1");
+                endif;
+            endif;
+            pleasewait("Backing up...");
+            if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "backup", getvar("modid")) == "0" then
+                alert(
+                    "Done",
+                    "Operation completed, no error occurred during execution.\n\nNote:\nThe list of backed up modules needs to restart this tool to refresh.",
+                    "@done",
+                    "OK"
+                );
+            else
+                alert(
+                    "Failed",
+                    "An error occurred during execution, please check.\n\n" + getvar("exec_buffer"),
+                    "@crash",
+                    "OK"
+                );
+            endif;
+        endif;
+        back("1");
+    endif;
+    if prop("modoperations.prop", "selected") == "7" then
         if confirm(
             "Warning!",
             getvar("module_remove_warning") + "Are you sure want to remove this module?",
@@ -221,7 +267,7 @@ then
             "OK"
         );
     endif;
-    prop("modoperations.prop", "selected") != "6" && back("1");
+    prop("modoperations.prop", "selected") != "7" && back("1");
 endif;
 
 if prop("operations.prop", "selected") == "$(expr $i + 1)" then
@@ -235,6 +281,7 @@ if prop("operations.prop", "selected") == "$(expr $i + 1)" then
         "Shrinking magisk.img", getvar("shrink_text2"), getvar("shrink_icon"),
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
         "Superuser", "", "@action",
+        "Restore backed up modules", "", "@install",
         "Uninstall Magisk", "Root will be fully removed from the device.", "@delete",
         "Debug options", "", "@action",
         "About", "", "@info",
@@ -396,6 +443,141 @@ EOF
         endif;
     endif;
     if prop("advanced.prop", "selected") == "5" then
+        if cmp(getvar("MAGISK_VER_CODE"), "<=", "18100") then
+            alert(
+                "Not available",
+                "Sorry,\nThis feature is only available for Magisk 18100+.",
+                "@crash",
+                "OK"
+            );
+            back("1");
+        endif;
+        menubox(
+            "Restore backed up modules",
+            "Modules backup directory:\n${module_backup_path}",
+            "@welcome",
+            "module_backup_list.prop",
+
+            "Back", "", "@back2",
+EOF
+    backedup_modules=`ls_module_backup_path | sort `
+    if [ -z "$backedup_modules" ]; then
+        echo "            \"If you see this option\", \"You have not backed up any Magisk modules...\", \"@what\"," >> $ac_tmp
+    else
+        for backedup_file in $backedup_modules; do
+            module_id=`echo $backedup_file | cut -d. -f1`
+            echo "            \"${module_id}\", \"\", \"@default\"," >> $ac_tmp
+        done
+    fi
+    cat >> $ac_tmp <<EOF
+        "", "", ""
+        );
+        setvar("bm_id", "");
+        prop("module_backup_list.prop", "selected") == "1" && back("2");
+EOF
+    if [ -z "$backedup_modules" ]; then
+        j=2
+    else
+        j=1
+        for backedup_file in $backedup_modules; do
+            let j+=1
+            module_id=`echo $backedup_file | cut -d. -f1`
+            echo "        if prop(\"module_backup_list.prop\", \"selected\") == \"$j\" then" >> $ac_tmp
+            echo "            setvar(\"bm_id\", \"${module_id}\");" >> $ac_tmp
+            echo "            setvar(\"bm_size\", \"$(du -h ${module_backup_path}/${backedup_file} | awk '{print $1}')\");" >> $ac_tmp
+            echo "        endif;" >> $ac_tmp
+            echo "" >> $ac_tmp
+        done
+    fi
+cat >> $ac_tmp <<EOF
+        if getvar("bm_id") == "" then
+            back("1");
+        endif;
+        setvar("bm_is_deleted", exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "exist_backup", getvar("bm_id")));
+        if getvar("bm_is_deleted") == "0" then
+            alert(
+                "Note",
+                "This backup has been removed.\n",
+                "@warning",
+                "OK"
+            );
+            back("1");
+        endif;
+        menubox(
+            "Module ID: " + getvar("bm_id"),
+            "Backup size: " + getvar("bm_size"),
+            "@welcome",
+            "module_backup_operations.prop",
+            "Restore module", "", "@action",
+            "Delete backup", "", "@delete",
+            "Back", "", "@back2"
+        );
+        prop("module_backup_operations.prop", "selected") == "3" && back("2");
+        if prop("module_backup_operations.prop", "selected") == "1" then
+            if confirm(
+                "Warning!",
+                "Restoring modules across Rom or across devices\ncan lead to unpredictable consequences,\nPlease exercise caution!\n\n" +
+                "Are you sure want to restore this module?",
+                "@warning") == "yes"
+            then
+                setvar("bm_stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("bm_id")));
+                if getvar("bm_stat_code") != "2" then
+                    if confirm(
+                        "Warning!",
+                        "This module is already installed on your device.\nAre you sure want to overwrite?",
+                        "@warning") == "no"
+                    then
+                        back("1");
+                    endif
+                endif;
+                pleasewait("Recovering...");
+                if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "restore", getvar("bm_id")) == "0" then
+                    setvar("bm_stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("bm_id")));
+                    if confirm(
+                        "Done",
+                        "Operation completed, no error occurred during execution.\n\nNote:\n" +
+                        "The list of installed modules needs to restart this tool to refresh.\n\nDo you need to enable this module immediately?",
+                        "@done",
+                        "Enable",
+                        "Disable") == "yes"
+                    then
+                        getvar("bm_stat_code") == "0" && setvar("bm_doswitch", "1");
+                    else
+                        getvar("bm_stat_code") == "1" && setvar("bm_doswitch", "1");
+                    endif;
+                    getvar("bm_doswitch") == "1" && exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "switch_module", getvar("bm_id"));
+                else
+                    alert(
+                        "Failed",
+                        "An error occurred during execution, please check.\n\n" + getvar("exec_buffer"),
+                        "@crash",
+                        "OK"
+                    );
+                endif;
+            endif;
+            back("1");
+        endif;
+        if prop("module_backup_operations.prop", "selected") == "2" then
+            if confirm(
+                "Warning!",
+                "Are you sure want to remove this backup?",
+                "@warning") == "yes"
+            then
+                if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "remove_backup", getvar("bm_id")) != "0" then
+                    alert(
+                        "Failed",
+                        "An error occurred during execution, please check.\n\n" + getvar("exec_buffer"),
+                        "@crash",
+                        "OK"
+                    );
+                endif;
+                back("2");
+            else
+                back("1");
+            endif;
+        endif;
+    endif;
+    if prop("advanced.prop", "selected") == "6" then
         if confirm(
             "Warning!",
             "Are you sure want to uninstall Magisk?\n\nAll modules will be disabled/removed.\nRoot will be removed. and your data\npotentially encrypted if not already.",
@@ -434,7 +616,7 @@ EOF
         endif;
         exit("");
     endif;
-    if prop("advanced.prop", "selected") == "6" then
+    if prop("advanced.prop", "selected") == "7" then
         menubox(
             "Debug options",
             "Choose an action",
@@ -446,7 +628,7 @@ EOF
         );
         prop("debug.prop", "selected") == "1" && exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh", "--regen");
     endif;
-    if prop("advanced.prop", "selected") == "7" then
+    if prop("advanced.prop", "selected") == "8" then
         menubox(
             "About",
             "About " + ini_get("rom_name"),

@@ -77,6 +77,9 @@ unzip "${zipfile}"
 
 chmod 0755 ./script/*
 . ${mmr_dir}/script/common.sh
+
+mkdir -p $module_backup_path
+
 if $imageless_magisk; then
     ui_print "Symlink $imagelessPath to $workPath"
     ./script/symlink-magisk.sh $imagelessPath $workPath || abort "Error: Failed to symlink modules path!"
