@@ -51,13 +51,14 @@ install_theme() {
     [ -f ${theme_path}/ui.zip ] && mv -f ${theme_path}/ui.zip ${theme_path}/ui.zip.bak || :
     cp -f $use_zip $theme_path/ui.zip
 
-    zipfile_self_path="$(cat /tmp/mmr/zipfile_self)"
-    test -n "$zipfile_self_path"
-    test -f "$zipfile_self_path"
-    [[ $zipfile_self_path != ${theme_path}/mmrt/mmrt.zip ]] && {
+    . /tmp/mmr/script/common.sh
+
+    test -n "$zip_self"
+    test -f "$zip_self"
+    [[ $zip_self != ${theme_path}/mmrt/mmrt.zip ]] && {
         ui_print "- Copy tool itself to theme path"
         mkdir -p ${theme_path}/mmrt
-        cp -f $zipfile_self_path ${theme_path}/mmrt/mmrt.zip
+        cp -f $zip_self ${theme_path}/mmrt/mmrt.zip
     }
 
     ui_print "- Done! Theme installed!"

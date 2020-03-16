@@ -102,15 +102,15 @@ else
     echo "label_fromuid='fromUid'" >> ./script/common.sh
 fi
 
+# save self path
+echo "zip_self=${zipfile}" >> ./script/common.sh
+
 ui_print "Generating AROMA config"
 ./script/aroma-config-init.sh
 
 cd ${mmr_dir}/template
 ${mmr_dir}/bin/7za a -tzip -mx=0 ${mmr_dir}/aroma.zip ./META-INF || :
 [ -f ${mmr_dir}/aroma.zip ] || abort "Error: Cannot generate aroma.zip!"
-
-# save self path
-echo "${zipfile}" > ${mmr_dir}/zipfile_self
 
 ui_print "OK. Now starting AROMA"
 cd /
