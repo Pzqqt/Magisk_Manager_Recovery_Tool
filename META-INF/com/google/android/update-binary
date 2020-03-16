@@ -75,6 +75,7 @@ mkdir -p $mmr_dir
 cd $mmr_dir
 unzip "${zipfile}"
 
+chmod 0755 ./bin/*
 chmod 0755 ./script/*
 . ${mmr_dir}/script/common.sh
 
@@ -104,7 +105,7 @@ ui_print "Generating AROMA config"
 ./script/aroma-config-init.sh
 
 cd ${mmr_dir}/template
-${mmr_dir}/script/7za a -tzip -mx=0 ${mmr_dir}/aroma.zip ./META-INF || :
+${mmr_dir}/bin/7za a -tzip -mx=0 ${mmr_dir}/aroma.zip ./META-INF || :
 [ -f ${mmr_dir}/aroma.zip ] || abort "Error: Cannot generate aroma.zip!"
 
 ui_print "OK. Now starting AROMA"

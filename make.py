@@ -9,7 +9,7 @@ import time
 
 LOCALVERSION = "v2.3"
 
-INCLUDE_DIRS = ("META-INF", "script", "template")
+INCLUDE_DIRS = ("bin", "META-INF", "script", "template")
 INCLUDE_FILES = ("LICENSE", "README.md")
 
 def local_path(*args):
