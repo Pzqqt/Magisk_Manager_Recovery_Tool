@@ -4,4 +4,4 @@
 
 module=$1
 
-/tmp/mmr/script/tree ${workPath}/${module}
+/tmp/mmr/bin/tree ${workPath}/${module}

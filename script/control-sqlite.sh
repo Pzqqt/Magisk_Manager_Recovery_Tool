@@ -6,7 +6,7 @@ arg_3=$3
 
 . /tmp/mmr/script/common.sh
 
-sqlite3_exec=/tmp/mmr/script/sqlite3
+sqlite3_exec=/tmp/mmr/bin/sqlite3
 
 # force use prebuilt sqlite3 binary
 $sqlite3_exec --version &>/dev/null || {
