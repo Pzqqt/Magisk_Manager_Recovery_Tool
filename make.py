@@ -75,10 +75,12 @@ def main():
     print("\nMagisk Manager Recovery Tool Build Script")
     print("\nLocal Version: %s\nBuild Date: %s" % (build_version, build_date))
     print("\nBuilding...")
-    file2dir(local_path("script", "ac-1.in"), local_path(), move=True)
+    
+    ac_file = local_path(*"template/META-INF/com/google/android/aroma-config".split("/"))
+    file2dir(ac_file, local_path(), move=True)
     try:
-        with open(local_path("ac-1.in"), "r", encoding="utf-8") as f1:
-            with open(local_path("script", "ac-1.in"), "w", encoding="utf-8", newline="\n") as f2:
+        with open(local_path("aroma-config"), "r", encoding="utf-8") as f1:
+            with open(ac_file, "w", encoding="utf-8", newline="\n") as f2:
                 f2.write(f1.read().replace("@BUILD_VERSION@", build_version)
                                   .replace("@BUILD_DATE@", build_date))
         archive_file = local_path("MMRT-%s.zip" % build_version)
@@ -97,8 +99,8 @@ def main():
         remove_path(archive_file)
         raise
     finally:
-        remove_path(local_path("script", "ac-1.in"))
-        file2dir(local_path("ac-1.in"), local_path("script"), move=True)
+        remove_path(ac_file)
+        file2file(local_path("aroma-config"), ac_file, move=True)
 
 if __name__ == "__main__":
     main()

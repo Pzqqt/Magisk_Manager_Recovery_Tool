@@ -1,0 +1,638 @@
+### LICENSE:
+#
+# Copyright (C) 2011 Ahmad Amarullah ( http://amarullz.com/ )
+# Copyright (C) 2013-2015 Andrew Gunnerson <andrewgunnerson@gmail.com>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+ini_set("rom_name",    "Magisk Manager Recovery Tool");
+ini_set("rom_version", "@BUILD_VERSION@");
+ini_set("rom_author",  "Pzqqt");
+ini_set("rom_device",  "");
+ini_set("rom_date",    "@BUILD_DATE@");
+# English By Pzqqt
+
+ini_set("force_colorspace", "rgba");
+ini_set("transition_frame", "10");
+
+loadlang("langs/en.lang");
+
+theme("default");
+
+fontresload("0", "ttf/DroidSansFallback.ttf", "12");
+fontresload("1", "ttf/DroidSansFallback.ttf", "14");
+
+setvar("MAGISK_VER", file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER"));
+setvar("MAGISK_VER_CODE", file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER_CODE"));
+
+setvar(
+    "sysinfo",
+    "<@center><b>Your device:</b></@>\n\n" +
+
+    "Model\t\t\t: "        + "<b><#selectbg_g>" + sysprop("ro.product.model")           + "</#></b>\n"   +
+    "Name\t\t\t: "         + "<b><#selectbg_g>" + sysprop("ro.product.name")            + "</#></b>\n"   +
+    "Device Name\t\t: "    + "<b><#selectbg_g>" + sysprop("ro.product.device")          + "</#></b>\n"   +
+    "Board Name\t\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.board")           + "</#></b>\n"   +
+    "Manufacturer\t: "     + "<b><#selectbg_g>" + sysprop("ro.product.manufacturer")    + "</#></b>\n"   +
+    "\n<@center><b>Other info:</b></@>\n\n" +
+    "Magisk Version\t: " + "<b><#selectbg_g>" + getvar("MAGISK_VER") + "</#></b>\n" +
+    "Version Code\t\t: " + "<b><#selectbg_g>" + getvar("MAGISK_VER_CODE") + "</#></b>\n\n"
+);
+
+if cmp(getvar("MAGISK_VER_CODE"), ">", "18100") then
+    setvar("mount_switch_flag", "skip");
+    setvar("exit_text2", "Exit to recovery");
+    setvar("shrink_text2", "Not available");
+    setvar("shrink_icon", "@crash");
+    setvar("module_remove_warning", "Direct removal the module is not recommended when the Magisk version > 18100.\nThere may be unpredictable consequences.\n\n");
+else
+    setvar("mount_switch_flag", "auto");
+    setvar("exit_text2", "Unmount /magisk & exit to recovery");
+    setvar("shrink_text2", "Shrinking magisk.img capacity.\nRecommended to use after removing large modules.");
+    setvar("shrink_icon", "@action");
+    setvar("module_remove_warning", "");
+    ini_set("text_quit", "Quit without unmount /magisk");
+    ini_set("text_quit_msg", "You can operate the module by operating the /magisk directory later. Only for advanced users. Do NOT forget to unmount /magisk.");
+endif;
+
+viewbox(
+    "<~welcome.title>",
+    "<~welcome.text1> <b>" + ini_get("rom_name") + "</b>.\n\n" + 
+    "You can manage almost everything in Magisk with this tool. " +
+    "You can manage installed modules, enable/disable core only mode, and even manage Root rights.\n\n\n" +
+    "  <~welcome.version>\t\t\t: " + "<b><#selectbg_g>" + ini_get("rom_version") + "</#></b>\n" +
+    "  <~welcome.updated>\t\t: " + "<b><#selectbg_g>" + ini_get("rom_date") + "</#></b>\n\n\n" +
+
+    getvar("sysinfo"),
+
+    "@welcome"
+);
+
+gotolabel("main_menu");
+
+exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh", getvar("modid"));
+setvar("modid", "");
+
+setvar("core_only_mode_code", exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "status"));
+
+if getvar("core_only_mode_code") == "0" then
+    setvar("core_only_mode_warning", "");
+    setvar("core_only_mode_switch_text", "Enable Magisk core only mode");
+    setvar("core_only_mode_switch_text2", "MagiskSU and MagiskHide will still be enabled,\nbut no modules will be load.");
+else
+    setvar("core_only_mode_warning", "\n<#f00>Warning: Magisk core only mode is enabled</#>");
+    setvar("core_only_mode_switch_text", "Disable Magisk core only mode");
+    setvar("core_only_mode_switch_text2", "");
+endif;
+
+exec("/sbin/sh", "/tmp/mmr/script/count-modules.sh");
+
+include("operations.edify");
+
+if cmp(prop("operations.prop", "selected"), ">=", "3") &&
+   cmp(prop("operations.prop", "selected"), "<", getvar("operations_last_index")) &&
+   getvar("modid") != ""
+then
+
+    setvar("stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
+    setvar("stat_mount_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_" + getvar("mount_switch_flag") + "_mount", getvar("modid")));
+
+    if getvar("stat_code") == "2" then
+        alert(
+            "Note",
+            "This module has been removed.\n",
+            "@warning",
+            "OK"
+        );
+        back("1");
+    endif;
+
+    setvar("module_remove_icon", "@delete");
+    setvar("module_remove_text2", "");
+    if getvar("stat_code") == "0" || getvar("stat_code") == "5" then
+        setvar("module_status", "<#f00>Disabled</#>");
+        setvar("module_status_switch_text",  "Enable module");
+        setvar("module_status_switch_text2", "");
+        setvar("module_status_switch_icon",  "@action2");
+    endif;
+    if getvar("stat_code") == "1" || getvar("stat_code") == "4" then
+        setvar("module_status", "<#0f0>Enabled</#>");
+        setvar("module_status_switch_text",  "Disable module");
+        setvar("module_status_switch_text2", "");
+        setvar("module_status_switch_icon",  "@offaction");
+    endif;
+    if cmp(getvar("stat_code"), ">=", "4") then
+        setvar("module_status", "<#f00>Will be removed after reboot</#>");
+        setvar("module_remove_switch_text",  "<b><i>Undo</i></b> remove at next reboot");
+        setvar("module_remove_switch_text2", "");
+        setvar("module_remove_switch_icon",  "@refresh");
+    else
+        setvar("module_remove_switch_text",  "Remove at next reboot");
+        setvar("module_remove_switch_text2", "");
+        setvar("module_remove_switch_icon",  "@delete");
+    endif;
+
+    if getvar("stat_mount_code") == "0" then
+        setvar("module_mount_status", "Disabled");
+        setvar("module_mount_status_switch_text",  "Enable mount");
+        setvar("module_mount_status_switch_text2", "");
+        setvar("module_mount_status_switch_icon",  "@action2");
+    endif;
+    if getvar("stat_mount_code") == "1" then
+        setvar("module_mount_status", "Enabled");
+        setvar("module_mount_status_switch_text",  "Disable mount");
+        setvar("module_mount_status_switch_text2", "");
+        setvar("module_mount_status_switch_icon",  "@offaction");
+    endif;
+
+    if getvar("stat_code") == "3" then
+        setvar("module_status", "<#f00>Will be updated after reboot</#>");
+        setvar("module_status_switch_text",        "Enable/Disable module");
+        setvar("module_status_switch_text2",       "Unallowed operation");
+        setvar("module_status_switch_icon",        "@crash");
+        setvar("module_mount_status_switch_text",  "Enable/Disable mount");
+        setvar("module_mount_status_switch_text2", "Unallowed operation");
+        setvar("module_mount_status_switch_icon",  "@crash");
+        setvar("module_remove_switch_text2",       "Unallowed operation");
+        setvar("module_remove_switch_icon",        "@crash");
+        setvar("module_remove_text2",              "Unallowed operation");
+        setvar("module_remove_icon",               "@crash");
+    endif;
+
+    menubox(
+        "Module: " + getvar("modname"),
+        "Module ID: " + getvar("modid") + "\n" +
+        "Module size: " + getvar("modsize") + "\n" +
+        "Mount status: " + getvar("module_mount_status") + "\n" +
+        "Module status: " + getvar("module_status"),
+        "@welcome",
+        "modoperations.prop",
+
+        "View description", "", "@info",
+        "View module content", "", "@info",
+        getvar("module_status_switch_text"), getvar("module_status_switch_text2"), getvar("module_status_switch_icon"),
+        getvar("module_mount_status_switch_text"), getvar("module_mount_status_switch_text2"), getvar("module_mount_status_switch_icon"),
+        getvar("module_remove_switch_text"), getvar("module_remove_switch_text2"), getvar("module_remove_switch_icon"),
+        "Backup module", "Experimental", "@install",
+        "Remove directly", getvar("module_remove_text2"), getvar("module_remove_icon")
+    );
+
+    if prop("modoperations.prop", "selected") == "1" then
+        alert(
+            "Description",
+            file_getprop("${workPath}/" + getvar("modid") + "/module.prop", "description") || "(No info provided)",
+            "@info",
+            "Back"
+        );
+        back("1");
+    endif;
+    if prop("modoperations.prop", "selected") == "2" then
+        pleasewait("Executing Shell...");
+        exec("/sbin/sh", "/tmp/mmr/script/get-module-tree.sh", getvar("modid"));
+        ini_set("text_next", "");
+        ini_set("icon_next", "@none");
+        textbox(
+            "Preview",
+            "Module directory structure:",
+            "@info",
+            getvar("exec_buffer")
+        );
+        back("2");
+    endif;
+    if getvar("stat_code") == "3" then
+        alert(
+            "Unallowed operation",
+            "This module will be updated after reboot.\nPlease reboot once and try again.",
+            "@crash",
+            "Back"
+        );
+        back("1");
+    endif;
+    prop("modoperations.prop", "selected") == "3" && setvar("module_operate", "switch_module");
+    prop("modoperations.prop", "selected") == "4" && setvar("module_operate", "switch_" + getvar("mount_switch_flag") + "_mount");
+    prop("modoperations.prop", "selected") == "5" && setvar("module_operate", "switch_remove");
+    if prop("modoperations.prop", "selected") == "6" then
+        if cmp(getvar("MAGISK_VER_CODE"), "<=", "18100") then
+            alert(
+                "Not available",
+                "Sorry,\nThis feature is only available for Magisk 18100+.",
+                "@crash",
+                "OK"
+            );
+            back("1");
+        endif;
+        if confirm(
+            "Warning!",
+            "This function is experimental\nand cannot guarantee reliability.\n\nContinue?",
+            "@warning") == "yes"
+        then
+            if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "exist_backup", getvar("modid")) != "0" then
+                if confirm(
+                    "Warning!",
+                    "A backup of the module already exists.\nDo you want to overwrite?",
+                    "@warning") == "no"
+                then
+                    back("1");
+                endif;
+            endif;
+            pleasewait("Backing up...");
+            if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "backup", getvar("modid")) == "0" then
+                alert(
+                    "Done",
+                    "Operation completed, no error occurred during execution.\n\nNote:\nThe list of backed up modules needs to restart this tool to refresh.",
+                    "@done",
+                    "OK"
+                );
+            else
+                alert(
+                    "Failed",
+                    "An error occurred during execution, please check.\n\n" + getvar("exec_buffer"),
+                    "@crash",
+                    "OK"
+                );
+            endif;
+        endif;
+        back("1");
+    endif;
+    if prop("modoperations.prop", "selected") == "7" then
+        if confirm(
+            "Warning!",
+            getvar("module_remove_warning") + "Are you sure want to remove this module?",
+            "@warning") == "yes"
+        then
+            setvar("module_operate", "remove");
+        else
+            back("1");
+        endif;
+    endif;
+    if exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", getvar("module_operate"), getvar("modid")) != "0" then
+        alert(
+            "Failed",
+            getvar("exec_buffer"),
+            "@crash",
+            "OK"
+        );
+    endif;
+    prop("modoperations.prop", "selected") != "7" && back("1");
+endif;
+
+if prop("operations.prop", "selected") == getvar("operations_last_index") then
+    menubox(
+        "Advanced options",
+        "Choose an action" + getvar("core_only_mode_warning"),
+        "@welcome",
+        "advanced.prop",
+
+        "Save recovery log", "Copies /tmp/recovery.log to internal SD", "@action",
+        "Shrinking magisk.img", getvar("shrink_text2"), getvar("shrink_icon"),
+        getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
+        "Superuser", "", "@action",
+        "Restore backed up modules", "", "@install",
+        "Uninstall Magisk", "Root will be fully removed from the device.", "@delete",
+        "Debug options", "", "@action",
+        "About", "", "@info",
+        "Back", "", "@back2"
+    );
+    if prop("advanced.prop", "selected") == "1" then
+        exec("/sbin/sh", "/tmp/mmr/script/save-rec-log.sh");
+        alert(
+            "Done",
+            "Recovery log has been saved to /sdcard/recovery.log!",
+            "@done",
+            "OK"
+        );
+        back("1");
+    endif;
+    if prop("advanced.prop", "selected") == "2" then
+        cmp(getvar("MAGISK_VER_CODE"), ">", "18100") && back("1");
+        pleasewait("Executing Shell...");
+        if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
+            alert(
+                "Done",
+                getvar("exec_buffer"),
+                "@done",
+                "OK"
+            );
+            if confirm(
+                "Note",
+                "The magisk image has been unmounted.\n\nThis tool will exit.\nIf you still need to use, please reflash this tool.\n\n",
+                "@warning",
+                "Exit to Recovery",
+                "Reboot") == "no"
+            then
+                reboot("now");
+            endif;
+        else
+            alert(
+                "Failed",
+                getvar("exec_buffer"),
+                "@crash",
+                "Exit"
+            );
+        endif;
+        exit("");
+    endif;
+    if prop("advanced.prop", "selected") == "3" then
+        exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "switch");
+        back("1");
+    endif;
+    if prop("advanced.prop", "selected") == "4" then
+        if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_sqlite3_path") == "2" then
+            alert(
+                "Not available",
+                "Sorry,\nThis option is not available\nbecause we cannot find available sqlite3 programs\nfrom your device.",
+                "@crash",
+                "OK"
+            );
+            back("1");
+        endif;
+        setvar("magiskhide_status", exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_magiskhide_status"));
+        if getvar("magiskhide_status") == "0" then
+            setvar("magiskhide_switch_text", "Magisk Hide is disabled");
+            setvar("magiskhide_switch_text_2", "Why would you disable Magisk Hide:/");
+            setvar("magiskhide_switch_icon", "@offaction");
+        endif;
+        if getvar("magiskhide_status") == "1" then
+            setvar("magiskhide_switch_text", "Magisk Hide is enabled");
+            setvar("magiskhide_switch_text_2", "Hide Magisk from various forms of detection.");
+            setvar("magiskhide_switch_icon", "@action2");
+        endif;
+        menubox(
+            "Superuser",
+            "Choose an action" + getvar("core_only_mode_warning"),
+            "@welcome",
+            "magisksu.prop",
+
+            "Clear MagiskSU logs", "", "@action",
+            "Root manager", "", "@action",
+            getvar("magiskhide_switch_text"), getvar("magiskhide_switch_text_2"), getvar("magiskhide_switch_icon"),
+            "Back", "", "@back2"
+        );
+        prop("magisksu.prop", "selected") == "4" && back("2");
+        if prop("magisksu.prop", "selected") == "1" then
+            pleasewait("Executing Shell...");
+            if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "clear_su_log") == "0" then
+                alert(
+                    "Done",
+                    "Operation completed, no error occurred during execution.",
+                    "@done",
+                    "OK"
+                );
+            else
+                alert(
+                    "Failed",
+                    "An error occurred during execution, please check.\n\n" + getvar("exec_buffer"),
+                    "@crash",
+                    "OK"
+                );
+            endif;
+            back("1");
+        endif;
+        if prop("magisksu.prop", "selected") == "2" then
+            pleasewait("Generating list...");
+            exec("/sbin/sh", "/tmp/mmr/script/control-suapps.sh");
+            ini_set("text_next", "Apply");
+            include("magisksu_apps.edify");
+            pleasewait("Executing Shell...");
+            if exec("/sbin/sh", "/tmp/mmr/script/control-suapps.sh", "apply_change") == "0" then
+                if getvar("exec_buffer") != "" then
+                    alert(
+                        "Done",
+                        "Your changes have been applied:\n\n" + getvar("exec_buffer"),
+                        "@done",
+                        "OK"
+                    );
+                endif;
+            else
+                alert(
+                    "Failed",
+                    "Command execution failed, please check.\n\n" + getvar("exec_buffer"),
+                    "@crash",
+                    "OK"
+                );
+            endif;
+            back("2");
+        endif;
+        if prop("magisksu.prop", "selected") == "3" then
+            getvar("magiskhide_status") == "0" && setvar("magiskhide_status_set", "1");
+            getvar("magiskhide_status") == "1" && setvar("magiskhide_status_set", "0");
+            if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "set_magiskhide_status", getvar("magiskhide_status_set")) != "0" then
+                alert(
+                    "Failed",
+                    "An error occurred during execution, please check.\n\n" + getvar("exec_buffer"),
+                    "@crash",
+                    "OK"
+                );
+            endif;
+            back("1");
+        endif;
+    endif;
+    if prop("advanced.prop", "selected") == "5" then
+        if cmp(getvar("MAGISK_VER_CODE"), "<=", "18100") then
+            alert(
+                "Not available",
+                "Sorry,\nThis feature is only available for Magisk 18100+.",
+                "@crash",
+                "OK"
+            );
+            back("1");
+        endif;
+        include("module_backup_list.edify");
+        if getvar("bm_id") == "" then
+            back("1");
+        endif;
+        setvar("bm_is_deleted", exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "exist_backup", getvar("bm_id")));
+        if getvar("bm_is_deleted") == "0" then
+            alert(
+                "Note",
+                "This backup has been removed.\n",
+                "@warning",
+                "OK"
+            );
+            back("1");
+        endif;
+        menubox(
+            "Module ID: " + getvar("bm_id"),
+            "Backup size: " + getvar("bm_size"),
+            "@welcome",
+            "module_backup_operations.prop",
+            "Restore module", "", "@action",
+            "Delete backup", "", "@delete",
+            "Back", "", "@back2"
+        );
+        prop("module_backup_operations.prop", "selected") == "3" && back("2");
+        if prop("module_backup_operations.prop", "selected") == "1" then
+            if confirm(
+                "Warning!",
+                "Restoring modules across Rom or across devices\ncan lead to unpredictable consequences,\nPlease exercise caution!\n\n" +
+                "Are you sure want to restore this module?",
+                "@warning") == "yes"
+            then
+                setvar("bm_stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("bm_id")));
+                if getvar("bm_stat_code") != "2" then
+                    if confirm(
+                        "Warning!",
+                        "This module is already installed on your device.\nAre you sure want to overwrite?",
+                        "@warning") == "no"
+                    then
+                        back("1");
+                    endif
+                endif;
+                pleasewait("Recovering...");
+                if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "restore", getvar("bm_id")) == "0" then
+                    setvar("bm_stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("bm_id")));
+                    if confirm(
+                        "Done",
+                        "Operation completed, no error occurred during execution.\n\nNote:\n" +
+                        "The list of installed modules needs to restart this tool to refresh.\n\nDo you need to enable this module immediately?",
+                        "@done",
+                        "Enable",
+                        "Disable") == "yes"
+                    then
+                        getvar("bm_stat_code") == "0" && setvar("bm_doswitch", "1");
+                    else
+                        getvar("bm_stat_code") == "1" && setvar("bm_doswitch", "1");
+                    endif;
+                    getvar("bm_doswitch") == "1" && exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "switch_module", getvar("bm_id"));
+                else
+                    alert(
+                        "Failed",
+                        "An error occurred during execution, please check.\n\n" + getvar("exec_buffer"),
+                        "@crash",
+                        "OK"
+                    );
+                endif;
+            endif;
+            back("1");
+        endif;
+        if prop("module_backup_operations.prop", "selected") == "2" then
+            if confirm(
+                "Warning!",
+                "Are you sure want to remove this backup?",
+                "@warning") == "yes"
+            then
+                if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "remove_backup", getvar("bm_id")) != "0" then
+                    alert(
+                        "Failed",
+                        "An error occurred during execution, please check.\n\n" + getvar("exec_buffer"),
+                        "@crash",
+                        "OK"
+                    );
+                endif;
+                back("2");
+            else
+                back("1");
+            endif;
+        endif;
+    endif;
+    if prop("advanced.prop", "selected") == "6" then
+        if confirm(
+            "Warning!",
+            "Are you sure want to uninstall Magisk?\n\nAll modules will be disabled/removed.\nRoot will be removed. and your data\npotentially encrypted if not already.",
+            "@warning",
+            "I'm sure",
+            "Give up") == "no"
+        then
+            back("1");
+        endif;
+        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
+        setvar("uninstall_exitcode",
+            install(
+                "Uninstall Magisk",
+                "Uninstalling Magisk, please wait...",
+                "@welcome",
+                "Press Next to continue..."
+            )
+        );
+        if getvar("uninstall_exitcode") == "0" then
+            if confirm(
+                "Uninstall completed",
+                "Magisk has been successfully uninstalled.",
+                "@warning",
+                "Exit to Recovery",
+                "Reboot") == "no"
+            then
+                reboot("onfinish");
+            endif;
+        else
+            alert(
+                "Uninstall failed",
+                "Sorry, we were unable to uninstall Magisk successfully.\n\nPlease try uninstalling from Magisk Manager after booting device.",
+                "@crash",
+                "Exit"
+            );
+        endif;
+        exit("");
+    endif;
+    if prop("advanced.prop", "selected") == "7" then
+        menubox(
+            "Debug options",
+            "Choose an action",
+            "@alert",
+            "debug.prop",
+
+            "Force update module_icon.prop", "Regenerate module icon index file", "@action",
+            "Back", "", "@back2"
+        );
+        prop("debug.prop", "selected") == "1" && exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh", "--regen");
+    endif;
+    if prop("advanced.prop", "selected") == "8" then
+        menubox(
+            "About",
+            "About " + ini_get("rom_name"),
+            "@info",
+            "about.prop",
+
+            "Author", ini_get("rom_author"), "@me",
+            "MMRT version", ini_get("rom_version"), "@info",
+            "Include Magisk uninstaller version", "Magisk-uninstaller-20200110.zip", "@info",
+            "License", "GPL-3.0", "@info",
+            "Github", "https://github.com/Pzqqt/Magisk_Manager_Recovery_Tool", "@info",
+            "XDA", "https://forum.xda-developers.com/showthread.php?t=3866502", "@info",
+            "Back", "", "@back2"
+        );
+        prop("about.prop", "selected") == "7" && back("2");
+        if prop("about.prop", "selected") == "1" then
+            if readtmpfile("egg") == "4" then
+                writetmpfile("egg", "0");
+                anisplash(
+                    1,
+                    "sp_1", 500,
+                    "sp_2", 500,
+                    "sp_3", 500,
+                    "sp_4", 500,
+                    "sp_5", 500
+                );
+                back("1");
+            else
+                writetmpfile("egg", cal(readtmpfile("egg") || "0", "+", "1"));
+            endif;
+        endif;
+        if prop("about.prop", "selected") == "4" then
+            pleasewait("Loading...");
+            ini_set("text_next", "");
+            ini_set("icon_next", "@none");
+            textbox(
+                "License",
+                "GPL-3.0",
+                "@info",
+                read("/tmp/mmr/LICENSE")
+            );
+            back("2");
+        endif;
+        back("1");
+    endif;
+endif;
+
+goto("main_menu");
