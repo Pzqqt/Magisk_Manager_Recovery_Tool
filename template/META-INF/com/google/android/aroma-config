@@ -1,0 +1,689 @@
+### LICENSE:
+#
+# Copyright (C) 2011 Ahmad Amarullah ( http://amarullz.com/ )
+# Copyright (C) 2013-2015 Andrew Gunnerson <andrewgunnerson@gmail.com>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+ini_set("rom_name",    "Magisk Manager Recovery Tool");
+ini_set("rom_version", "@BUILD_VERSION@");
+ini_set("rom_author",  "Pzqqt");
+ini_set("rom_device",  "");
+ini_set("rom_date",    "@BUILD_DATE@");
+# Chinese By Pzqqt
+
+ini_set("force_colorspace", "rgba");
+ini_set("transition_frame", "10");
+
+loadlang("langs/cn.lang");
+
+theme("default");
+
+fontresload("0", "ttf/DroidSansFallback.ttf", "12");
+fontresload("1", "ttf/DroidSansFallback.ttf", "14");
+
+setvar("MAGISK_VER", file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER"));
+setvar("MAGISK_VER_CODE", file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER_CODE"));
+
+setvar(
+    "sysinfo",
+    "<@center><b>设备信息 :</b></@>\n\n" +
+
+    "设备型号\t\t\t: " + "<b><#selectbg_g>" + sysprop("ro.product.model")        + "</#></b>\n" +
+    "设备名称\t\t\t: " + "<b><#selectbg_g>" + sysprop("ro.product.name")         + "</#></b>\n" +
+    "设备代号\t\t\t: " + "<b><#selectbg_g>" + sysprop("ro.product.device")       + "</#></b>\n" +
+    "Cpu 型号\t\t\t: " + "<b><#selectbg_g>" + sysprop("ro.product.board")        + "</#></b>\n" +
+    "设备厂商\t\t\t: " + "<b><#selectbg_g>" + sysprop("ro.product.manufacturer") + "</#></b>\n" +
+    "\n<@center><b>其他信息 :</b></@>\n\n" +
+    "Magisk 版本\t\t: " + "<b><#selectbg_g>" + getvar("MAGISK_VER") + "</#></b>\n" +
+    "\t版本号\t\t: " + "<b><#selectbg_g>" + getvar("MAGISK_VER_CODE") + "</#></b>\n\n"
+);
+
+if cmp(getvar("MAGISK_VER_CODE"), ">", "18100") then
+    setvar("mount_switch_flag", "skip");
+    setvar("exit_text2", "退出到 Recovery");
+    setvar("shrink_text2", "该选项不可用");
+    setvar("shrink_icon", "@crash");
+    setvar("module_remove_warning", "Magisk 版本号大于 18100 时不建议直接移除模块.\n可能会产生不可预料的后果.\n\n");
+else
+    setvar("mount_switch_flag", "auto");
+    setvar("exit_text2", "取消挂载 /magisk 并退出到 Recovery");
+    setvar("shrink_text2", "压缩 magisk.img 容量以减少其存储空间占用.\n建议在移除大型模块后使用.");
+    setvar("shrink_icon", "@action");
+    setvar("module_remove_warning", "");
+    ini_set("text_quit", "保持 /magisk 挂载状态并退出");
+    ini_set("text_quit_msg", "稍候你可以自行操作 /magisk 目录来操作模块. 此功能仅面向高级用户. 别忘了在重启前取消挂载.");
+endif;
+
+viewbox(
+    "<~welcome.title>",
+    "<~welcome.text1> <b>" + ini_get("rom_name") + "</b>.\n\n" + 
+    "你可以在本工具中管理几乎 Magisk 的一切,\n" +
+    "你可以管理已安装的模块, 启用/禁用核心功能模式,\n甚至是管理 Root 授权.\n\n\n" +
+    # 如果能在 Recovery 模式下联网下载/刷入 Magisk 安装包或模块就很赞了#(滑稽)
+    "<~welcome.version>\t\t\t\t: " + "<b><#selectbg_g>" + ini_get("rom_version") + "</#></b>\n" +
+    "<~welcome.updated>\t\t\t: " + "<b><#selectbg_g>" + ini_get("rom_date") + "</#></b>\n\n\n" +
+
+    getvar("sysinfo"),
+
+    "@welcome"
+);
+
+gotolabel("main_menu");
+
+exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh", getvar("modid"));
+setvar("modid", "");
+
+setvar("core_only_mode_code", exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "status"));
+
+if getvar("core_only_mode_code") == "0" then
+    setvar("core_only_mode_warning", "");
+    setvar("core_only_mode_switch_text", "启用 Magisk 核心功能模式");
+    setvar("core_only_mode_switch_text2", "仅启用核心功能, 所有模块均不会被载入.\n但 MagiskSU 和 MagiskHide 仍然会继续工作.");
+else
+    setvar("core_only_mode_warning", "\n<#f00>注意: Magisk 核心功能模式已启用</#>");
+    setvar("core_only_mode_switch_text", "禁用 Magisk 核心功能模式");
+    setvar("core_only_mode_switch_text2", "");
+endif;
+
+exec("/sbin/sh", "/tmp/mmr/script/count-modules.sh");
+
+include("operations.edify");
+
+if cmp(prop("operations.prop", "selected"), ">=", "3") &&
+   cmp(prop("operations.prop", "selected"), "<", getvar("operations_last_index")) &&
+   getvar("modid") != ""
+then
+
+    setvar("stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
+    setvar("stat_mount_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_" + getvar("mount_switch_flag") + "_mount", getvar("modid")));
+
+    if getvar("stat_code") == "2" then
+        alert(
+            "注意",
+            "这个模块已经被移除了.\n",
+            "@warning",
+            "确定"
+        );
+        back("1");
+    endif;
+
+    setvar("module_remove_icon", "@delete");
+    setvar("module_remove_text2", "");
+    if getvar("stat_code") == "0" || getvar("stat_code") == "5" then
+        setvar("module_status", "<#f00>已禁用</#>");
+        setvar("module_status_switch_text",  "启用该模块");
+        setvar("module_status_switch_text2", "");
+        setvar("module_status_switch_icon",  "@action2");
+    endif;
+    if getvar("stat_code") == "1" || getvar("stat_code") == "4" then
+        setvar("module_status", "<#0f0>已启用</#>");
+        setvar("module_status_switch_text",  "禁用该模块");
+        setvar("module_status_switch_text2", "");
+        setvar("module_status_switch_icon",  "@offaction");
+    endif;
+    if cmp(getvar("stat_code"), ">=", "4") then
+        setvar("module_status", "<#f00>重启后被移除</#>");
+        setvar("module_remove_switch_text",  "<b><i>撤销</i></b> 重启后移除该模块");
+        setvar("module_remove_switch_text2", "");
+        setvar("module_remove_switch_icon",  "@refresh");
+    else
+        setvar("module_remove_switch_text",  "重启后移除该模块");
+        setvar("module_remove_switch_text2", "");
+        setvar("module_remove_switch_icon",  "@delete");
+    endif;
+
+    if getvar("stat_mount_code") == "0" then
+        setvar("module_mount_status", "已禁用");
+        setvar("module_mount_status_switch_text",  "启用挂载");
+        setvar("module_mount_status_switch_text2", "");
+        setvar("module_mount_status_switch_icon",  "@action2");
+    endif;
+    if getvar("stat_mount_code") == "1" then
+        setvar("module_mount_status", "已启用");
+        setvar("module_mount_status_switch_text",  "禁用挂载");
+        setvar("module_mount_status_switch_text2", "");
+        setvar("module_mount_status_switch_icon",  "@offaction");
+    endif;
+
+    if getvar("stat_code") == "3" then
+        setvar("module_status", "<#f00>重启后完成更新</#>");
+        setvar("module_status_switch_text",        "启用/禁用该模块");
+        setvar("module_status_switch_text2",       "不允许的操作");
+        setvar("module_status_switch_icon",        "@crash");
+        setvar("module_mount_status_switch_text",  "启用/禁用挂载");
+        setvar("module_mount_status_switch_text2", "不允许的操作");
+        setvar("module_mount_status_switch_icon",  "@crash");
+        setvar("module_remove_switch_text2",       "不允许的操作");
+        setvar("module_remove_switch_icon",        "@crash");
+        setvar("module_remove_text2",              "不允许的操作");
+        setvar("module_remove_icon",               "@crash");
+    endif;
+
+    menubox(
+        "模块: " + getvar("modname"),
+        "模块 ID: " + getvar("modid") + "\n" +
+        "占用空间: " + getvar("modsize") + "\n" +
+        "挂载状态: " + getvar("module_mount_status") + "\n" +
+        "模块状态: " + getvar("module_status"),
+        "@welcome",
+        "modoperations.prop",
+
+        "查看模块描述", "", "@info",
+        "预览模块内容", "", "@info",
+        getvar("module_status_switch_text"), getvar("module_status_switch_text2"), getvar("module_status_switch_icon"),
+        getvar("module_mount_status_switch_text"), getvar("module_mount_status_switch_text2"), getvar("module_mount_status_switch_icon"),
+        getvar("module_remove_switch_text"), getvar("module_remove_switch_text2"), getvar("module_remove_switch_icon"),
+        "备份该模块", "实验性功能", "@install",
+        "立即移除该模块", getvar("module_remove_text2"), getvar("module_remove_icon")
+    );
+
+    if prop("modoperations.prop", "selected") == "1" then
+        alert(
+            "描述",
+            file_getprop("/magisk/" + getvar("modid") + "/module.prop", "description") || "(未提供信息)",
+            "@info",
+            "返回"
+        );
+        back("1");
+    endif;
+    if prop("modoperations.prop", "selected") == "2" then
+        pleasewait("正在获取 ...");
+        exec("/sbin/sh", "/tmp/mmr/script/get-module-tree.sh", getvar("modid"));
+        ini_set("text_next", "");
+        ini_set("icon_next", "@none");
+        textbox(
+            "预览",
+            "模块目录结构:",
+            "@info",
+            getvar("exec_buffer")
+        );
+        back("2");
+    endif;
+    if getvar("stat_code") == "3" then
+        alert(
+            "不允许的操作",
+            "该模块将在重启后完成更新,\n请重启一次后再试.",
+            "@crash",
+            "返回"
+        );
+        back("1");
+    endif;
+    prop("modoperations.prop", "selected") == "3" && setvar("module_operate", "switch_module");
+    prop("modoperations.prop", "selected") == "4" && setvar("module_operate", "switch_" + getvar("mount_switch_flag") + "_mount");
+    prop("modoperations.prop", "selected") == "5" && setvar("module_operate", "switch_remove");
+    if prop("modoperations.prop", "selected") == "6" then
+        if cmp(getvar("MAGISK_VER_CODE"), "<=", "18100") then
+            alert(
+                "不可用的选项",
+                "很抱歉,\n该功能仅适用于 Magisk 18100 以上的版本.",
+                "@crash",
+                "确定"
+            );
+            back("1");
+        endif;
+        if confirm(
+            "警告",
+            "该功能为实验性功能, 不能保证可靠性.\n你确定要继续操作吗?",
+            "@warning") == "yes"
+        then
+            if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "exist_backup", getvar("modid")) != "0" then
+                if confirm(
+                    "警告",
+                    "已存在同名的模块备份.\n你要覆盖原有的备份吗?",
+                    "@warning") == "no"
+                then
+                    back("1");
+                endif;
+            endif;
+            pleasewait("正在备份, 请稍候 ...");
+            if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "backup", getvar("modid")) == "0" then
+                alert(
+                    "成功",
+                    "操作完成, 执行过程中没有发生错误.\n\n请注意:\n已备份模块列表需要重新打开本工具才能刷新.",
+                    "@done",
+                    "确定"
+                );
+            else
+                alert(
+                    "失败",
+                    "执行过程中有错误发生, 请确认.\n\n" + getvar("exec_buffer"),
+                    "@crash",
+                    "确定"
+                );
+            endif;
+        endif;
+        back("1");
+    endif;
+    if prop("modoperations.prop", "selected") == "7" then
+        if confirm(
+            "警告",
+            getvar("module_remove_warning") + "您确定要移除该模块吗? 此操作不可恢复!",
+            "@warning") == "yes"
+        then
+            setvar("module_operate", "remove");
+        else
+            back("1");
+        endif;
+    endif;
+    if exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", getvar("module_operate"), getvar("modid")) != "0" then
+        alert(
+            "失败",
+            getvar("exec_buffer"),
+            "@crash",
+            "确定"
+        );
+    endif;
+    prop("modoperations.prop", "selected") != "7" && back("1");
+endif;
+
+if prop("operations.prop", "selected") == getvar("operations_last_index") then
+    menubox(
+        "高级功能",
+        "请选择操作" + getvar("core_only_mode_warning"),
+        "@welcome",
+        "advanced.prop",
+
+        "保存 recovery 日志", "复制 /tmp/recovery.log 到内部存储", "@action",
+        "瘦身 magisk.img", getvar("shrink_text2"), getvar("shrink_icon"),
+        getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), "@action",
+        "超级用户", "", "@action",
+        "恢复已备份的模块", "", "@install",
+        "卸载 Magisk", "Root 权限将从设备中完全移除", "@delete",
+        "调试选项", "", "@action",
+        "关于", "", "@info",
+        "返回", "", "@back2"
+    );
+    if prop("advanced.prop", "selected") == "1" then
+        exec("/sbin/sh", "/tmp/mmr/script/save-rec-log.sh");
+        alert(
+            "完成",
+            "已保存 Recovery 日志到 /sdcard/recovery.log!",
+            "@done",
+            "确定"
+        );
+        back("1");
+    endif;
+    if prop("advanced.prop", "selected") == "2" then
+        cmp(getvar("MAGISK_VER_CODE"), ">", "18100") && back("1");
+        pleasewait("正在执行脚本 ...");
+        if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
+            alert(
+                "运行成功",
+                getvar("exec_buffer"),
+                "@done",
+                "确定"
+            );
+            if confirm(
+                "注意",
+                "magisk 镜像已取消挂载.\n\n本工具即将退出.\n如果还需使用, 请重新卡刷本工具.\n\n",
+                "@warning",
+                "退出到 Recovery",
+                "重启设备") == "no"
+            then
+                reboot("now");
+            endif;
+        else
+            alert(
+                "运行失败",
+                getvar("exec_buffer"),
+                "@crash",
+                "退出"
+            );
+        endif;
+        exit("");
+    endif;
+    if prop("advanced.prop", "selected") == "3" then
+        exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "switch");
+        back("1");
+    endif;
+    if prop("advanced.prop", "selected") == "4" then
+        if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_sqlite3_path") == "2" then
+            alert(
+                "不可用的选项",
+                "很抱歉,\n由于本工具无法从设备中找到可用的 sqlite3 程序,\n故该选项不可用.",
+                "@crash",
+                "确定"
+            );
+            back("1");
+        endif;
+        setvar("magiskhide_status", exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_magiskhide_status"));
+        if getvar("magiskhide_status") == "0" then
+            setvar("magiskhide_switch_text", "Magisk Hide 已关闭");
+            setvar("magiskhide_switch_text_2", "你为何要关闭 Magisk Hide 呢:/");
+            setvar("magiskhide_switch_icon", "@offaction");
+        endif;
+        if getvar("magiskhide_status") == "1" then
+            setvar("magiskhide_switch_text", "Magisk Hide 已开启");
+            setvar("magiskhide_switch_text_2", "隐藏 Magisk 使其不被各种方法检测到");
+            setvar("magiskhide_switch_icon", "@action2");
+        endif;
+        menubox(
+            "超级用户",
+            "请选择操作" + getvar("core_only_mode_warning"),
+            "@welcome",
+            "magisksu.prop",
+
+            "清除 MagiskSU 日志", "", "@action",
+            "授权管理", "", "@action",
+            getvar("magiskhide_switch_text"), getvar("magiskhide_switch_text_2"), getvar("magiskhide_switch_icon"),
+            "返回", "", "@back2"
+        );
+        prop("magisksu.prop", "selected") == "4" && back("2");
+        if prop("magisksu.prop", "selected") == "1" then
+            pleasewait("正在执行脚本 ...");
+            if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "clear_su_log") == "0" then
+                alert(
+                    "成功",
+                    "操作完成, 执行过程中没有发生错误.",
+                    "@done",
+                    "确定"
+                );
+            else
+                alert(
+                    "失败",
+                    "执行过程中有错误发生, 请确认.\n\n" + getvar("exec_buffer"),
+                    "@crash",
+                    "确定"
+                );
+            endif;
+            back("1");
+        endif;
+        if prop("magisksu.prop", "selected") == "2" then
+            pleasewait("正在生成列表 ...");
+            exec("/sbin/sh", "/tmp/mmr/script/control-suapps.sh");
+            ini_set("text_next", "应用更改");
+            include("magisksu_apps.edify");
+            pleasewait("正在执行脚本 ...");
+            if exec("/sbin/sh", "/tmp/mmr/script/control-suapps.sh", "apply_change") == "0" then
+                if getvar("exec_buffer") != "" then
+                    alert(
+                        "成功",
+                        "您的更改已经生效:\n\n" + getvar("exec_buffer"),
+                        "@done",
+                        "确定"
+                    );
+                endif;
+            else
+                alert(
+                    "失败",
+                    "命令执行失败, 请确认.\n\n" + getvar("exec_buffer"),
+                    "@crash",
+                    "确定"
+                );
+            endif;
+            back("2");
+        endif;
+        if prop("magisksu.prop", "selected") == "3" then
+            getvar("magiskhide_status") == "0" && setvar("magiskhide_status_set", "1");
+            getvar("magiskhide_status") == "1" && setvar("magiskhide_status_set", "0");
+            if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "set_magiskhide_status", getvar("magiskhide_status_set")) != "0" then
+                alert(
+                    "失败",
+                    "执行过程中有错误发生, 请确认.\n\n" + getvar("exec_buffer"),
+                    "@crash",
+                    "确定"
+                );
+            endif;
+            back("1");
+        endif;
+    endif;
+    if prop("advanced.prop", "selected") == "5" then
+        if cmp(getvar("MAGISK_VER_CODE"), "<=", "18100") then
+            alert(
+                "不可用的选项",
+                "很抱歉,\n该功能仅适用于 Magisk 18100 以上的版本.",
+                "@crash",
+                "确定"
+            );
+            back("1");
+        endif;
+        include("module_backup_list.edify");
+        if getvar("bm_id") == "" then
+            back("1");
+        endif;
+        setvar("bm_is_deleted", exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "exist_backup", getvar("bm_id")));
+        if getvar("bm_is_deleted") == "0" then
+            alert(
+                "注意",
+                "这个备份已经被删除了.\n",
+                "@warning",
+                "确定"
+            );
+            back("1");
+        endif;
+        menubox(
+            "模块 ID: " + getvar("bm_id"),
+            "占用空间: " + getvar("bm_size"),
+            "@welcome",
+            "module_backup_operations.prop",
+            "恢复该模块", "", "@action",
+            "删除该备份", "", "@delete",
+            "返回", "", "@back2"
+        );
+        prop("module_backup_operations.prop", "selected") == "3" && back("2");
+        if prop("module_backup_operations.prop", "selected") == "1" then
+            if confirm(
+                "警告",
+                "跨 Rom 或跨设备恢复模块\n可能会导致不可预估的后果, 请慎重操作!\n\n" +
+                "你确定要恢复该模块吗?",
+                "@warning") == "yes"
+            then
+                setvar("bm_stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("bm_id")));
+                if getvar("bm_stat_code") != "2" then
+                    if confirm(
+                        "警告",
+                        "你的设备已经安装了该模块.\n确定要覆盖吗?",
+                        "@warning") == "no"
+                    then
+                        back("1");
+                    endif
+                endif;
+                pleasewait("正在恢复, 请稍候 ...");
+                if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "restore", getvar("bm_id")) == "0" then
+                    setvar("bm_stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("bm_id")));
+                    if confirm(
+                        "成功",
+                        "操作完成, 执行过程中没有发生错误.\n\n请注意:\n" +
+                        "已安装的模块列表需要重新打开本工具才能刷新.\n\n你需要立即启用该模块吗?",
+                        "@done",
+                        "启用",
+                        "禁用") == "yes"
+                    then
+                        getvar("bm_stat_code") == "0" && setvar("bm_doswitch", "1");
+                    else
+                        getvar("bm_stat_code") == "1" && setvar("bm_doswitch", "1");
+                    endif;
+                    getvar("bm_doswitch") == "1" && exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "switch_module", getvar("bm_id"));
+                else
+                    alert(
+                        "失败",
+                        "执行过程中有错误发生, 请确认.\n\n" + getvar("exec_buffer"),
+                        "@crash",
+                        "确定"
+                    );
+                endif;
+            endif;
+            back("1");
+        endif;
+        if prop("module_backup_operations.prop", "selected") == "2" then
+            if confirm(
+                "警告",
+                "您确定要移除该备份吗? 此操作不可恢复!",
+                "@warning") == "yes"
+            then
+                if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "remove_backup", getvar("bm_id")) != "0" then
+                    alert(
+                        "失败",
+                        "执行过程中有错误发生, 请确认.\n\n" + getvar("exec_buffer"),
+                        "@crash",
+                        "确定"
+                    );
+                endif;
+                back("2");
+            else
+                back("1");
+            endif;
+        endif;
+    endif;
+    if prop("advanced.prop", "selected") == "6" then
+        if confirm(
+            "警告",
+            "您确定要卸载 Magisk 吗?\n\n所有模块将停用或删除, Root 会被移除.\n未加密的设备重启时可能会被进行加密.",
+            "@warning",
+            "确定卸载",
+            "点错了不好意思") == "no"
+        then
+            back("1");
+        endif;
+        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
+        setvar("uninstall_exitcode",
+            install(
+                "卸载 Magisk",
+                "正在卸载 Magisk, 请稍候...",
+                "@welcome",
+                "点击下一步以继续..."
+            )
+        );
+        if getvar("uninstall_exitcode") == "0" then
+            if confirm(
+                "卸载完成",
+                "已成功卸载 Magisk.",
+                "@warning",
+                "退出到 Recovery",
+                "重启设备") == "no"
+            then
+                reboot("onfinish");
+            endif;
+        else
+            alert(
+                "卸载失败",
+                "很抱歉, 本工具未能成功卸载 Magisk.\n\n请尝试开机后从 Magisk Manager 中卸载.",
+                "@crash",
+                "退出"
+            );
+        endif;
+        exit("");
+    endif;
+    if prop("advanced.prop", "selected") == "7" then
+        menubox(
+            "调试选项",
+            "请选择操作",
+            "@alert",
+            "debug.prop",
+
+            "重建模块图标索引文件", "", "@action",
+            "添加快捷启动选项到 Recovery 高级菜单", "", "@action",
+            "返回", "", "@back2"
+        );
+        prop("debug.prop", "selected") == "1" && exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh", "--regen");
+        if prop("debug.prop", "selected") == "2" then
+            if confirm(
+                "警告",
+                "你在使用 RedWolf, OrangeFox, PitchBlack,\n或其他的 TWRP 魔改版吗?",
+                "@warning",
+                "是的",
+                "不, 我在使用 TWRP") == "yes"
+            then
+                alert(
+                    "不允许的操作",
+                    "很抱歉, 该选项仅适用于 TWRP 官方版!",
+                    "@crash",
+                    "返回"
+                );
+                back("1");
+            endif;
+            agreebox(
+                "说明",
+                "请认真阅读以下说明信息:",
+                "@warning",
+                resread("install_twrp_theme_about.txt"),
+                "我已了解",
+                "请在认真阅读完说明信息后勾选底部的复选框..."
+            );
+            writetmpfile("install_twrp_theme_flag", "# FLAG\n");
+            setvar("uninstall_exitcode",
+                install(
+                    "安装 TWRP 主题",
+                    "正在安装修改版 TWRP 主题, 请稍候...",
+                    "@welcome",
+                    "点击下一步以继续..."
+                )
+            );
+            if getvar("uninstall_exitcode") == "0" then
+                alert(
+                    "完成",
+                    "已成功安装修改版 TWRP 主题.\n\n请在下次进入 Recovery 模式后查看效果.",
+                    "@done",
+                    "返回"
+                );
+            else
+                alert(
+                    "失败",
+                    "很抱歉, 主题安装失败!\n\n请保存日志并向作者反馈.",
+                    "@crash",
+                    "返回"
+                );
+            endif;
+        endif;
+    endif;
+    if prop("advanced.prop", "selected") == "8" then
+        menubox(
+            "关于",
+            "关于 " + ini_get("rom_name"),
+            "@info",
+            "about.prop",
+
+            "作者", ini_get("rom_author"), "@me",
+            "MMRT 版本", ini_get("rom_version"), "@info",
+            "内置 Magisk 卸载包版本", "Magisk-uninstaller-20200110.zip", "@info",
+            "License", "GPL-3.0", "@info",
+            "Github", "https://github.com/Pzqqt/Magisk_Manager_Recovery_Tool", "@info",
+            "XDA", "https://forum.xda-developers.com/showthread.php?t=3866502", "@info",
+            "返回", "", "@back2"
+        );
+        prop("about.prop", "selected") == "7" && back("2");
+        if prop("about.prop", "selected") == "1" then
+            if readtmpfile("egg") == "4" then
+                writetmpfile("egg", "0");
+                anisplash(
+                    1,
+                    "sp_1", 500,
+                    "sp_2", 500,
+                    "sp_3", 500,
+                    "sp_4", 500,
+                    "sp_5", 500
+                );
+                back("1");
+            else
+                writetmpfile("egg", cal(readtmpfile("egg") || "0", "+", "1"));
+            endif;
+        endif;
+        if prop("about.prop", "selected") == "4" then
+            pleasewait("Loading...");
+            ini_set("text_next", "");
+            ini_set("icon_next", "@none");
+            textbox(
+                "License",
+                "GPL-3.0",
+                "@info",
+                read("/tmp/mmr/LICENSE")
+            );
+            back("2");
+        endif;
+        back("1");
+    endif;
+endif;
+
+goto("main_menu");
