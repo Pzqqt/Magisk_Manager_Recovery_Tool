@@ -514,6 +514,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
                         "确定"
                     );
                 endif;
+                back("2");
             endif;
             back("1");
         endif;
