@@ -46,6 +46,8 @@ rmdir $mountPath
     export PATH=\$PATH_BAK
     unset PATH_BAK
 }
+
+sync
 EOF
     chmod 0755 $donescript
 }

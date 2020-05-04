@@ -14,4 +14,5 @@ fi
 
 if [[ $operate = "switch" ]]; then
     [ -f $core_mode_flag ] && rm -f $core_mode_flag || touch $core_mode_flag
+    sync
 fi
