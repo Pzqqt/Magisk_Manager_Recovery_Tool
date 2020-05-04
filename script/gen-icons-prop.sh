@@ -33,10 +33,12 @@ if ! [ -f $dst_prop_file ]; then
         get_useicon $module
         echo "module.icon.${module}=${useicon}" >> $dst_prop_file
     done
+    sync
     exit 0
 fi
 
 if [ -n "$update_icon_module" ]; then
     get_useicon $update_icon_module
     sed -i "/^module\.icon\.${update_icon_module}=/cmodule\.icon\.${update_icon_module}=${useicon}" $dst_prop_file
+    sync
 fi
