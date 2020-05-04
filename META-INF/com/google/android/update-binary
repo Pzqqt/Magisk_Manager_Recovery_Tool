@@ -37,6 +37,7 @@ install_bb() {
 # mount all
 mount /cache || :
 mount /data || :
+mount | grep " /system " &>/dev/null && umount /system
 
 # make sure the Magisk internal busybox path is PREPENDED to PATH
 install_bb
