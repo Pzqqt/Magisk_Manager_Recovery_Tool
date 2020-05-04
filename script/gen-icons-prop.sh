@@ -10,18 +10,12 @@ get_useicon() {
     /tmp/mmr/script/control-module.sh status $1
     # Enable: 1, Disable: 0, Removed: 2, UpdateFlag: 3, RemoveFlag: 4 or 5
     case $? in
-        1) useicon="@default"
-        ;;
-        0) useicon="@disable"
-        ;;
-        2) useicon="@removed"
-        ;;
-        3) useicon="@updateflag"
-        ;;
-        4) useicon="@removeflag"
-        ;;
-        5) useicon="@removeflag"
-        ;;
+        1) useicon="@default";;
+        0) useicon="@disable";;
+        2) useicon="@removed";;
+        3) useicon="@updateflag";;
+        4) useicon="@removeflag";;
+        5) useicon="@removeflag";;
     esac
 }
 

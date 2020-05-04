@@ -513,6 +513,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
                         "OK"
                     );
                 endif;
+                back("2");
             endif;
             back("1");
         endif;
