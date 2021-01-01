@@ -191,7 +191,7 @@ then
     if prop("modoperations.prop", "selected") == "1" then
         alert(
             "Description",
-            file_getprop("${workPath}/" + getvar("modid") + "/module.prop", "description") || "(No info provided)",
+            file_getprop("/magisk/" + getvar("modid") + "/module.prop", "description") || "(No info provided)",
             "@info",
             "Back"
         );
