@@ -7,7 +7,7 @@ import shutil
 import zipfile
 import time
 
-LOCALVERSION = "v2.3"
+LOCAL_VERSION = "v2.3"
 
 INCLUDE_DIRS = ("bin", "META-INF", "script", "template")
 INCLUDE_FILES = ("LICENSE", "README.md")
@@ -53,7 +53,7 @@ def remove_path(path):
         os.remove(path)
 
 def main():
-    build_version = LOCALVERSION
+    build_version = LOCAL_VERSION
     if len(sys.argv) >= 2:
         if sys.argv[1] == "clean":
             return clean_action()
@@ -78,26 +78,22 @@ def main():
     
     ac_file = local_path(*"template/META-INF/com/google/android/aroma-config".split("/"))
     file2dir(ac_file, local_path(), move=True)
+    archive_file = local_path("MMRT-%s.zip" % build_version)
+    remove_path(archive_file)
+    with open(local_path("aroma-config"), "r", encoding="utf-8") as f1:
+        with open(ac_file, "w", encoding="utf-8", newline="\n") as f2:
+            f2.write(
+                f1.read().replace("@BUILD_VERSION@", build_version).replace("@BUILD_DATE@", build_date)
+            )
     try:
-        with open(local_path("aroma-config"), "r", encoding="utf-8") as f1:
-            with open(ac_file, "w", encoding="utf-8", newline="\n") as f2:
-                f2.write(f1.read().replace("@BUILD_VERSION@", build_version)
-                                  .replace("@BUILD_DATE@", build_date))
-        archive_file = local_path("MMRT-%s.zip" % build_version)
-        remove_path(archive_file)
-        with zipfile.ZipFile(archive_file, "w") as zip:
+        with zipfile.ZipFile(archive_file, "w") as zip_:
             for d in INCLUDE_DIRS:
                 for root, dirs, files in os.walk(d):
                     for f in files:
-                        zip.write(os.path.join(root, f),
-                                  compress_type=zipfile.ZIP_DEFLATED)
+                        zip_.write(os.path.join(root, f), compress_type=zipfile.ZIP_DEFLATED)
             for f in INCLUDE_FILES:
-                zip.write(local_path(f), arcname=f,
-                          compress_type=zipfile.ZIP_DEFLATED)
+                zip_.write(local_path(f), arcname=f, compress_type=zipfile.ZIP_DEFLATED)
         print("\nDone! Output file:", archive_file)
-    except:
-        remove_path(archive_file)
-        raise
     finally:
         remove_path(ac_file)
         file2file(local_path("aroma-config"), ac_file, move=True)
