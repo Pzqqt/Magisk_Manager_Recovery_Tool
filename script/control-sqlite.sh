@@ -38,8 +38,8 @@ case $operate in
     } ;;
     "set_magiskhide_status") {
         [ -n "$arg_2" ] || { echo "Missing parameter" && exit 1; }
-        $sqlite3_exec $magisk_db "UPDATE settings SET value=${arg_2} WHERE key='magiskhide'"
-    } ;;
+        $sqlite3_exec $magisk_db "REPLACE INTO settings (key, value) VALUES ('magiskhide', ${arg_2})"
+    };;
     *) {
         cat <<EOF
 Usage: $0 <operate>
