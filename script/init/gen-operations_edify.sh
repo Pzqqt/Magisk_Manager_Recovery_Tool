@@ -1,8 +1,8 @@
 #!/sbin/sh
 
-ac_2=/tmp/mmr/template/META-INF/com/google/android/aroma/operations.edify
-
 . /tmp/mmr/script/common.sh
+
+ac_2=/tmp/mmr/template/META-INF/com/google/android/aroma/operations.edify
 
 ls_modules_sort_by_name() {
     local installed_modules_tmp=`ls_mount_path`
