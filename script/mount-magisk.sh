@@ -41,12 +41,6 @@ gen_done_script() {
 umount $mountPath
 losetup -d $loopDevice
 rmdir $mountPath
-
-[ -z "\$PATH_BAK" ] || {
-    export PATH=\$PATH_BAK
-    unset PATH_BAK
-}
-
 sync
 EOF
     chmod 0755 $donescript

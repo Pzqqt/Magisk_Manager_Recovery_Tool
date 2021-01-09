@@ -1,5 +1,7 @@
 #!/sbin/sh
 
+echo $PATH | grep -q "^/tmp/bb" || export PATH=/tmp/bb:${PATH}
+
 workPath=/magisk
 module_backup_path=/sdcard/TWRP/magisk_module_backup
 
@@ -12,3 +14,5 @@ ls_mount_path() { _ls ${workPath}; }
 ls_module_backup_path() { _ls ${module_backup_path}; }
 
 magisk_db=/data/adb/magisk.db
+
+# Append lines below
