@@ -360,12 +360,12 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
         setvar("magiskhide_status", exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_magiskhide_status"));
         if getvar("magiskhide_status") == "0" then
             setvar("magiskhide_switch_text", "Magisk Hide is disabled");
-            setvar("magiskhide_switch_text_2", "Why would you disable Magisk Hide:/");
+            setvar("magiskhide_switch_text_2", "Magisk Hide is disabled");
             setvar("magiskhide_switch_icon", "@offaction");
         endif;
         if getvar("magiskhide_status") == "1" then
             setvar("magiskhide_switch_text", "Magisk Hide is enabled");
-            setvar("magiskhide_switch_text_2", "Hide Magisk from various forms of detection.");
+            setvar("magiskhide_switch_text_2", "Hide Magisk from various forms of detection");
             setvar("magiskhide_switch_icon", "@action2");
         endif;
         menubox(
@@ -427,6 +427,14 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
         if prop("magisksu.prop", "selected") == "3" then
             getvar("magiskhide_status") == "0" && setvar("magiskhide_status_set", "1");
             getvar("magiskhide_status") == "1" && setvar("magiskhide_status_set", "0");
+            if getvar("magiskhide_status_set") == "1" && cmp(getvar("MAGISK_VER_CODE"), ">=", "20400") then
+                alert(
+                    "Note",
+                    "In Magisk v20.4 and above,\nMagisk Hide is disabled by default.\nUnless necessary, it is not recommended\nto enable Magisk Hide.",
+                    "@warning",
+                    "OK"
+                );
+            endif;
             if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "set_magiskhide_status", getvar("magiskhide_status_set")) != "0" then
                 alert(
                     "Failed",
