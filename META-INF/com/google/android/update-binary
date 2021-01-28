@@ -34,10 +34,12 @@ install_bb() {
     echo $PATH | grep -q "^$tmp_bb" || export PATH=${tmp_bb}:${PATH}
 }
 
-# mount all
+# mount & umount
 mount /cache || :
 mount /data || :
-mount | grep " /system " &>/dev/null && umount /system
+for partition in /system /system_root /vendor /product /odm; do
+  mount | grep -q " $partition " && umount $partition
+done
 
 # make sure the Magisk internal busybox path is PREPENDED to PATH
 install_bb
