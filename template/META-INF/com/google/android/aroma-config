@@ -361,7 +361,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
         setvar("magiskhide_status", exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_magiskhide_status"));
         if getvar("magiskhide_status") == "0" then
             setvar("magiskhide_switch_text", "Magisk Hide 已关闭");
-            setvar("magiskhide_switch_text_2", "你为何要关闭 Magisk Hide 呢:/");
+            setvar("magiskhide_switch_text_2", "Magisk Hide 已被禁用");
             setvar("magiskhide_switch_icon", "@offaction");
         endif;
         if getvar("magiskhide_status") == "1" then
@@ -428,6 +428,14 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
         if prop("magisksu.prop", "selected") == "3" then
             getvar("magiskhide_status") == "0" && setvar("magiskhide_status_set", "1");
             getvar("magiskhide_status") == "1" && setvar("magiskhide_status_set", "0");
+            if getvar("magiskhide_status_set") == "1" && cmp(getvar("MAGISK_VER_CODE"), ">=", "20400") then
+                alert(
+                    "注意",
+                    "在 Magisk v20.4 以上的版本中,\nMagisk Hide 默认是禁用的.\n除非必要, 否则不建议启用 Magisk Hide.",
+                    "@warning",
+                    "确定"
+                );
+            endif;
             if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "set_magiskhide_status", getvar("magiskhide_status_set")) != "0" then
                 alert(
                     "失败",
