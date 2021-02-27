@@ -307,7 +307,6 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
         getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), getvar("core_only_mode_icon"),
         "Superuser", "", "@action",
         "Restore backed up modules", "", "@install",
-        "Uninstall Magisk", "Root will be fully removed from the device.", "@delete",
         "Debug options", "", "@action",
         "About", "", "@info",
         "Back", "", "@back2"
@@ -556,45 +555,6 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
         endif;
     endif;
     if prop("advanced.prop", "selected") == "6" then
-        if confirm(
-            "Warning!",
-            "Are you sure want to uninstall Magisk?\n\nAll modules will be disabled/removed.\nRoot will be removed. and your data\npotentially encrypted if not already.",
-            "@warning",
-            "I'm sure",
-            "Give up") == "no"
-        then
-            back("1");
-        endif;
-        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
-        setvar("uninstall_exitcode",
-            install(
-                "Uninstall Magisk",
-                "Uninstalling Magisk, please wait...",
-                "@welcome",
-                "Press Next to continue..."
-            )
-        );
-        if getvar("uninstall_exitcode") == "0" then
-            if confirm(
-                "Uninstall completed",
-                "Magisk has been successfully uninstalled.",
-                "@warning",
-                "Exit to Recovery",
-                "Reboot") == "no"
-            then
-                reboot("onfinish");
-            endif;
-        else
-            alert(
-                "Uninstall failed",
-                "Sorry, we were unable to uninstall Magisk successfully.\n\nPlease try uninstalling from Magisk Manager after booting device.",
-                "@crash",
-                "Exit"
-            );
-        endif;
-        exit("");
-    endif;
-    if prop("advanced.prop", "selected") == "7" then
         menubox(
             "Debug options",
             "Choose an action",
@@ -606,7 +566,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
         );
         prop("debug.prop", "selected") == "1" && exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh", "--regen");
     endif;
-    if prop("advanced.prop", "selected") == "8" then
+    if prop("advanced.prop", "selected") == "7" then
         menubox(
             "About",
             "About " + ini_get("rom_name"),
@@ -615,13 +575,12 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
 
             "Author", ini_get("rom_author"), "@me",
             "MMRT version", ini_get("rom_version"), "@info",
-            "Include Magisk uninstaller version", "Magisk-uninstaller-20201228.zip", "@info",
             "License", "GPL-3.0", "@info",
             "Github", "https://github.com/Pzqqt/Magisk_Manager_Recovery_Tool", "@info",
             "XDA", "https://forum.xda-developers.com/showthread.php?t=3866502", "@info",
             "Back", "", "@back2"
         );
-        prop("about.prop", "selected") == "7" && back("2");
+        prop("about.prop", "selected") == "6" && back("2");
         if prop("about.prop", "selected") == "1" then
             if readtmpfile("egg") == "4" then
                 writetmpfile("egg", "0");
@@ -638,7 +597,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
                 writetmpfile("egg", cal(readtmpfile("egg") || "0", "+", "1"));
             endif;
         endif;
-        if prop("about.prop", "selected") == "4" then
+        if prop("about.prop", "selected") == "3" then
             pleasewait("Loading...");
             ini_set("text_next", "");
             ini_set("icon_next", "@none");
