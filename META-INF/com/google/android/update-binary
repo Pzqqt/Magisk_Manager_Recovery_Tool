@@ -105,9 +105,6 @@ else
     echo "label_fromuid='fromUid'" >> ./script/common.sh
 fi
 
-# save self path
-echo "zip_self=${zipfile}" >> ./script/common.sh
-
 ui_print "Generating AROMA config"
 ./script/aroma-config-init.sh
 
