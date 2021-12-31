@@ -107,6 +107,30 @@ exec("/sbin/sh", "/tmp/mmr/script/count-modules.sh");
 
 include("operations.edify");
 
+# Reboot
+if prop("operations.prop", "selected") == "1" then
+    if confirm(
+        "Reboot",
+        "Are you sure want to reboot your device?",
+        "@warning") == "yes"
+    then
+        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
+        reboot("now");
+    endif;
+endif;
+
+# Exit
+if prop("operations.prop", "selected") == "2" then
+    if confirm(
+        "Exit",
+        "Are you sure to quit Magisk Manager Recovery Tool?",
+        "@warning") == "yes"
+    then
+        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
+        exit("");
+    endif;
+endif;
+
 if cmp(prop("operations.prop", "selected"), ">=", "3") &&
    cmp(prop("operations.prop", "selected"), "<", getvar("operations_last_index")) &&
    getvar("modid") != ""

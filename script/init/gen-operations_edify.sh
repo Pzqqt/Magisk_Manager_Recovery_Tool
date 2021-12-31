@@ -41,30 +41,6 @@ cat >> $ac_2 <<EOF
     "Advanced options", "", "@action"
 );
 
-# Reboot
-if prop("operations.prop", "selected") == "1" then
-    if confirm(
-        "Reboot",
-        "Are you sure want to reboot your device?",
-        "@warning") == "yes"
-    then
-        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
-        reboot("now");
-    endif;
-endif;
-
-# Exit
-if prop("operations.prop", "selected") == "2" then
-    if confirm(
-        "Exit",
-        "Are you sure to quit Magisk Manager Recovery Tool?",
-        "@warning") == "yes"
-    then
-        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
-        exit("");
-    endif;
-endif;
-
 EOF
 
 if [ -z "$installed_modules" ]; then
