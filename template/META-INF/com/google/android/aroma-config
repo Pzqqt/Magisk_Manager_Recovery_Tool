@@ -86,23 +86,22 @@ exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh", getvar("modid"));
 setvar("modid", "");
 
 if cmp(getvar("MAGISK_VER_CODE"), "<", "21000") then
-    setvar("core_only_mode_code", exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "status"));
-    setvar("core_only_mode_icon", "@action");
-    if getvar("core_only_mode_code") == "0" then
+    if exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "status") == "0" then
+        setvar("core_only_mode_icon", "@checkbox_off");
         setvar("core_only_mode_warning", "");
-        setvar("core_only_mode_switch_text", "启用 Magisk 核心功能模式");
-        setvar("core_only_mode_switch_text2", "仅启用核心功能, 所有模块均不会被载入.\n但 MagiskSU 和 MagiskHide 仍然会继续工作.");
-    else
-        setvar("core_only_mode_warning", "\n<#f00>注意: Magisk 核心功能模式已启用</#>");
-        setvar("core_only_mode_switch_text", "禁用 Magisk 核心功能模式");
+        setvar("core_only_mode_switch_text", "Magisk 核心功能模式已禁用");
         setvar("core_only_mode_switch_text2", "");
+    else
+        setvar("core_only_mode_icon", "@checkbox_on");
+        setvar("core_only_mode_warning", "\n<#f00>注意: Magisk 核心功能模式已启用</#>");
+        setvar("core_only_mode_switch_text", "Magisk 核心功能模式已启用");
+        setvar("core_only_mode_switch_text2", "仅启用核心功能, 所有模块均不会被载入.\n但 MagiskSU 和 MagiskHide 仍然会继续工作.");
     endif;
 else
-    setvar("core_only_mode_code", "-1");
-    setvar("core_only_mode_icon", "@crash");
+    setvar("core_only_mode_icon", "@offaction");
     setvar("core_only_mode_warning", "");
-    setvar("core_only_mode_switch_text", "启用 Magisk 核心功能模式");
-    setvar("core_only_mode_switch_text2", "Magisk 核心功能模式已在 v21.0 以上\n的版本中被移除.");
+    setvar("core_only_mode_switch_text", "Magisk 核心功能模式");
+    setvar("core_only_mode_switch_text2", "Magisk 核心功能模式已在 v21.0 以上\n的版本中被移除");
 endif;
 
 exec("/sbin/sh", "/tmp/mmr/script/count-modules.sh");
@@ -305,7 +304,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
 
         "保存 recovery 日志", "复制 /tmp/recovery.log 到内部存储", "@action",
         "瘦身 magisk.img", getvar("shrink_text2"), getvar("shrink_icon"),
-        getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), getvar("core_only_mode_icon"),
+        "Magisk 设置", "", "@action",
         "超级用户", "", "@action",
         "恢复已备份的模块", "", "@install",
         "调试选项", "", "@action",
@@ -352,10 +351,121 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
         exit("");
     endif;
     if prop("advanced.prop", "selected") == "3" then
-        if cmp(getvar("MAGISK_VER_CODE"), "<", "21000") then
-            exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "switch");
+        setvar("magiskhide_status", exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_magiskhide_status"));
+        setvar("zygisk_status", exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_zygisk_status"));
+        setvar("denylist_status", exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_denylist_status"));
+        if cmp(getvar("MAGISK_VER_CODE"), "<", "23010") then
+            if getvar("magiskhide_status") == "0" then
+                setvar("magiskhide_switch_text", "Magisk Hide 已关闭");
+                setvar("magiskhide_switch_text_2", "Magisk Hide 已被禁用");
+                setvar("magiskhide_switch_icon", "@checkbox_off");
+            endif;
+            if getvar("magiskhide_status") == "1" then
+                setvar("magiskhide_switch_text", "Magisk Hide 已开启");
+                setvar("magiskhide_switch_text_2", "隐藏 Magisk 使其不被各种方法检测到");
+                setvar("magiskhide_switch_icon", "@checkbox_on");
+            endif;
+            setvar("zygisk_switch_text", "Zygisk");
+            setvar("zygisk_switch_text_2", "Zygisk 仅在 v23.0 以上的版本中可用");
+            setvar("zygisk_switch_icon", "@offaction");
+            setvar("denylist_switch_text", "排除列表");
+            setvar("denylist_switch_text_2", "排除列表仅在 v23.0 以上的版本中可用");
+            setvar("denylist_switch_icon", "@offaction");
+        else
+            setvar("magiskhide_switch_text", "Magisk Hide");
+            setvar("magiskhide_switch_text_2", "Magisk Hide 已在 v23.0 以上的版本中被移除");
+            setvar("magiskhide_switch_icon", "@offaction");
+            if getvar("zygisk_status") == "0" then
+                setvar("zygisk_switch_text", "Zygisk 已禁用");
+                setvar("zygisk_switch_text_2", "Zygisk 已禁用");
+                setvar("zygisk_switch_icon", "@checkbox_off");
+            endif;
+            if getvar("zygisk_status") == "1" then
+                setvar("zygisk_switch_text", "Zygisk 已启用");
+                setvar("zygisk_switch_text_2", "在 Zygote 中运行 Magisk");
+                setvar("zygisk_switch_icon", "@checkbox_on");
+            endif;
+            if getvar("denylist_status") == "0" then
+                setvar("denylist_switch_text", "不遵循排除列表");
+                setvar("denylist_switch_text_2", "允许 Magisk 修改任意进程");
+                setvar("denylist_switch_icon", "@checkbox_off");
+            endif;
+            if getvar("denylist_status") == "1" then
+                setvar("denylist_switch_text", "遵循排除列表");
+                setvar("denylist_switch_text_2", "Magisk 不会修改排除列表中的进程");
+                setvar("denylist_switch_icon", "@checkbox_on");
+            endif;
         endif;
-        back("1");
+        menubox(
+            "Magisk 设置",
+            "请选择操作" + getvar("core_only_mode_warning"),
+            "@welcome",
+            "magisk_settings.prop",
+
+            getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), getvar("core_only_mode_icon"),
+            getvar("magiskhide_switch_text"), getvar("magiskhide_switch_text_2"), getvar("magiskhide_switch_icon"),
+            getvar("zygisk_switch_text"), getvar("zygisk_switch_text_2"), getvar("zygisk_switch_icon"),
+            getvar("denylist_switch_text"), getvar("denylist_switch_text_2"), getvar("denylist_switch_icon"),
+            "返回", "", "@back2"
+        );
+
+        prop("magisk_settings.prop", "selected") == "5" && back("2");
+        if prop("magisk_settings.prop", "selected") == "1" then
+            if cmp(getvar("MAGISK_VER_CODE"), "<", "21000") then
+                exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "switch");
+            endif;
+            back("1");
+        endif;
+        if prop("magisk_settings.prop", "selected") == "2" then
+            getvar("magiskhide_status") == "2" && back("1");
+            getvar("magiskhide_status") == "0" && setvar("magiskhide_status_set", "1");
+            getvar("magiskhide_status") == "1" && setvar("magiskhide_status_set", "0");
+            if getvar("magiskhide_status_set") == "1" && cmp(getvar("MAGISK_VER_CODE"), ">=", "20400") then
+                alert(
+                    "注意",
+                    "在 Magisk v20.4 以上的版本中,\nMagisk Hide 默认是禁用的.\n除非必要, 否则不建议启用 Magisk Hide.",
+                    "@warning",
+                    "确定"
+                );
+            endif;
+            if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "set_magiskhide_status", getvar("magiskhide_status_set")) != "0" then
+                alert(
+                    "失败",
+                    "执行过程中有错误发生, 请确认.\n\n" + getvar("exec_buffer"),
+                    "@crash",
+                    "确定"
+                );
+            endif;
+            back("1");
+        endif;
+        if prop("magisk_settings.prop", "selected") == "3" then
+            getvar("zygisk_status") == "2" && back("1");
+            getvar("zygisk_status") == "0" && setvar("zygisk_status_set", "1");
+            getvar("zygisk_status") == "1" && setvar("zygisk_status_set", "0");
+            if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "set_zygisk_status", getvar("zygisk_status_set")) != "0" then
+                alert(
+                    "失败",
+                    "执行过程中有错误发生, 请确认.\n\n" + getvar("exec_buffer"),
+                    "@crash",
+                    "确定"
+                );
+            endif;
+            back("1");
+        endif;
+        if prop("magisk_settings.prop", "selected") == "4" then
+            getvar("denylist_status") == "2" && back("1");
+            getvar("denylist_status") == "0" && setvar("denylist_status_set", "1");
+            getvar("denylist_status") == "1" && setvar("denylist_status_set", "0");
+            if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "set_denylist_status", getvar("denylist_status_set")) != "0" then
+                alert(
+                    "失败",
+                    "执行过程中有错误发生, 请确认.\n\n" + getvar("exec_buffer"),
+                    "@crash",
+                    "确定"
+                );
+            endif;
+            back("1");
+        endif;
     endif;
     if prop("advanced.prop", "selected") == "4" then
         if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_sqlite3_path") == "2" then
@@ -367,17 +477,6 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
             );
             back("1");
         endif;
-        setvar("magiskhide_status", exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_magiskhide_status"));
-        if getvar("magiskhide_status") == "0" then
-            setvar("magiskhide_switch_text", "Magisk Hide 已关闭");
-            setvar("magiskhide_switch_text_2", "Magisk Hide 已被禁用");
-            setvar("magiskhide_switch_icon", "@offaction");
-        endif;
-        if getvar("magiskhide_status") == "1" then
-            setvar("magiskhide_switch_text", "Magisk Hide 已开启");
-            setvar("magiskhide_switch_text_2", "隐藏 Magisk 使其不被各种方法检测到");
-            setvar("magiskhide_switch_icon", "@action2");
-        endif;
         menubox(
             "超级用户",
             "请选择操作" + getvar("core_only_mode_warning"),
@@ -386,10 +485,9 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
 
             "清除 MagiskSU 日志", "", "@action",
             "授权管理", "", "@action",
-            getvar("magiskhide_switch_text"), getvar("magiskhide_switch_text_2"), getvar("magiskhide_switch_icon"),
             "返回", "", "@back2"
         );
-        prop("magisksu.prop", "selected") == "4" && back("2");
+        prop("magisksu.prop", "selected") == "3" && back("2");
         if prop("magisksu.prop", "selected") == "1" then
             pleasewait("正在执行脚本 ...");
             if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "clear_su_log") == "0" then
@@ -433,27 +531,6 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
                 );
             endif;
             back("2");
-        endif;
-        if prop("magisksu.prop", "selected") == "3" then
-            getvar("magiskhide_status") == "0" && setvar("magiskhide_status_set", "1");
-            getvar("magiskhide_status") == "1" && setvar("magiskhide_status_set", "0");
-            if getvar("magiskhide_status_set") == "1" && cmp(getvar("MAGISK_VER_CODE"), ">=", "20400") then
-                alert(
-                    "注意",
-                    "在 Magisk v20.4 以上的版本中,\nMagisk Hide 默认是禁用的.\n除非必要, 否则不建议启用 Magisk Hide.",
-                    "@warning",
-                    "确定"
-                );
-            endif;
-            if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "set_magiskhide_status", getvar("magiskhide_status_set")) != "0" then
-                alert(
-                    "失败",
-                    "执行过程中有错误发生, 请确认.\n\n" + getvar("exec_buffer"),
-                    "@crash",
-                    "确定"
-                );
-            endif;
-            back("1");
         endif;
     endif;
     if prop("advanced.prop", "selected") == "5" then
