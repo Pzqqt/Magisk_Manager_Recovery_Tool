@@ -41,30 +41,6 @@ cat >> $ac_2 <<EOF
     "高级选项", "", "@action"
 );
 
-# Reboot
-if prop("operations.prop", "selected") == "1" then
-    if confirm(
-        "重启",
-        "您确定要重启设备吗?",
-        "@warning") == "yes"
-    then
-        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
-        reboot("now");
-    endif;
-endif;
-
-# Exit
-if prop("operations.prop", "selected") == "2" then
-    if confirm(
-        "退出",
-        "您确定要退出 Magisk Manager Recovery Tool 吗?",
-        "@warning") == "yes"
-    then
-        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
-        exit("");
-    endif;
-endif;
-
 EOF
 
 if [ -z "$installed_modules" ]; then

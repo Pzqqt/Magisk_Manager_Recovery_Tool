@@ -30,7 +30,6 @@ install_bb() {
         ln -s $magisk_bb ${tmp_bb}/busybox
         $magisk_bb --install -s $tmp_bb
     }
-    export PATH_BAK=$PATH
     echo $PATH | grep -q "^$tmp_bb" || export PATH=${tmp_bb}:${PATH}
 }
 

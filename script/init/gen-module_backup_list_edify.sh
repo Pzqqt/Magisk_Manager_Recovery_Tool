@@ -34,9 +34,7 @@ cat >> $ac_4 <<EOF
         prop("module_backup_list.prop", "selected") == "1" && back("2");
 EOF
 
-if [ -z "$backedup_modules" ]; then
-    j=2
-else
+if [ -n "$backedup_modules" ]; then
     j=1
     for backedup_file in $backedup_modules; do
         let j+=1

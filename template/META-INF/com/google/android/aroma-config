@@ -108,6 +108,28 @@ exec("/sbin/sh", "/tmp/mmr/script/count-modules.sh");
 
 include("operations.edify");
 
+if prop("operations.prop", "selected") == "1" then
+    if confirm(
+        "重启",
+        "您确定要重启设备吗?",
+        "@warning") == "yes"
+    then
+        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
+        reboot("now");
+    endif;
+endif;
+
+if prop("operations.prop", "selected") == "2" then
+    if confirm(
+        "退出",
+        "您确定要退出 Magisk Manager Recovery Tool 吗?",
+        "@warning") == "yes"
+    then
+        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
+        exit("");
+    endif;
+endif;
+
 if cmp(prop("operations.prop", "selected"), ">=", "3") &&
    cmp(prop("operations.prop", "selected"), "<", getvar("operations_last_index")) &&
    getvar("modid") != ""
