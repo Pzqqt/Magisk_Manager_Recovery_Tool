@@ -15,7 +15,6 @@
 - 8.瘦身 magisk.img (适用于 Magisk v18.1 及之前的版本)
 - 9.清除 MagiskSU 日志
 - 10.授权管理
-- 11.卸载 Magisk
 
 ## 特性
 - 1.GUI 操作, 界面友好, 便于使用<br>
