@@ -15,7 +15,6 @@ It's based on <a href="https://github.com/amarullz/AROMA-Installer">Aroma Instal
 - 8.Shrinking magisk.img(useable for Magisk v18.1 and earlier)
 - 9.Clear MagiskSU logs
 - 10.Manage Superuser rights
-- 11.Uninstall Magisk
 
 ## Feature
 - 1.Friendly interface & easy to use.<br>
