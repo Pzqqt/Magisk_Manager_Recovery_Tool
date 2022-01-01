@@ -474,15 +474,6 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
         endif;
     endif;
     if prop("advanced.prop", "selected") == "4" then
-        if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_sqlite3_path") == "2" then
-            alert(
-                "不可用的选项",
-                "很抱歉,\n由于本工具无法从设备中找到可用的 sqlite3 程序,\n故该选项不可用.",
-                "@crash",
-                "确定"
-            );
-            back("1");
-        endif;
         menubox(
             "超级用户",
             "请选择操作" + getvar("core_only_mode_warning"),
