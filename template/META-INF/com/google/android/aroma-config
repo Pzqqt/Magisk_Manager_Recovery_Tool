@@ -85,22 +85,18 @@ exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh", getvar("modid"));
 setvar("modid", "");
 
 if cmp(getvar("MAGISK_VER_CODE"), "<", "21000") then
+    setvar("core_only_mode_switch_text2", "MagiskSU and MagiskHide will still be enabled,\nbut no modules will be load.");
     if exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "status") == "0" then
         setvar("core_only_mode_icon", "@checkbox_off");
         setvar("core_only_mode_warning", "");
-        setvar("core_only_mode_switch_text", "Magisk core only mode is disabled");
-        setvar("core_only_mode_switch_text2", "");
     else
         setvar("core_only_mode_icon", "@checkbox_on");
         setvar("core_only_mode_warning", "\n<#f00>Warning: Magisk core only mode is enabled</#>");
-        setvar("core_only_mode_switch_text", "Magisk core only mode is enabled");
-        setvar("core_only_mode_switch_text2", "MagiskSU and MagiskHide will still be enabled,\nbut no modules will be load.");
     endif;
 else
+    setvar("core_only_mode_switch_text2", "Magisk core only mode has been removed\nin Magisk v21.0 and above.");
     setvar("core_only_mode_icon", "@offaction");
     setvar("core_only_mode_warning", "");
-    setvar("core_only_mode_switch_text", "Magisk core only mode");
-    setvar("core_only_mode_switch_text2", "Magisk core only mode has been removed\nin Magisk v21.0 and above.");
 endif;
 
 exec("/sbin/sh", "/tmp/mmr/script/count-modules.sh");
@@ -378,44 +374,32 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
         setvar("zygisk_status", exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_zygisk_status"));
         setvar("denylist_status", exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_denylist_status"));
         if cmp(getvar("MAGISK_VER_CODE"), "<", "23010") then
+            setvar("magiskhide_switch_text_2", "Hide Magisk from various forms of detection");
             if getvar("magiskhide_status") == "0" then
-                setvar("magiskhide_switch_text", "Magisk Hide is disabled");
-                setvar("magiskhide_switch_text_2", "Magisk Hide is disabled");
                 setvar("magiskhide_switch_icon", "@checkbox_off");
             endif;
             if getvar("magiskhide_status") == "1" then
-                setvar("magiskhide_switch_text", "Magisk Hide is enabled");
-                setvar("magiskhide_switch_text_2", "Hide Magisk from various forms of detection");
                 setvar("magiskhide_switch_icon", "@checkbox_on");
             endif;
-            setvar("zygisk_switch_text", "Zygisk");
             setvar("zygisk_switch_text_2", "Zygisk is only available in Magisk v23.0 and above");
             setvar("zygisk_switch_icon", "@offaction");
-            setvar("denylist_switch_text", "Deny List");
             setvar("denylist_switch_text_2", "Deny List is only available in Magisk v23.0 and above");
             setvar("denylist_switch_icon", "@offaction");
         else
-            setvar("magiskhide_switch_text", "Magisk Hide");
             setvar("magiskhide_switch_text_2", "Magisk Hide has been removed in Magisk v21.0 and above.");
             setvar("magiskhide_switch_icon", "@offaction");
+            setvar("denylist_switch_text_2", "Processes on the Deny List will have all Magisk modifications reverted");
+            setvar("zygisk_switch_text_2", "Run parts of Magisk in the zygote daemon");
             if getvar("zygisk_status") == "0" then
-                setvar("zygisk_switch_text", "Zygisk is disabled");
-                setvar("zygisk_switch_text_2", "Zygisk is disabled");
                 setvar("zygisk_switch_icon", "@checkbox_off");
             endif;
             if getvar("zygisk_status") == "1" then
-                setvar("zygisk_switch_text", "Zygisk is enabled");
-                setvar("zygisk_switch_text_2", "Run parts of Magisk in the zygote daemon");
                 setvar("zygisk_switch_icon", "@checkbox_on");
             endif;
             if getvar("denylist_status") == "0" then
-                setvar("denylist_switch_text", "Not enforce Deny List");
-                setvar("denylist_switch_text_2", "Allow Magisk to modify any process");
                 setvar("denylist_switch_icon", "@checkbox_off");
             endif;
             if getvar("denylist_status") == "1" then
-                setvar("denylist_switch_text", "Enforce Deny List");
-                setvar("denylist_switch_text_2", "Processes on the Deny List will have all Magisk modifications reverted");
                 setvar("denylist_switch_icon", "@checkbox_on");
             endif;
         endif;
@@ -425,10 +409,10 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
             "@welcome",
             "magisk_settings.prop",
 
-            getvar("core_only_mode_switch_text"), getvar("core_only_mode_switch_text2"), getvar("core_only_mode_icon"),
-            getvar("magiskhide_switch_text"), getvar("magiskhide_switch_text_2"), getvar("magiskhide_switch_icon"),
-            getvar("zygisk_switch_text"), getvar("zygisk_switch_text_2"), getvar("zygisk_switch_icon"),
-            getvar("denylist_switch_text"), getvar("denylist_switch_text_2"), getvar("denylist_switch_icon"),
+            "Magisk core only mode", getvar("core_only_mode_switch_text2"), getvar("core_only_mode_icon"),
+            "Magisk Hide", getvar("magiskhide_switch_text_2"), getvar("magiskhide_switch_icon"),
+            "Zygisk", getvar("zygisk_switch_text_2"), getvar("zygisk_switch_icon"),
+            "Deny List", getvar("denylist_switch_text_2"), getvar("denylist_switch_icon"),
             "Back", "", "@back2"
         );
 
