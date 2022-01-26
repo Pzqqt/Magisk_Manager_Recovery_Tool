@@ -475,15 +475,6 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
         endif;
     endif;
     if prop("advanced.prop", "selected") == "4" then
-        if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_sqlite3_path") == "2" then
-            alert(
-                "Not available",
-                "Sorry,\nThis option is not available\nbecause we cannot find available sqlite3 programs\nfrom your device.",
-                "@crash",
-                "OK"
-            );
-            back("1");
-        endif;
         menubox(
             "Superuser",
             "Choose an action" + getvar("core_only_mode_warning"),
