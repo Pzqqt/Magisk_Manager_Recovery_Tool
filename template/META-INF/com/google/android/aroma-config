@@ -381,12 +381,12 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
             if getvar("magiskhide_status") == "1" then
                 setvar("magiskhide_switch_icon", "@checkbox_on");
             endif;
-            setvar("zygisk_switch_text_2", "Zygisk is only available in Magisk v23.0 and above");
+            setvar("zygisk_switch_text_2", "Zygisk is only available in Magisk v23.0+");
             setvar("zygisk_switch_icon", "@offaction");
-            setvar("denylist_switch_text_2", "Deny List is only available in Magisk v23.0 and above");
+            setvar("denylist_switch_text_2", "Deny List is only available in Magisk v23.0+");
             setvar("denylist_switch_icon", "@offaction");
         else
-            setvar("magiskhide_switch_text_2", "Magisk Hide has been removed in Magisk v21.0 and above.");
+            setvar("magiskhide_switch_text_2", "Magisk Hide has been removed in Magisk v23.0+");
             setvar("magiskhide_switch_icon", "@offaction");
             setvar("denylist_switch_text_2", "Processes on the Deny List will have all Magisk modifications reverted");
             setvar("zygisk_switch_text_2", "Run parts of Magisk in the zygote daemon");
