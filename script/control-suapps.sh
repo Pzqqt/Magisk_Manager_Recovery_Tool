@@ -27,7 +27,7 @@ num_uid_prop=/tmp/mmr/num_uid.prop
 }
 
 if [[ $operate = "apply_change" ]]; then
-    changed=`diff ${prop_path}.bak $prop_path | grep "^+item" | sed 's/+//g'`
+    changed=`/tmp/mmr/bin/diff -u ${prop_path}.bak $prop_path | grep "^+item" | sed 's/+//g'`
     [ -z "$changed" ] && exit 0
     for change in $changed; do
         set_value=$(expr ${change#*=} + 1 )
