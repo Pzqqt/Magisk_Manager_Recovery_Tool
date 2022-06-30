@@ -200,7 +200,8 @@ then
     menubox(
         "Module: " + getvar("modname"),
         "Module ID: " + getvar("modid") + "\n" +
-        "Module size: " + getvar("modsize") + "\n" +
+        # TODO: Fix me
+        # "Module size: " + getvar("modsize") + "\n" +
         "Mount status: " + getvar("module_mount_status") + "\n" +
         "Module status: " + getvar("module_status"),
         "@welcome",
