@@ -7,7 +7,7 @@ import shutil
 import zipfile
 import time
 
-LOCAL_VERSION = "v2.4"
+LOCAL_VERSION = "v2.5"
 
 INCLUDE_DIRS = ("bin", "META-INF", "script", "template")
 INCLUDE_FILES = ("LICENSE", "README.md")
