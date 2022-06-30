@@ -40,6 +40,8 @@
 - [ElementalX Kernel](https://elementalx.org/devices/)(Aroma Installer 主题)
 - [p7zip](https://sourceforge.net/projects/p7zip/files/p7zip/16.02/)(7za 二进制文件)
 - [tree](http://mama.indstate.edu/users/ice/tree/)(tree 二进制文件)
+- [micropython](https://github.com/micropython/micropython)(micropython 二进制文件)
+- [usqlite](https://github.com/spatialdude/usqlite)(micropython 的 μSQLite 库模块)
 
 ## License
 
