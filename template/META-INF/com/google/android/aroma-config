@@ -82,12 +82,12 @@ viewbox(
 
 gotolabel("main_menu");
 
-exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh", getvar("modid"));
+exec("/tmp/bb/sh", "/tmp/mmr/script/gen-icons-prop.sh", getvar("modid"));
 setvar("modid", "");
 
 if cmp(getvar("MAGISK_VER_CODE"), "<", "21000") then
     setvar("core_only_mode_switch_text2", "仅启用核心功能, 所有模块均不会被载入.\n但 MagiskSU 和 MagiskHide 仍然会继续工作.");
-    if exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "status") == "0" then
+    if exec("/tmp/bb/sh", "/tmp/mmr/script/core-mode.sh", "status") == "0" then
         setvar("core_only_mode_icon", "@checkbox_off");
         setvar("core_only_mode_warning", "");
     else
@@ -100,7 +100,7 @@ else
     setvar("core_only_mode_warning", "");
 endif;
 
-exec("/sbin/sh", "/tmp/mmr/script/count-modules.sh");
+exec("/tmp/bb/sh", "/tmp/mmr/script/count-modules.sh");
 
 include("operations.edify");
 
@@ -110,7 +110,7 @@ if prop("operations.prop", "selected") == "1" then
         "您确定要重启设备吗?",
         "@warning") == "yes"
     then
-        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
+        exec("/tmp/bb/sh", "/tmp/mmr/script/done-script.sh");
         reboot("now");
     endif;
 endif;
@@ -121,7 +121,7 @@ if prop("operations.prop", "selected") == "2" then
         "您确定要退出 Magisk Manager Recovery Tool 吗?",
         "@warning") == "yes"
     then
-        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
+        exec("/tmp/bb/sh", "/tmp/mmr/script/done-script.sh");
         exit("");
     endif;
 endif;
@@ -131,8 +131,8 @@ if cmp(prop("operations.prop", "selected"), ">=", "3") &&
    getvar("modid") != ""
 then
 
-    setvar("stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
-    setvar("stat_mount_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_" + getvar("mount_switch_flag") + "_mount", getvar("modid")));
+    setvar("stat_code", exec("/tmp/bb/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
+    setvar("stat_mount_code", exec("/tmp/bb/sh", "/tmp/mmr/script/control-module.sh", "status_" + getvar("mount_switch_flag") + "_mount", getvar("modid")));
 
     if getvar("stat_code") == "2" then
         alert(
@@ -225,7 +225,7 @@ then
     endif;
     if prop("modoperations.prop", "selected") == "2" then
         pleasewait("正在获取 ...");
-        exec("/sbin/sh", "/tmp/mmr/script/get-module-tree.sh", getvar("modid"));
+        exec("/tmp/bb/sh", "/tmp/mmr/script/get-module-tree.sh", getvar("modid"));
         ini_set("text_next", "");
         ini_set("icon_next", "@none");
         textbox(
@@ -263,7 +263,7 @@ then
             "该功能为实验性功能, 不能保证可靠性.\n你确定要继续操作吗?",
             "@warning") == "yes"
         then
-            if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "exist_backup", getvar("modid")) != "0" then
+            if exec("/tmp/bb/sh", "/tmp/mmr/script/module-backup.sh", "exist_backup", getvar("modid")) != "0" then
                 if confirm(
                     "警告",
                     "已存在同名的模块备份.\n你要覆盖原有的备份吗?",
@@ -273,7 +273,7 @@ then
                 endif;
             endif;
             pleasewait("正在备份, 请稍候 ...");
-            if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "backup", getvar("modid")) == "0" then
+            if exec("/tmp/bb/sh", "/tmp/mmr/script/module-backup.sh", "backup", getvar("modid")) == "0" then
                 alert(
                     "成功",
                     "操作完成, 执行过程中没有发生错误.\n\n请注意:\n已备份模块列表需要重新打开本工具才能刷新.",
@@ -302,7 +302,7 @@ then
             back("1");
         endif;
     endif;
-    if exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", getvar("module_operate"), getvar("modid")) != "0" then
+    if exec("/tmp/bb/sh", "/tmp/mmr/script/control-module.sh", getvar("module_operate"), getvar("modid")) != "0" then
         alert(
             "失败",
             getvar("exec_buffer"),
@@ -330,7 +330,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
         "返回", "", "@back2"
     );
     if prop("advanced.prop", "selected") == "1" then
-        exec("/sbin/sh", "/tmp/mmr/script/save-rec-log.sh");
+        exec("/tmp/bb/sh", "/tmp/mmr/script/save-rec-log.sh");
         alert(
             "完成",
             "已保存 Recovery 日志到 /sdcard/recovery.log!",
@@ -342,7 +342,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
     if prop("advanced.prop", "selected") == "2" then
         cmp(getvar("MAGISK_VER_CODE"), ">", "18100") && back("1");
         pleasewait("正在执行脚本 ...");
-        if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
+        if exec("/tmp/bb/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
             alert(
                 "运行成功",
                 getvar("exec_buffer"),
@@ -418,7 +418,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
         prop("magisk_settings.prop", "selected") == "5" && back("2");
         if prop("magisk_settings.prop", "selected") == "1" then
             if cmp(getvar("MAGISK_VER_CODE"), "<", "21000") then
-                exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "switch");
+                exec("/tmp/bb/sh", "/tmp/mmr/script/core-mode.sh", "switch");
             endif;
             back("1");
         endif;
@@ -544,7 +544,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
         if getvar("bm_id") == "" then
             back("1");
         endif;
-        setvar("bm_is_deleted", exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "exist_backup", getvar("bm_id")));
+        setvar("bm_is_deleted", exec("/tmp/bb/sh", "/tmp/mmr/script/module-backup.sh", "exist_backup", getvar("bm_id")));
         if getvar("bm_is_deleted") == "0" then
             alert(
                 "注意",
@@ -571,7 +571,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
                 "你确定要恢复该模块吗?",
                 "@warning") == "yes"
             then
-                setvar("bm_stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("bm_id")));
+                setvar("bm_stat_code", exec("/tmp/bb/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("bm_id")));
                 if getvar("bm_stat_code") != "2" then
                     if confirm(
                         "警告",
@@ -582,8 +582,8 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
                     endif
                 endif;
                 pleasewait("正在恢复, 请稍候 ...");
-                if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "restore", getvar("bm_id")) == "0" then
-                    setvar("bm_stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("bm_id")));
+                if exec("/tmp/bb/sh", "/tmp/mmr/script/module-backup.sh", "restore", getvar("bm_id")) == "0" then
+                    setvar("bm_stat_code", exec("/tmp/bb/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("bm_id")));
                     if confirm(
                         "成功",
                         "操作完成, 执行过程中没有发生错误.\n\n请注意:\n" +
@@ -596,7 +596,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
                     else
                         getvar("bm_stat_code") == "1" && setvar("bm_doswitch", "1");
                     endif;
-                    getvar("bm_doswitch") == "1" && exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "switch_module", getvar("bm_id"));
+                    getvar("bm_doswitch") == "1" && exec("/tmp/bb/sh", "/tmp/mmr/script/control-module.sh", "switch_module", getvar("bm_id"));
                 else
                     alert(
                         "失败",
@@ -615,7 +615,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
                 "您确定要移除该备份吗? 此操作不可恢复!",
                 "@warning") == "yes"
             then
-                if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "remove_backup", getvar("bm_id")) != "0" then
+                if exec("/tmp/bb/sh", "/tmp/mmr/script/module-backup.sh", "remove_backup", getvar("bm_id")) != "0" then
                     alert(
                         "失败",
                         "执行过程中有错误发生, 请确认.\n\n" + getvar("exec_buffer"),
@@ -639,7 +639,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
             "重建模块图标索引文件", "", "@action",
             "返回", "", "@back2"
         );
-        prop("debug.prop", "selected") == "1" && exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh", "--regen");
+        prop("debug.prop", "selected") == "1" && exec("/tmp/bb/sh", "/tmp/mmr/script/gen-icons-prop.sh", "--regen");
     endif;
     if prop("advanced.prop", "selected") == "7" then
         menubox(
