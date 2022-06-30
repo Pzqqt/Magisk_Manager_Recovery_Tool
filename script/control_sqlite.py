@@ -80,7 +80,7 @@ class MagiskSettings:
     def _check(cls):
         if not cls.check:
             if __name__ == "__main__":
-                sys.exit(2)
+                sys.exit(-1)
             raise NotImplementedError(cls.error_message)
 
     @classmethod
