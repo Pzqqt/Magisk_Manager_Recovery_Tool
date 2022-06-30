@@ -10,12 +10,12 @@ get_useicon() {
     /tmp/mmr/script/control-module.sh status $1
     # Enable: 1, Disable: 0, Removed: 2, UpdateFlag: 3, RemoveFlag: 4 or 5
     case $? in
-        1) useicon="@default";;
-        0) useicon="@disable";;
-        2) useicon="@removed";;
-        3) useicon="@updateflag";;
-        4) useicon="@removeflag";;
-        5) useicon="@removeflag";;
+        1) echo "@default";;
+        0) echo "@disable";;
+        2) echo "@removed";;
+        3) echo "@updateflag";;
+        4) echo "@removeflag";;
+        5) echo "@removeflag";;
     esac
 }
 
@@ -24,15 +24,13 @@ get_useicon() {
 if ! [ -f $dst_prop_file ]; then
     touch $dst_prop_file
     for module in `ls_mount_path`; do
-        get_useicon $module
-        echo "module.icon.${module}=${useicon}" >> $dst_prop_file
+        echo "module.icon.${module}=$(get_useicon $module)" >> $dst_prop_file
     done
     sync
     exit 0
 fi
 
 if [ -n "$update_icon_module" ]; then
-    get_useicon $update_icon_module
-    sed -i "/^module\.icon\.${update_icon_module}=/cmodule\.icon\.${update_icon_module}=${useicon}" $dst_prop_file
+    sed -i "/^module\.icon\.${update_icon_module}=/cmodule\.icon\.${update_icon_module}=$(get_useicon $update_icon_module)" $dst_prop_file
     sync
 fi
