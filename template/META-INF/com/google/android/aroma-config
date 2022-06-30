@@ -81,12 +81,12 @@ viewbox(
 
 gotolabel("main_menu");
 
-exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh", getvar("modid"));
+exec("/tmp/bb/sh", "/tmp/mmr/script/gen-icons-prop.sh", getvar("modid"));
 setvar("modid", "");
 
 if cmp(getvar("MAGISK_VER_CODE"), "<", "21000") then
     setvar("core_only_mode_switch_text2", "MagiskSU and MagiskHide will still be enabled,\nbut no modules will be load.");
-    if exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "status") == "0" then
+    if exec("/tmp/bb/sh", "/tmp/mmr/script/core-mode.sh", "status") == "0" then
         setvar("core_only_mode_icon", "@checkbox_off");
         setvar("core_only_mode_warning", "");
     else
@@ -99,7 +99,7 @@ else
     setvar("core_only_mode_warning", "");
 endif;
 
-exec("/sbin/sh", "/tmp/mmr/script/count-modules.sh");
+exec("/tmp/bb/sh", "/tmp/mmr/script/count-modules.sh");
 
 include("operations.edify");
 
@@ -110,7 +110,7 @@ if prop("operations.prop", "selected") == "1" then
         "Are you sure want to reboot your device?",
         "@warning") == "yes"
     then
-        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
+        exec("/tmp/bb/sh", "/tmp/mmr/script/done-script.sh");
         reboot("now");
     endif;
 endif;
@@ -122,7 +122,7 @@ if prop("operations.prop", "selected") == "2" then
         "Are you sure to quit Magisk Manager Recovery Tool?",
         "@warning") == "yes"
     then
-        exec("/sbin/sh", "/tmp/mmr/script/done-script.sh");
+        exec("/tmp/bb/sh", "/tmp/mmr/script/done-script.sh");
         exit("");
     endif;
 endif;
@@ -132,8 +132,8 @@ if cmp(prop("operations.prop", "selected"), ">=", "3") &&
    getvar("modid") != ""
 then
 
-    setvar("stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
-    setvar("stat_mount_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status_" + getvar("mount_switch_flag") + "_mount", getvar("modid")));
+    setvar("stat_code", exec("/tmp/bb/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("modid")));
+    setvar("stat_mount_code", exec("/tmp/bb/sh", "/tmp/mmr/script/control-module.sh", "status_" + getvar("mount_switch_flag") + "_mount", getvar("modid")));
 
     if getvar("stat_code") == "2" then
         alert(
@@ -226,7 +226,7 @@ then
     endif;
     if prop("modoperations.prop", "selected") == "2" then
         pleasewait("Executing Shell...");
-        exec("/sbin/sh", "/tmp/mmr/script/get-module-tree.sh", getvar("modid"));
+        exec("/tmp/bb/sh", "/tmp/mmr/script/get-module-tree.sh", getvar("modid"));
         ini_set("text_next", "");
         ini_set("icon_next", "@none");
         textbox(
@@ -264,7 +264,7 @@ then
             "This function is experimental\nand cannot guarantee reliability.\n\nContinue?",
             "@warning") == "yes"
         then
-            if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "exist_backup", getvar("modid")) != "0" then
+            if exec("/tmp/bb/sh", "/tmp/mmr/script/module-backup.sh", "exist_backup", getvar("modid")) != "0" then
                 if confirm(
                     "Warning!",
                     "A backup of the module already exists.\nDo you want to overwrite?",
@@ -274,7 +274,7 @@ then
                 endif;
             endif;
             pleasewait("Backing up...");
-            if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "backup", getvar("modid")) == "0" then
+            if exec("/tmp/bb/sh", "/tmp/mmr/script/module-backup.sh", "backup", getvar("modid")) == "0" then
                 alert(
                     "Done",
                     "Operation completed, no error occurred during execution.\n\nNote:\nThe list of backed up modules needs to restart this tool to refresh.",
@@ -303,7 +303,7 @@ then
             back("1");
         endif;
     endif;
-    if exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", getvar("module_operate"), getvar("modid")) != "0" then
+    if exec("/tmp/bb/sh", "/tmp/mmr/script/control-module.sh", getvar("module_operate"), getvar("modid")) != "0" then
         alert(
             "Failed",
             getvar("exec_buffer"),
@@ -331,7 +331,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
         "Back", "", "@back2"
     );
     if prop("advanced.prop", "selected") == "1" then
-        exec("/sbin/sh", "/tmp/mmr/script/save-rec-log.sh");
+        exec("/tmp/bb/sh", "/tmp/mmr/script/save-rec-log.sh");
         alert(
             "Done",
             "Recovery log has been saved to /sdcard/recovery.log!",
@@ -343,7 +343,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
     if prop("advanced.prop", "selected") == "2" then
         cmp(getvar("MAGISK_VER_CODE"), ">", "18100") && back("1");
         pleasewait("Executing Shell...");
-        if exec("/sbin/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
+        if exec("/tmp/bb/sh", "/tmp/mmr/script/shrink-magiskimg.sh") == "0" then
             alert(
                 "Done",
                 getvar("exec_buffer"),
@@ -419,7 +419,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
         prop("magisk_settings.prop", "selected") == "5" && back("2");
         if prop("magisk_settings.prop", "selected") == "1" then
             if cmp(getvar("MAGISK_VER_CODE"), "<", "21000") then
-                exec("/sbin/sh", "/tmp/mmr/script/core-mode.sh", "switch");
+                exec("/tmp/bb/sh", "/tmp/mmr/script/core-mode.sh", "switch");
             endif;
             back("1");
         endif;
@@ -545,7 +545,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
         if getvar("bm_id") == "" then
             back("1");
         endif;
-        setvar("bm_is_deleted", exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "exist_backup", getvar("bm_id")));
+        setvar("bm_is_deleted", exec("/tmp/bb/sh", "/tmp/mmr/script/module-backup.sh", "exist_backup", getvar("bm_id")));
         if getvar("bm_is_deleted") == "0" then
             alert(
                 "Note",
@@ -572,7 +572,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
                 "Are you sure want to restore this module?",
                 "@warning") == "yes"
             then
-                setvar("bm_stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("bm_id")));
+                setvar("bm_stat_code", exec("/tmp/bb/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("bm_id")));
                 if getvar("bm_stat_code") != "2" then
                     if confirm(
                         "Warning!",
@@ -583,8 +583,8 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
                     endif
                 endif;
                 pleasewait("Recovering...");
-                if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "restore", getvar("bm_id")) == "0" then
-                    setvar("bm_stat_code", exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("bm_id")));
+                if exec("/tmp/bb/sh", "/tmp/mmr/script/module-backup.sh", "restore", getvar("bm_id")) == "0" then
+                    setvar("bm_stat_code", exec("/tmp/bb/sh", "/tmp/mmr/script/control-module.sh", "status", getvar("bm_id")));
                     if confirm(
                         "Done",
                         "Operation completed, no error occurred during execution.\n\nNote:\n" +
@@ -597,7 +597,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
                     else
                         getvar("bm_stat_code") == "1" && setvar("bm_doswitch", "1");
                     endif;
-                    getvar("bm_doswitch") == "1" && exec("/sbin/sh", "/tmp/mmr/script/control-module.sh", "switch_module", getvar("bm_id"));
+                    getvar("bm_doswitch") == "1" && exec("/tmp/bb/sh", "/tmp/mmr/script/control-module.sh", "switch_module", getvar("bm_id"));
                 else
                     alert(
                         "Failed",
@@ -616,7 +616,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
                 "Are you sure want to remove this backup?",
                 "@warning") == "yes"
             then
-                if exec("/sbin/sh", "/tmp/mmr/script/module-backup.sh", "remove_backup", getvar("bm_id")) != "0" then
+                if exec("/tmp/bb/sh", "/tmp/mmr/script/module-backup.sh", "remove_backup", getvar("bm_id")) != "0" then
                     alert(
                         "Failed",
                         "An error occurred during execution, please check.\n\n" + getvar("exec_buffer"),
@@ -640,7 +640,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
             "Force update module_icon.prop", "Regenerate module icon index file", "@action",
             "Back", "", "@back2"
         );
-        prop("debug.prop", "selected") == "1" && exec("/sbin/sh", "/tmp/mmr/script/gen-icons-prop.sh", "--regen");
+        prop("debug.prop", "selected") == "1" && exec("/tmp/bb/sh", "/tmp/mmr/script/gen-icons-prop.sh", "--regen");
     endif;
     if prop("advanced.prop", "selected") == "7" then
         menubox(
