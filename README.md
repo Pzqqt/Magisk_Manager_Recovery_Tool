@@ -40,6 +40,8 @@ It's based on [Aroma Installer](https://github.com/amarullz/AROMA-Installer).
 - [ElementalX Kernel](https://elementalx.org/devices/)(Aroma Installer theme)
 - [p7zip](https://sourceforge.net/projects/p7zip/files/p7zip/16.02/)(7za binary)
 - [tree](http://mama.indstate.edu/users/ice/tree/)(tree binary)
+- [micropython](https://github.com/micropython/micropython)(micropython binary)
+- [usqlite](https://github.com/spatialdude/usqlite)(μSQLite library module for micropython)
 
 ## License
 
