@@ -370,9 +370,9 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
         exit("");
     endif;
     if prop("advanced.prop", "selected") == "3" then
-        setvar("magiskhide_status", exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_magiskhide_status"));
-        setvar("zygisk_status", exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_zygisk_status"));
-        setvar("denylist_status", exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "get_denylist_status"));
+        setvar("magiskhide_status", exec("/tmp/mmr/bin/micropython", "/tmp/mmr/script/control_sqlite.py", "get_magiskhide_status"));
+        setvar("zygisk_status", exec("/tmp/mmr/bin/micropython", "/tmp/mmr/script/control_sqlite.py", "get_zygisk_status"));
+        setvar("denylist_status", exec("/tmp/mmr/bin/micropython", "/tmp/mmr/script/control_sqlite.py", "get_denylist_status"));
         if cmp(getvar("MAGISK_VER_CODE"), "<", "23010") then
             setvar("magiskhide_switch_text_2", "Hide Magisk from various forms of detection");
             if getvar("magiskhide_status") == "0" then
@@ -435,7 +435,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
                     "OK"
                 );
             endif;
-            if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "set_magiskhide_status", getvar("magiskhide_status_set")) != "0" then
+            if exec("/tmp/mmr/bin/micropython", "/tmp/mmr/script/control_sqlite.py", "set_magiskhide_status", getvar("magiskhide_status_set")) != "0" then
                 alert(
                     "Failed",
                     "An error occurred during execution, please check.\n\n" + getvar("exec_buffer"),
@@ -449,7 +449,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
             getvar("zygisk_status") == "2" && back("1");
             getvar("zygisk_status") == "0" && setvar("zygisk_status_set", "1");
             getvar("zygisk_status") == "1" && setvar("zygisk_status_set", "0");
-            if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "set_zygisk_status", getvar("zygisk_status_set")) != "0" then
+            if exec("/tmp/mmr/bin/micropython", "/tmp/mmr/script/control_sqlite.py", "set_zygisk_status", getvar("zygisk_status_set")) != "0" then
                 alert(
                     "Failed",
                     "An error occurred during execution, please check.\n\n" + getvar("exec_buffer"),
@@ -463,7 +463,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
             getvar("denylist_status") == "2" && back("1");
             getvar("denylist_status") == "0" && setvar("denylist_status_set", "1");
             getvar("denylist_status") == "1" && setvar("denylist_status_set", "0");
-            if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "set_denylist_status", getvar("denylist_status_set")) != "0" then
+            if exec("/tmp/mmr/bin/micropython", "/tmp/mmr/script/control_sqlite.py", "set_denylist_status", getvar("denylist_status_set")) != "0" then
                 alert(
                     "Failed",
                     "An error occurred during execution, please check.\n\n" + getvar("exec_buffer"),
@@ -488,7 +488,7 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
         prop("magisksu.prop", "selected") == "4" && back("2");
         if prop("magisksu.prop", "selected") == "1" then
             pleasewait("Executing Shell...");
-            if exec("/sbin/sh", "/tmp/mmr/script/control-sqlite.sh", "clear_su_log") == "0" then
+            if exec("/tmp/mmr/bin/micropython", "/tmp/mmr/script/control_sqlite.py", "clear_su_log") == "0" then
                 alert(
                     "Done",
                     "Operation completed, no error occurred during execution.",
@@ -507,11 +507,11 @@ if prop("operations.prop", "selected") == getvar("operations_last_index") then
         endif;
         if prop("magisksu.prop", "selected") == "2" then
             pleasewait("Generating list...");
-            exec("/sbin/sh", "/tmp/mmr/script/control-suapps.sh");
+            exec("/tmp/mmr/bin/micropython", "/tmp/mmr/script/control_suapps.py");
             ini_set("text_next", "Apply");
             include("magisksu_apps.edify");
             pleasewait("Executing Shell...");
-            if exec("/sbin/sh", "/tmp/mmr/script/control-suapps.sh", "apply_change") == "0" then
+            if exec("/tmp/mmr/bin/micropython", "/tmp/mmr/script/control_suapps.py", "apply_change") == "0" then
                 if getvar("exec_buffer") != "" then
                     alert(
                         "Done",
