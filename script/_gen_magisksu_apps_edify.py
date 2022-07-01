@@ -4,7 +4,7 @@ from control_sqlite import (
 )
 
 
-AC_3="%s/template/META-INF/com/google/android/aroma/magisksu_apps.edify" % MMRT_PATH
+AC_3 = "%s/template/META-INF/com/google/android/aroma/magisksu_apps.edify" % MMRT_PATH
 
 with open(AC_3, "w", encoding="utf-8") as f:
     f.write('''

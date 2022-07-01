@@ -12,7 +12,7 @@ else:
     from control_sqlite import get_package_name_by_uid_from_magisk_db as get_package_name_by_uid
 
 
-MAGISKSU_APPS_PROP="/tmp/aroma/magisksu_apps.prop"
+MAGISKSU_APPS_PROP = "/tmp/aroma/magisksu_apps.prop"
 
 def gen_prop():
     with open(MAGISKSU_APPS_PROP, "w", encoding="utf-8") as f:
