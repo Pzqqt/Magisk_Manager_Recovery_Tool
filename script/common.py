@@ -21,7 +21,7 @@ MAGISK_VER = file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER")
 MAGISK_VER_CODE = int(file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER_CODE"))
 
 if MAGISK_VER_CODE < 20200:
-    SULOGS_DB = "/data/adb/magisk.db"
+    SULOGS_DB = MAGISK_DB
     SULOGS_LABEL_APPNAME = 'app_name'
     SULOGS_LABEL_FROMUID = 'from_uid'
 else:

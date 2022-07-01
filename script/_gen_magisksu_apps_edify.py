@@ -20,20 +20,24 @@ with open(AC_3, "w", encoding="utf-8") as f:
         if not saved_package_name_uid_policy:
             f.write('                "看起来你尚未授权任何应用 ...", "", 2,\n')
         else:
-            for item in get_saved_package_name_uid_policy():
+            for item in saved_package_name_uid_policy:
                 package_name, uid, _ = item
                 app_name = get_app_name(uid)
                 if app_name:
                     app_name = " (%s)" % app_name
                 f.write('                "%s%s", "uid: %s", 0,\n' % (package_name, app_name, uid))
     else:
-        for item in get_saved_uid_policy():
-            uid, _ = item
-            package_name = get_package_name_by_uid(uid)
-            app_name = get_app_name(uid)
-            if app_name:
-                app_name = " (%s)" % app_name
-            f.write('                "%s%s", "uid: %s", 0,\n' % (package_name, app_name, uid))
+        saved_uid_policy = get_saved_uid_policy()
+        if not saved_uid_policy:
+            f.write('                "看起来你尚未授权任何应用 ...", "", 2,\n')
+        else:
+            for item in saved_uid_policy:
+                uid, _ = item
+                package_name = get_package_name_by_uid(uid)
+                app_name = get_app_name(uid)
+                if app_name:
+                    app_name = " (%s)" % app_name
+                f.write('                "%s%s", "uid: %s", 0,\n' % (package_name, app_name, uid))
     f.write('''
             "", "", 3
         );
