@@ -5,10 +5,10 @@ except ImportError:
 import re
 
 
-MMRT_PATH="/tmp/mmr"
-WORK_PATH="/magisk"
-MODULE_BACKUP_PATH="/sdcard/TWRP/magisk_module_backup"
-MAGISK_DB="/data/adb/magisk.db"
+MMRT_PATH = "/tmp/mmr"
+WORK_PATH = "/magisk"
+MODULE_BACKUP_PATH = "/sdcard/TWRP/magisk_module_backup"
+MAGISK_DB = "/data/adb/magisk.db"
 
 def file_getprop(f, p):
     with open(f, "r", encoding="utf-8") as _f:
@@ -17,17 +17,17 @@ def file_getprop(f, p):
                 return re_match.group(1)
         return ""
 
-MAGISK_VER=file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER")
-MAGISK_VER_CODE=int(file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER_CODE"))
+MAGISK_VER = file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER")
+MAGISK_VER_CODE = int(file_getprop("/data/adb/magisk/util_functions.sh", "MAGISK_VER_CODE"))
 
 if MAGISK_VER_CODE < 20200:
-    SULOGS_DB="/data/adb/magisk.db"
-    SULOGS_LABEL_APPNAME='app_name'
-    SULOGS_LABEL_FROMUID='from_uid'
+    SULOGS_DB = "/data/adb/magisk.db"
+    SULOGS_LABEL_APPNAME = 'app_name'
+    SULOGS_LABEL_FROMUID = 'from_uid'
 else:
-    SULOGS_DB="/data/user_de/0/com.topjohnwu.magisk/databases/sulogs.db"
-    SULOGS_LABEL_APPNAME='appName'
-    SULOGS_LABEL_FROMUID='fromUid'
+    SULOGS_DB = "/data/user_de/0/com.topjohnwu.magisk/databases/sulogs.db"
+    SULOGS_LABEL_APPNAME = 'appName'
+    SULOGS_LABEL_FROMUID = 'fromUid'
 
 def _ls(p):
     """ 列出指定目录下的所有文件, 排除'lost+found' """

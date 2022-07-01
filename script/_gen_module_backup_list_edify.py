@@ -1,7 +1,7 @@
 from common import MMRT_PATH, MODULE_BACKUP_PATH, ls_module_backup_path, get_file_size
 
 
-AC_4="%s/template/META-INF/com/google/android/aroma/module_backup_list.edify" % MMRT_PATH
+AC_4 = "%s/template/META-INF/com/google/android/aroma/module_backup_list.edify" % MMRT_PATH
 
 with open(AC_4, "w", encoding="utf-8") as f:
     f.write('''

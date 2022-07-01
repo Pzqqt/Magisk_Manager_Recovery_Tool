@@ -1,7 +1,7 @@
 from common import MMRT_PATH, WORK_PATH, file_getprop, ls_mount_path
 
 
-AC_2="%s/template/META-INF/com/google/android/aroma/operations.edify" % MMRT_PATH
+AC_2 = "%s/template/META-INF/com/google/android/aroma/operations.edify" % MMRT_PATH
 
 installed_modules = sorted(
     ls_mount_path(),
