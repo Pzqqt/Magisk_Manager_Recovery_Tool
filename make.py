@@ -13,10 +13,10 @@ INCLUDE_DIRS = ("bin", "META-INF", "script", "template")
 INCLUDE_FILES = ("LICENSE", "README.md")
 
 def local_path(*args):
-    return os.path.join(os.getcwd(), *args)
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), *args)
 
 def clean_action():
-    for f in os.listdir(os.getcwd()):
+    for f in local_path():
         if f.endswith(".zip"):
             remove_path(local_path(f))
 
@@ -85,16 +85,19 @@ def main():
             f2.write(
                 f1.read().replace("@BUILD_VERSION@", build_version).replace("@BUILD_DATE@", build_date)
             )
+    _cwd = os.getcwd()
     try:
+        os.chdir(local_path())
         with zipfile.ZipFile(archive_file, "w") as zip_:
             for d in INCLUDE_DIRS:
                 for root, dirs, files in os.walk(d):
                     for f in files:
                         zip_.write(os.path.join(root, f), compress_type=zipfile.ZIP_DEFLATED)
             for f in INCLUDE_FILES:
-                zip_.write(local_path(f), arcname=f, compress_type=zipfile.ZIP_DEFLATED)
+                zip_.write(f, arcname=f, compress_type=zipfile.ZIP_DEFLATED)
         print("\nDone! Output file:", archive_file)
     finally:
+        os.chdir(_cwd)
         remove_path(ac_file)
         file2file(local_path("aroma-config"), ac_file, move=True)
 
