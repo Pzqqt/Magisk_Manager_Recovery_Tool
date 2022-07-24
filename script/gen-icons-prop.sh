@@ -7,7 +7,7 @@ update_icon_module=$1
 dst_prop_file=/tmp/aroma/module_icon.prop
 
 get_useicon() {
-    /tmp/mmr/script/control-module.sh status $1
+    sh /tmp/mmr/script/control-module.sh status $1
     # Enable: 1, Disable: 0, Removed: 2, UpdateFlag: 3, RemoveFlag: 4 or 5
     case $? in
         1) echo "@default";;
