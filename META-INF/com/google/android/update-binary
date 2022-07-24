@@ -76,20 +76,21 @@ rm -rf $mmr_dir
 mkdir -p $mmr_dir
 cd $mmr_dir
 unzip "${zipfile}"
+cd /
 
-chmod 0755 ./bin/*
-chmod 0755 ./script/*
+chmod 0755 ${mmr_dir}/bin/*
+chmod 0755 ${mmr_dir}/script/*
 
-. ./script/common.sh
+. ${mmr_dir}/script/common.sh
 
 mkdir -p $module_backup_path
 
 if $imageless_magisk; then
     ui_print "Symlink $imagelessPath to $workPath"
-    ./script/symlink-magisk.sh $imagelessPath $workPath || abort "Error: Failed to symlink modules path!"
+    sh ${mmr_dir}/script/symlink-magisk.sh $imagelessPath $workPath || abort "Error: Failed to symlink modules path!"
 else
     ui_print "Mount $imagePath to $workPath"
-    ./script/mount-magisk.sh $imagePath $workPath || abort "Error: Failed to mount $imagePath!"
+    sh ${mmr_dir}/script/mount-magisk.sh $imagePath $workPath || abort "Error: Failed to mount $imagePath!"
 fi
 
 ui_print "Generating AROMA config"
