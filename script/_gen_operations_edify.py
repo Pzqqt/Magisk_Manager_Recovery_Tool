@@ -37,14 +37,13 @@ menubox(
 );
     ''')
     for index, module in enumerate(installed_modules, 3):
-        # TODO: No modsize
         f.write('''
 if prop("operations.prop", "selected") == "{index}" then
     setvar("modid", "{module}");
     setvar("modname", file_getprop("{WORK_PATH}/{module}/module.prop", "name") || "(未提供信息)");
-    setvar("modsize", "");
+    setvar("modsize", file_getprop("{MMRT_PATH}/modules_size.prop", "modsize_{module}") || "未知");
 endif;
-        '''.format(WORK_PATH=WORK_PATH, index=index, module=module)
+        '''.format(WORK_PATH=WORK_PATH, MMRT_PATH=MMRT_PATH, index=index, module=module)
         )
     f.write('setvar("operations_last_index", "%s");\n' % (
         len(installed_modules)+3 if installed_modules else 4

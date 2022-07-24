@@ -199,8 +199,7 @@ then
     menubox(
         "模块: " + getvar("modname"),
         "模块 ID: " + getvar("modid") + "\n" +
-        # TODO: Fix me
-        # "占用空间: " + getvar("modsize") + "\n" +
+        "占用空间: " + getvar("modsize") + "\n" +
         "挂载状态: " + getvar("module_mount_status") + "\n" +
         "模块状态: " + getvar("module_status"),
         "@welcome",

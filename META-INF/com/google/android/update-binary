@@ -97,6 +97,9 @@ ${mmr_dir}/bin/micropython ${mmr_dir}/script/_gen_operations_edify.py
 ${mmr_dir}/bin/micropython ${mmr_dir}/script/_gen_magisksu_apps_edify.py
 ${mmr_dir}/bin/micropython ${mmr_dir}/script/_gen_module_backup_list_edify.py
 
+# Get the size of each module
+sh ${mmr_dir}/script/_gen-modules-size.sh
+
 cd ${mmr_dir}/template
 ${mmr_dir}/bin/7za a -tzip -mx=0 ${mmr_dir}/aroma.zip ./META-INF || :
 [ -f ${mmr_dir}/aroma.zip ] || abort "Error: Cannot generate aroma.zip!"
