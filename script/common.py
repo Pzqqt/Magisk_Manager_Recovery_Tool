@@ -25,7 +25,7 @@ if MAGISK_VER_CODE < 20200:
     SULOGS_LABEL_APPNAME = 'app_name'
     SULOGS_LABEL_FROMUID = 'from_uid'
 else:
-    SULOGS_DB = "/data/user_de/0/com.topjohnwu.magisk/databases/sulogs.db"
+    SULOGS_DB = file_getprop("%s/sulogs_db_path.prop" % MMRT_PATH, "SULOGS_DB_PATH")
     SULOGS_LABEL_APPNAME = 'appName'
     SULOGS_LABEL_FROMUID = 'fromUid'
 
