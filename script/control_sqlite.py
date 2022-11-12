@@ -23,6 +23,8 @@ def _wrap_usqlite(db_file, sql, extra=()):
 
 def get_app_name(uid):
     """ 从保存su日志的数据库中, 通过uid获取对应app的名字(不是包名) """
+    if not SULOGS_DB:
+        return ""
     r = _wrap_usqlite(
         SULOGS_DB,
         "SELECT %s FROM logs WHERE %s=? LIMIT 1" % (SULOGS_LABEL_APPNAME, SULOGS_LABEL_FROMUID),
@@ -65,6 +67,8 @@ def get_package_name_by_uid_from_magisk_db(uid):
 
 def clear_su_log():
     """ 清空MagiskSU日志 """
+    if not SULOGS_DB:
+        return 2
     try:
         _wrap_usqlite(SULOGS_DB, "DELETE FROM logs")
         return 0
