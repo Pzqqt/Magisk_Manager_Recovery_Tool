@@ -3,12 +3,48 @@ try:
 except ImportError:
     import os
 import re
+import _stat
 
 
 MMRT_PATH = "/tmp/mmr"
 WORK_PATH = "/magisk"
 MODULE_BACKUP_PATH = "/sdcard/TWRP/magisk_module_backup"
 MAGISK_DB = "/data/adb/magisk.db"
+
+# https://github.com/micropython/micropython-lib/blob/0051a5ef50cdaf88975c2496ca32fd9b5f06050b/unix-ffi/os/os/__init__.py#L161
+def os_path_walk(top, topdown=True):
+    files = []
+    dirs = []
+    for fname, mode, _ in os.ilistdir(top):
+        if _stat.S_ISDIR(mode):
+            if fname != "." and fname != "..":
+                dirs.append(fname)
+        else:
+            files.append(fname)
+    if topdown:
+        yield top, dirs, files
+    for d in dirs:
+        yield from os_path_walk(top + "/" + d, topdown)
+    if not topdown:
+        yield top, dirs, files
+
+# https://github.com/micropython/micropython-lib/blob/0051a5ef50cdaf88975c2496ca32fd9b5f06050b/python-stdlib/os-path/os/path.py#L49
+def os_path_exists(path):
+    try:
+        os.stat(path)
+        return True
+    except OSError:
+        return False
+
+def find_sulogs_db():
+    sulogs_db_file = '/data/user_de/0/com.topjohnwu.magisk/databases/sulogs.db'
+    if os_path_exists(sulogs_db_file):
+        return sulogs_db_file
+    for root, dirs, files in os_path_walk('/data/user_de/0'):
+        for file in files:
+            if file == "sulogs.db":
+                return '/'.join([root, file])
+    return ""
 
 def file_getprop(f, p):
     with open(f, "r", encoding="utf-8") as _f:
@@ -25,7 +61,7 @@ if MAGISK_VER_CODE < 20200:
     SULOGS_LABEL_APPNAME = 'app_name'
     SULOGS_LABEL_FROMUID = 'from_uid'
 else:
-    SULOGS_DB = file_getprop("%s/sulogs_db_path.prop" % MMRT_PATH, "SULOGS_DB_PATH")
+    SULOGS_DB = find_sulogs_db()
     SULOGS_LABEL_APPNAME = 'appName'
     SULOGS_LABEL_FROMUID = 'fromUid'
 
