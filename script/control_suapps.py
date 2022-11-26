@@ -46,8 +46,7 @@ def apply_change():
     new_policies = _parse_prop(MAGISKSU_APPS_PROP)
     old_policies = _parse_prop(MAGISKSU_APPS_PROP+".bak")
     diff_policies = set(new_policies.items()) - set(old_policies.items())
-    for diff_policy in diff_policies:
-        index, value = diff_policy
+    for index, value in diff_policies:
         uid = index_to_uid[index]
         set_policy(uid, value+1)
         package_name = get_package_name_by_uid(uid)
