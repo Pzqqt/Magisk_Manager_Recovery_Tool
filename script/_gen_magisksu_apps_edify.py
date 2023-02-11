@@ -6,6 +6,12 @@ from control_sqlite import (
 
 AC_3 = "%s/template/META-INF/com/google/android/aroma/magisksu_apps.edify" % MMRT_PATH
 
+def _get_saved_package_name_uid():
+    if MAGISK_VER_CODE < 24305:
+        return [(package_name, uid) for package_name, uid, _ in get_saved_package_name_uid_policy()]
+    else:
+        return [(get_package_name_by_uid(uid), uid) for uid, _ in get_saved_uid_policy()]
+
 with open(AC_3, "w", encoding="utf-8") as f:
     f.write('''
             checkbox(
@@ -15,29 +21,20 @@ with open(AC_3, "w", encoding="utf-8") as f:
                 "magisksu_apps.prop",
     ''')
     f.write("\n")
-    if MAGISK_VER_CODE < 24305:
-        saved_package_name_uid_policy = get_saved_package_name_uid_policy()
-        if not saved_package_name_uid_policy:
-            f.write('                "看起来你尚未授权任何应用 ...", "", 2,\n')
-        else:
-            for package_name, uid, _ in saved_package_name_uid_policy:
-                app_name = get_app_name(uid)
-                if app_name:
-                    app_name = " (%s)" % app_name
-                f.write('                "%s%s", "uid: %s", 0,\n' % (package_name, app_name, uid))
+
+    saved_package_name_uid = _get_saved_package_name_uid()
+    if not saved_package_name_uid:
+        f.write('                "看起来你尚未授权任何应用 ...", "", 2,\n')
     else:
-        saved_uid_policy = get_saved_uid_policy()
-        if not saved_uid_policy:
-            f.write('                "看起来你尚未授权任何应用 ...", "", 2,\n')
-        else:
-            for uid, _ in saved_uid_policy:
-                package_name = get_package_name_by_uid(uid)
-                app_name = get_app_name(uid)
-                if app_name:
-                    app_name = " (%s)" % app_name
-                f.write('                "%s%s", "uid: %s", 0,\n' % (package_name, app_name, uid))
+        for package_name, uid in saved_package_name_uid:
+            app_name = get_app_name(uid)
+            if app_name:
+                app_name = " (%s)" % app_name
+            f.write('                "%s%s", "uid: %s", 0,\n' % (package_name, app_name, uid))
+
     f.write('''
-            "", "", 3
-        );
-    ''')
+                "", "", 3
+            );
+        '''
+    )
     f.write("\n")
