@@ -125,31 +125,36 @@ class DenyList(MagiskSettings):
     error_message = "Deny List is only available in Magisk 23010+."
 
 if __name__ == "__main__":
-    if len(sys.argv) == 2:
-        if sys.argv[1] == "clear_su_log":
-            sys.exit(clear_su_log())
-        if sys.argv[1] == "get_magiskhide_status":
-            sys.exit(MagiskHide.get())
-        if sys.argv[1] == "get_zygisk_status":
-            sys.exit(Zygisk.get())
-        if sys.argv[1] == "get_denylist_status":
-            sys.exit(DenyList.get())
-    elif len(sys.argv) == 3:
-        if sys.argv[1] == "set_magiskhide_status":
-            sys.exit(MagiskHide.set(sys.argv[2]))
-        if sys.argv[1] == "set_zygisk_status":
-            sys.exit(Zygisk.set(sys.argv[2]))
-        if sys.argv[1] == "set_denylist_status":
-            sys.exit(DenyList.set(sys.argv[2]))
-    print('''Usage: %s <operate>
 
-operate:
-    clear_su_log                  : Clear MagiskSU logs
-    set_policy <uid> <vaule>      : Change policy value
-    get_magiskhide_status         : Get Magisk Hide status (NOT for Magisk 23010+)
-    set_magiskhide_status <value> : Set Magisk Hide status (0: disable, 1: enable) (NOT for Magisk 23010+)
-    get_zygisk_status             : Get Zygisk status (only for Magisk 23010+)
-    set_zygisk_status <value>     : Set Zygisk status (0: disable, 1: enable) (only for Magisk 23010+)
-    get_denylist_status           : Get Deny List status (only for Magisk 23010+)
-    set_denylist_status <value>   : Set Deny List status (0: disable, 1: enable) (only for Magisk 23010+)
-    ''' % sys.argv[0])
+    def _main():
+        if len(sys.argv) == 2:
+            if sys.argv[1] == "clear_su_log":
+                return clear_su_log()
+            if sys.argv[1] == "get_magiskhide_status":
+                return MagiskHide.get()
+            if sys.argv[1] == "get_zygisk_status":
+                return Zygisk.get()
+            if sys.argv[1] == "get_denylist_status":
+                return DenyList.get()
+        elif len(sys.argv) == 3:
+            if sys.argv[1] == "set_magiskhide_status":
+                return MagiskHide.set(sys.argv[2])
+            if sys.argv[1] == "set_zygisk_status":
+                return Zygisk.set(sys.argv[2])
+            if sys.argv[1] == "set_denylist_status":
+                return DenyList.set(sys.argv[2])
+        print('''Usage: %s <operate>
+
+    operate:
+        clear_su_log                  : Clear MagiskSU logs
+        set_policy <uid> <vaule>      : Change policy value
+        get_magiskhide_status         : Get Magisk Hide status (NOT for Magisk 23010+)
+        set_magiskhide_status <value> : Set Magisk Hide status (0: disable, 1: enable) (NOT for Magisk 23010+)
+        get_zygisk_status             : Get Zygisk status (only for Magisk 23010+)
+        set_zygisk_status <value>     : Set Zygisk status (0: disable, 1: enable) (only for Magisk 23010+)
+        get_denylist_status           : Get Deny List status (only for Magisk 23010+)
+        set_denylist_status <value>   : Set Deny List status (0: disable, 1: enable) (only for Magisk 23010+)
+        ''' % sys.argv[0])
+        return 1
+
+    sys.exit(_main())
